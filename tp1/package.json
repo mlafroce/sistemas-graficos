@@ -1,0 +1,30 @@
+{
+  "name": "sistemas-graficos",
+  "version": "1.0.0",
+  "description": "TP Sistemas gráficos",
+  "main": "main.js",
+  "dependencies": {
+    "gl-matrix": "3.3.0"
+  },
+  "devDependencies": {
+    "connect": "^3.7.0",
+    "copy-webpack-plugin": "^11.0.0",
+    "serve-static": "^1.15.0",
+    "ts-loader": "^9.4.1",
+    "tslint": "^5.12.1",
+    "typescript": "^3.9.10",
+    "webgl-strict-types": "^1.0.5",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "watch": "webpack watch"
+  },
+  "keywords": [
+    "webgl"
+  ],
+  "author": "Matías Lafroce",
+  "license": "ISC"
+}
