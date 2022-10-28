@@ -5,14 +5,16 @@ import * as vec3 from "gl-matrix/esm/vec3";
 // @ts-ignore
 import * as vec4 from "gl-matrix/esm/vec4";
 import {CubicBezier} from "../curves/bezier";
+import {GlContext, GlProgram} from "../gl";
 import {Surface} from "./surface";
 
 export class SweepSurface extends Surface {
     private readonly points: vec3[];
 
-    constructor(gl: WebGLRenderingContext, shape: vec3[], path: CubicBezier) {
+    constructor(glContext: GlContext, shape: vec3[], path: CubicBezier) {
+        const gl = glContext.gl;
         const rows = path.points.length;
-        super(gl, rows - 1, shape.length - 1);
+        super(glContext, rows - 1, shape.length - 1);
         this.points = new Array();
         for (let i = 0; i < rows; ++i) {
             const pathMat = mat4.fromValues(
@@ -30,7 +32,7 @@ export class SweepSurface extends Surface {
         }
     }
 
-    public getCoordenadasTextura(u: number, v: number): number[] {
+    public getTextureCoords(u: number, v: number): number[] {
         return [];
     }
 
@@ -42,7 +44,7 @@ export class SweepSurface extends Surface {
         return [x, y];
     }
 
-    protected getPosicion(u: number, v: number): number[] {
+    protected getPosition(u: number, v: number): number[] {
         const pointIdx = this.getIndexFromXY(u, v);
         const point = this.points[pointIdx];
         return [... point];

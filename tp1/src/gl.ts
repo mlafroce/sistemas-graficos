@@ -85,7 +85,7 @@ export class GlProgram {
         this.program = gl.createProgram()!;
     }
 
-    public attachShader(shader: WebGLShader) : GlProgram {
+    public attachShader(shader: WebGLShader): GlProgram {
         this.gl.attachShader(this.program, shader);
         return this;
     }
@@ -101,6 +101,10 @@ export class GlProgram {
 
     public getUniformLocation(name: string): WebGLUniformLocation | null {
         return this.gl.getUniformLocation(this.program, name);
+    }
+
+    public getAttribLocation(name: string): number {
+        return this.gl.getAttribLocation(this.program, name);
     }
 }
 

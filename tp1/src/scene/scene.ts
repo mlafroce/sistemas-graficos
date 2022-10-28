@@ -1,19 +1,16 @@
 import {CubicBezier} from "../curves/bezier";
 import Polygon from "../curves/polygon";
 import {GlContext, GlProgram} from "../gl";
-import Square from "../shapes/cube";
+import Cube from "../shapes/cube";
 import {Sphere} from "../shapes/surface";
 import {SweepSurface} from "../shapes/sweepSurface";
-import {MouseCamera} from "./camera";
 
 // @ts-ignore
 import * as mat4 from "gl-matrix/esm/mat4";
 // @ts-ignore
 import * as vec3 from "gl-matrix/esm/vec3";
-
-export interface Renderable {
-    render(positionAttributeLocation: number): void ;
-}
+import {degToRad} from "../utils";
+import {CompositeObject, Renderable} from "./renderable";
 
 export interface Camera {
     getMatrix(): mat4;
@@ -35,7 +32,8 @@ export default class Scene {
 
     public render() {
         const gl = this.glContext.gl;
-        const positionAttributeLocation = gl.getAttribLocation(this.program.program, "a_position");
+        const positionAttributeLocation = this.program.getAttribLocation("a_position");
+        const modelMatrixLoc = this.program.getUniformLocation("modelMatrix");
         const cameraMatrixLoc = this.program.getUniformLocation("cameraMatrix")!;
         const projMatrixLoc = this.program.getUniformLocation("projMatrix")!;
         // Turn on the attribute
@@ -48,32 +46,49 @@ export default class Scene {
         mat4.identity(projMatrix);
         mat4.perspective(projMatrix, 45, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
 
+        const modelMatrix = mat4.create();
+        mat4.identity(modelMatrix);
+        mat4.scale(modelMatrix, modelMatrix, vec3.fromValues(1, 0.5, 0.5));
+
         gl.uniformMatrix4fv(cameraMatrixLoc, false, cameraMatrix);
         gl.uniformMatrix4fv(projMatrixLoc, false, projMatrix);
+        gl.uniformMatrix4fv(modelMatrixLoc, false, modelMatrix);
 
         for (const renderable of this.renderableList) {
-            renderable.render(positionAttributeLocation);
+            renderable.render(positionAttributeLocation, modelMatrixLoc);
         }
     }
 
     private buildRenderables() {
-        const gl = this.glContext.gl;
         const curve = new CubicBezier([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0], 20);
-        const polygon = new Polygon(gl);
+        const polygon = new Polygon(this.glContext);
         polygon.setVecPoints(curve.points);
 
-        const square = new Square(gl);
-        const sphere = new Sphere(gl, 1, 8, 8);
+        const cube = new Cube(this.glContext);
+        const sphere = new Sphere(this.glContext, 1, 8, 8);
+        sphere.build();
+        const cat = new CompositeObject(this.glContext);
+
+        const modelMatrix = mat4.create();
+        mat4.identity(modelMatrix);
+        mat4.rotate(modelMatrix, modelMatrix, degToRad(45), vec3.fromValues(1, 0, 0));
+        cube.setBaseModelMatrix(modelMatrix);
+
+        // @ts-ignore
+        cat.addChild(sphere);
+        // @ts-ignore
+        cat.addChild(cube);
         // sphere.build();
 
         const myShape = [vec3.fromValues(0.1, 0.1, 0),
                         vec3.fromValues(0.2, 0.3, 0),
                         vec3.fromValues(0.3, 0.1, 0),
                         vec3.fromValues(0.2, 0.2, 0.1)];
-        const sweepSurface = new SweepSurface(gl, myShape, curve);
+        const sweepSurface = new SweepSurface(this.glContext, myShape, curve);
         sweepSurface.build();
 
         this.renderableList.push(polygon);
         this.renderableList.push(sweepSurface);
+        this.renderableList.push(cat);
     }
 }

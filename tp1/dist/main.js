@@ -3637,30 +3637,36 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Polygon)
 /* harmony export */ });
+/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
 /* harmony import */ var _gl__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../gl */ "./src/gl.ts");
+// @ts-ignore
+
 
 class Polygon {
-    constructor(gl) {
+    constructor(glContext) {
         this.size = 3; // 3components per iteration
         this.normalize = false; // don't normalize the data
         this.stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
         this.offset = 0; // start at the beginning of the buffer
         this.bufferSize = 0;
-        this.gl = gl;
-        this.buffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(this.gl);
-        this.type = this.gl.FLOAT;
+        this.baseModelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.create();
+        this.modelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.create();
+        this.glContext = glContext;
+        this.buffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(this.glContext.gl);
+        this.type = this.glContext.gl.FLOAT;
     }
     setVecPoints(positions) {
         this.setPoints(positions.map((p) => Array.from(p)).flat());
     }
     setPoints(positions) {
-        this.buffer.bufferData(new Float32Array(positions), this.gl.STATIC_DRAW);
+        this.buffer.bufferData(new Float32Array(positions), this.glContext.gl.STATIC_DRAW);
         this.bufferSize = positions.length / this.size;
     }
     render(positionAttributeLocation) {
+        const gl = this.glContext.gl;
         this.buffer.bindBuffer();
-        this.gl.vertexAttribPointer(positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
-        this.gl.drawArrays(this.gl.LINE_STRIP, 0, this.bufferSize);
+        gl.vertexAttribPointer(positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
+        gl.drawArrays(gl.LINE_STRIP, 0, this.bufferSize);
     }
 }
 
@@ -3764,6 +3770,9 @@ class GlProgram {
     getUniformLocation(name) {
         return this.gl.getUniformLocation(this.program, name);
     }
+    getAttribLocation(name) {
+        return this.gl.getAttribLocation(this.program, name);
+    }
 }
 class GlBuffer {
     constructor(gl, bufferType = gl.ARRAY_BUFFER) {
@@ -3835,6 +3844,64 @@ class MouseCamera {
 
 /***/ }),
 
+/***/ "./src/scene/renderable.ts":
+/*!*********************************!*\
+  !*** ./src/scene/renderable.ts ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "CompositeObject": () => (/* binding */ CompositeObject)
+/* harmony export */ });
+/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+// @ts-ignore
+
+class CompositeObject {
+    constructor(glContext) {
+        this.glContext = glContext;
+        this.baseModelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_0__.create();
+        this.modelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_0__.create();
+        this.childList = new Array();
+    }
+    addChild(child) {
+        // @ts-ignore
+        if (child.updateModelMatrix) {
+            // @ts-ignore
+            child.updateModelMatrix(this.modelMatrix);
+        }
+        else {
+            console.warn("Child has no matrix");
+        }
+        this.childList.push(child);
+    }
+    setBaseModelMatrix(mMatrix) {
+        this.baseModelMatrix = mMatrix;
+    }
+    updateModelMatrix(parentMatrix) {
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_0__.multiply(this.modelMatrix, this.baseModelMatrix, parentMatrix);
+        for (const child of this.childList) {
+            // @ts-ignore
+            if (child.updateModelMatrix) {
+                // @ts-ignore
+                child.updateModelMatrix(this.modelMatrix);
+            }
+            else {
+                console.warn("Child has no matrix");
+            }
+        }
+    }
+    render(positionAttributeLocation, modelMatrixLoc) {
+        for (const child of this.childList) {
+            this.glContext.gl.uniformMatrix4fv(modelMatrixLoc, false, this.modelMatrix);
+            child.render(positionAttributeLocation, modelMatrixLoc);
+        }
+    }
+}
+
+
+/***/ }),
+
 /***/ "./src/scene/scene.ts":
 /*!****************************!*\
   !*** ./src/scene/scene.ts ***!
@@ -3850,8 +3917,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _shapes_cube__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../shapes/cube */ "./src/shapes/cube.ts");
 /* harmony import */ var _shapes_surface__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../shapes/surface */ "./src/shapes/surface.ts");
 /* harmony import */ var _shapes_sweepSurface__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../shapes/sweepSurface */ "./src/shapes/sweepSurface.ts");
-/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
-/* harmony import */ var gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! gl-matrix/esm/vec3 */ "./node_modules/gl-matrix/esm/vec3.js");
+/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! gl-matrix/esm/vec3 */ "./node_modules/gl-matrix/esm/vec3.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils */ "./src/utils.ts");
+/* harmony import */ var _renderable__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./renderable */ "./src/scene/renderable.ts");
 
 
 
@@ -3860,6 +3929,8 @@ __webpack_require__.r(__webpack_exports__);
 // @ts-ignore
 
 // @ts-ignore
+
+
 
 class Scene {
     constructor(gl, program, camera) {
@@ -3871,38 +3942,53 @@ class Scene {
     }
     render() {
         const gl = this.glContext.gl;
-        const positionAttributeLocation = gl.getAttribLocation(this.program.program, "a_position");
+        const positionAttributeLocation = this.program.getAttribLocation("a_position");
+        const modelMatrixLoc = this.program.getUniformLocation("modelMatrix");
         const cameraMatrixLoc = this.program.getUniformLocation("cameraMatrix");
         const projMatrixLoc = this.program.getUniformLocation("projMatrix");
         // Turn on the attribute
         gl.enableVertexAttribArray(positionAttributeLocation);
         // draw
         const cameraMatrix = this.camera.getMatrix();
-        const projMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.identity(projMatrix);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.perspective(projMatrix, 45, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
+        const projMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__.identity(projMatrix);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__.perspective(projMatrix, 45, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
+        const modelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__.identity(modelMatrix);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__.scale(modelMatrix, modelMatrix, gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_8__.fromValues(1, 0.5, 0.5));
         gl.uniformMatrix4fv(cameraMatrixLoc, false, cameraMatrix);
         gl.uniformMatrix4fv(projMatrixLoc, false, projMatrix);
+        gl.uniformMatrix4fv(modelMatrixLoc, false, modelMatrix);
         for (const renderable of this.renderableList) {
-            renderable.render(positionAttributeLocation);
+            renderable.render(positionAttributeLocation, modelMatrixLoc);
         }
     }
     buildRenderables() {
-        const gl = this.glContext.gl;
         const curve = new _curves_bezier__WEBPACK_IMPORTED_MODULE_0__.CubicBezier([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0], 20);
-        const polygon = new _curves_polygon__WEBPACK_IMPORTED_MODULE_1__["default"](gl);
+        const polygon = new _curves_polygon__WEBPACK_IMPORTED_MODULE_1__["default"](this.glContext);
         polygon.setVecPoints(curve.points);
-        const square = new _shapes_cube__WEBPACK_IMPORTED_MODULE_2__["default"](gl);
-        const sphere = new _shapes_surface__WEBPACK_IMPORTED_MODULE_3__.Sphere(gl, 1, 8, 8);
+        const cube = new _shapes_cube__WEBPACK_IMPORTED_MODULE_2__["default"](this.glContext);
+        const sphere = new _shapes_surface__WEBPACK_IMPORTED_MODULE_3__.Sphere(this.glContext, 1, 8, 8);
+        sphere.build();
+        const cat = new _renderable__WEBPACK_IMPORTED_MODULE_6__.CompositeObject(this.glContext);
+        const modelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__.identity(modelMatrix);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__.rotate(modelMatrix, modelMatrix, (0,_utils__WEBPACK_IMPORTED_MODULE_5__.degToRad)(45), gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_8__.fromValues(1, 0, 0));
+        cube.setBaseModelMatrix(modelMatrix);
+        // @ts-ignore
+        cat.addChild(sphere);
+        // @ts-ignore
+        cat.addChild(cube);
         // sphere.build();
-        const myShape = [gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_6__.fromValues(0.1, 0.1, 0),
-            gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_6__.fromValues(0.2, 0.3, 0),
-            gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_6__.fromValues(0.3, 0.1, 0),
-            gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_6__.fromValues(0.2, 0.2, 0.1)];
-        const sweepSurface = new _shapes_sweepSurface__WEBPACK_IMPORTED_MODULE_4__.SweepSurface(gl, myShape, curve);
+        const myShape = [gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_8__.fromValues(0.1, 0.1, 0),
+            gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_8__.fromValues(0.2, 0.3, 0),
+            gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_8__.fromValues(0.3, 0.1, 0),
+            gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_8__.fromValues(0.2, 0.2, 0.1)];
+        const sweepSurface = new _shapes_sweepSurface__WEBPACK_IMPORTED_MODULE_4__.SweepSurface(this.glContext, myShape, curve);
         sweepSurface.build();
         this.renderableList.push(polygon);
         this.renderableList.push(sweepSurface);
+        this.renderableList.push(cat);
     }
 }
 
@@ -3917,21 +4003,27 @@ class Scene {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ Square)
+/* harmony export */   "default": () => (/* binding */ Cube)
 /* harmony export */ });
 /* harmony import */ var _gl__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../gl */ "./src/gl.ts");
+/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
 
-class Square {
-    constructor(gl) {
+// @ts-ignore
+
+class Cube {
+    constructor(glContext) {
+        this.baseModelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.create();
+        this.modelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.create();
         this.size = 3; // 3components per iteration
         this.normalize = false; // don't normalize the data
         this.stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
         this.offset = 0; // start at the beginning of the buffer
         this.indexes = [0, 1, 2, 3, 6, 7, 7, 3, 5, 1, 4, 0, 0, 2, 4, 6, 5, 7];
-        this.gl = gl;
-        this.type = this.gl.FLOAT;
-        this.buffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(this.gl);
-        this.indexBuffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(this.gl, gl.ELEMENT_ARRAY_BUFFER);
+        this.glContext = glContext;
+        const gl = glContext.gl;
+        this.type = gl.FLOAT;
+        this.buffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(gl);
+        this.indexBuffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(gl, gl.ELEMENT_ARRAY_BUFFER);
         const positions = [
             0, 0, 0,
             0, 0, 1,
@@ -3942,16 +4034,24 @@ class Square {
             1, 1, 0,
             1, 1, 1,
         ];
-        this.buffer.bufferData(new Float32Array(positions), this.gl.STATIC_DRAW);
-        this.indexBuffer.bufferData(new Uint16Array(this.indexes), this.gl.STATIC_DRAW);
+        this.buffer.bufferData(new Float32Array(positions), gl.STATIC_DRAW);
+        this.indexBuffer.bufferData(new Uint16Array(this.indexes), gl.STATIC_DRAW);
         this.bufferSize = positions.length / this.size;
     }
-    render(positionAttributeLocation) {
+    setBaseModelMatrix(mMatrix) {
+        this.baseModelMatrix = mMatrix;
+    }
+    updateModelMatrix(parentMatrix) {
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.multiply(this.modelMatrix, this.baseModelMatrix, parentMatrix);
+    }
+    render(positionAttributeLocation, modelMatrixLoc) {
+        const gl = this.glContext.gl;
         this.buffer.bindBuffer();
         this.indexBuffer.bindBuffer();
-        this.gl.vertexAttribPointer(positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
-        // this.gl.drawElements(this.gl.TRIANGLE_STRIP, this.indexes.length, this.gl.UNSIGNED_SHORT, 0);
-        this.gl.drawElements(this.gl.LINE_STRIP, this.indexes.length, this.gl.UNSIGNED_SHORT, 0);
+        gl.vertexAttribPointer(positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
+        gl.uniformMatrix4fv(modelMatrixLoc, false, this.modelMatrix);
+        gl.drawElements(gl.TRIANGLE_STRIP, this.indexes.length, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.LINE_STRIP, this.indexes.length, gl.UNSIGNED_SHORT, 0);
     }
 }
 
@@ -3972,17 +4072,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _gl__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../gl */ "./src/gl.ts");
 
 class Surface {
-    constructor(gl, filas, columnas) {
+    constructor(glContext, filas, columnas) {
         this.size = 3; // 3components per iteration
         this.normalize = false; // don't normalize the data
         this.stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
         this.offset = 0; // start at the beginning of the buffer
-        this.gl = gl;
-        this.type = this.gl.FLOAT;
-        this.positionBuffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(this.gl);
-        this.normalBuffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(this.gl);
-        this.uvBuffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(this.gl);
-        this.indexBuffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(this.gl, gl.ELEMENT_ARRAY_BUFFER);
+        this.glContext = glContext;
+        const gl = this.glContext.gl;
+        this.type = gl.FLOAT;
+        this.positionBuffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(gl);
+        this.normalBuffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(gl);
+        this.uvBuffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(gl);
+        this.indexBuffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(gl, gl.ELEMENT_ARRAY_BUFFER);
         this.indexesSize = 0;
         this.filas = filas;
         this.columnas = columnas;
@@ -3992,11 +4093,12 @@ class Surface {
         this.generateIndexArray(this.filas, this.columnas);
     }
     render(positionAttributeLocation) {
+        const gl = this.glContext.gl;
         this.positionBuffer.bindBuffer();
         this.indexBuffer.bindBuffer();
-        this.gl.vertexAttribPointer(positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
-        this.gl.drawElements(this.gl.TRIANGLE_STRIP, this.indexesSize, this.gl.UNSIGNED_SHORT, 0);
-        this.gl.drawElements(this.gl.LINE_STRIP, this.indexesSize, this.gl.UNSIGNED_SHORT, 0);
+        gl.vertexAttribPointer(positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
+        gl.drawElements(gl.TRIANGLE_STRIP, this.indexesSize, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.LINE_STRIP, this.indexesSize, gl.UNSIGNED_SHORT, 0);
     }
     generateSurface(filas, columnas) {
         const positionArray = [];
@@ -4005,7 +4107,7 @@ class Surface {
         for (let i = 0; i <= filas; i++) {
             for (let j = 0; j <= columnas; j++) {
                 const uv = this.getUV(j, i);
-                const pos = this.getPosicion(uv[0], uv[1]);
+                const pos = this.getPosition(uv[0], uv[1]);
                 positionArray.push(pos[0]);
                 positionArray.push(pos[1]);
                 positionArray.push(pos[2]);
@@ -4013,14 +4115,15 @@ class Surface {
                 normalArray.push(nrm[0]);
                 normalArray.push(nrm[1]);
                 normalArray.push(nrm[2]);
-                const uvs = this.getCoordenadasTextura(uv[0], uv[1]);
+                const uvs = this.getTextureCoords(uv[0], uv[1]);
                 uvArray.push(uvs[0]);
                 uvArray.push(uvs[1]);
             }
         }
-        this.positionBuffer.bufferData(new Float32Array(positionArray), this.gl.STATIC_DRAW);
-        this.normalBuffer.bufferData(new Float32Array(normalArray), this.gl.STATIC_DRAW);
-        this.uvBuffer.bufferData(new Float32Array(uvArray), this.gl.STATIC_DRAW);
+        const gl = this.glContext.gl;
+        this.positionBuffer.bufferData(new Float32Array(positionArray), gl.STATIC_DRAW);
+        this.normalBuffer.bufferData(new Float32Array(normalArray), gl.STATIC_DRAW);
+        this.uvBuffer.bufferData(new Float32Array(uvArray), gl.STATIC_DRAW);
     }
     generateIndexArray(filas, columnas) {
         const indexArray = [];
@@ -4035,7 +4138,7 @@ class Surface {
             }
         }
         this.indexesSize = indexArray.length;
-        this.indexBuffer.bufferData(new Uint16Array(indexArray), this.gl.STATIC_DRAW);
+        this.indexBuffer.bufferData(new Uint16Array(indexArray), this.glContext.gl.STATIC_DRAW);
     }
     getUV(x, y) {
         return [x / this.columnas, y / this.filas];
@@ -4045,11 +4148,11 @@ class Surface {
     }
 }
 class Sphere extends Surface {
-    constructor(gl, radio, filas, columnas) {
-        super(gl, filas, columnas);
+    constructor(glContext, radio, filas, columnas) {
+        super(glContext, filas, columnas);
         this.radio = radio;
     }
-    getPosicion(u, v) {
+    getPosition(u, v) {
         const centerU = u - 0.5;
         const centerV = v - 0.5;
         const x = this.radio * Math.cos(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
@@ -4065,7 +4168,7 @@ class Sphere extends Surface {
         const z = Math.sin(Math.PI * centerV);
         return [x, y, z];
     }
-    getCoordenadasTextura(u, v) {
+    getTextureCoords(u, v) {
         return [u, v];
     }
 }
@@ -4095,9 +4198,10 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class SweepSurface extends _surface__WEBPACK_IMPORTED_MODULE_0__.Surface {
-    constructor(gl, shape, path) {
+    constructor(glContext, shape, path) {
+        const gl = glContext.gl;
         const rows = path.points.length;
-        super(gl, rows - 1, shape.length - 1);
+        super(glContext, rows - 1, shape.length - 1);
         this.points = new Array();
         for (let i = 0; i < rows; ++i) {
             const pathMat = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.fromValues(...path.normals[i], 0, ...path.binormals[i], 0, ...path.tangents[i], 0, ...path.points[i], 1);
@@ -4110,7 +4214,7 @@ class SweepSurface extends _surface__WEBPACK_IMPORTED_MODULE_0__.Surface {
             }
         }
     }
-    getCoordenadasTextura(u, v) {
+    getTextureCoords(u, v) {
         return [];
     }
     getNormal(u, v) {
@@ -4119,11 +4223,28 @@ class SweepSurface extends _surface__WEBPACK_IMPORTED_MODULE_0__.Surface {
     getUV(x, y) {
         return [x, y];
     }
-    getPosicion(u, v) {
+    getPosition(u, v) {
         const pointIdx = this.getIndexFromXY(u, v);
         const point = this.points[pointIdx];
         return [...point];
     }
+}
+
+
+/***/ }),
+
+/***/ "./src/utils.ts":
+/*!**********************!*\
+  !*** ./src/utils.ts ***!
+  \**********************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "degToRad": () => (/* binding */ degToRad)
+/* harmony export */ });
+function degToRad(degrees) {
+    return degrees * (Math.PI / 180);
 }
 
 

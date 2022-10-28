@@ -1,5 +1,7 @@
-import { GlBuffer } from "../gl";
-import {Renderable} from "../scene/scene";
+import {GlBuffer, GlContext} from "../gl";
+// @ts-ignore
+import * as mat4 from "gl-matrix/esm/mat4";
+import {Renderable} from "../scene/renderable";
 
 export abstract class Surface implements Renderable {
     private readonly size = 3;          // 3components per iteration
@@ -8,7 +10,7 @@ export abstract class Surface implements Renderable {
     private readonly stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
     private readonly offset = 0;        // start at the beginning of the buffer
 
-    private readonly gl: WebGLRenderingContext;
+    public readonly glContext: GlContext;
     private positionBuffer: GlBuffer;
     private normalBuffer: GlBuffer;
     private uvBuffer: GlBuffer;
@@ -17,13 +19,14 @@ export abstract class Surface implements Renderable {
     protected filas: number;
     protected columnas: number;
 
-    protected constructor(gl: WebGLRenderingContext, filas: number, columnas: number) {
-        this.gl = gl;
-        this.type = this.gl.FLOAT;
-        this.positionBuffer = new GlBuffer(this.gl);
-        this.normalBuffer = new GlBuffer(this.gl);
-        this.uvBuffer = new GlBuffer(this.gl);
-        this.indexBuffer = new GlBuffer(this.gl, gl.ELEMENT_ARRAY_BUFFER);
+    protected constructor(glContext: GlContext, filas: number, columnas: number) {
+        this.glContext = glContext;
+        const gl = this.glContext.gl;
+        this.type = gl.FLOAT;
+        this.positionBuffer = new GlBuffer(gl);
+        this.normalBuffer = new GlBuffer(gl);
+        this.uvBuffer = new GlBuffer(gl);
+        this.indexBuffer = new GlBuffer(gl, gl.ELEMENT_ARRAY_BUFFER);
         this.indexesSize = 0;
         this.filas = filas;
         this.columnas = columnas;
@@ -34,19 +37,20 @@ export abstract class Surface implements Renderable {
         this.generateIndexArray(this.filas, this.columnas);
     }
 
-    protected abstract getPosicion(u: number, v: number): number[];
+    protected abstract getPosition(u: number, v: number): number[];
 
     protected abstract getNormal(u: number, v: number): number[];
 
-    protected abstract getCoordenadasTextura(u: number, v: number): number[];
+    protected abstract getTextureCoords(u: number, v: number): number[];
 
     public render(positionAttributeLocation: number) {
+        const gl = this.glContext.gl;
         this.positionBuffer.bindBuffer();
         this.indexBuffer.bindBuffer();
-        this.gl.vertexAttribPointer(
+        gl.vertexAttribPointer(
             positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
-        this.gl.drawElements(this.gl.TRIANGLE_STRIP, this.indexesSize, this.gl.UNSIGNED_SHORT, 0);
-        this.gl.drawElements(this.gl.LINE_STRIP, this.indexesSize, this.gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLE_STRIP, this.indexesSize, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.LINE_STRIP, this.indexesSize, gl.UNSIGNED_SHORT, 0);
     }
 
     private generateSurface(filas: number, columnas: number) {
@@ -56,7 +60,7 @@ export abstract class Surface implements Renderable {
         for (let i = 0; i <= filas; i++) {
             for (let j = 0; j <= columnas; j++) {
                 const uv = this.getUV(j, i);
-                const pos = this.getPosicion(uv[0], uv[1]);
+                const pos = this.getPosition(uv[0], uv[1]);
 
                 positionArray.push(pos[0]);
                 positionArray.push(pos[1]);
@@ -68,15 +72,16 @@ export abstract class Surface implements Renderable {
                 normalArray.push(nrm[1]);
                 normalArray.push(nrm[2]);
 
-                const uvs = this.getCoordenadasTextura(uv[0], uv[1]);
+                const uvs = this.getTextureCoords(uv[0], uv[1]);
 
                 uvArray.push(uvs[0]);
                 uvArray.push(uvs[1]);
             }
         }
-        this.positionBuffer.bufferData(new Float32Array(positionArray), this.gl.STATIC_DRAW);
-        this.normalBuffer.bufferData(new Float32Array(normalArray), this.gl.STATIC_DRAW);
-        this.uvBuffer.bufferData(new Float32Array(uvArray), this.gl.STATIC_DRAW);
+        const gl = this.glContext.gl;
+        this.positionBuffer.bufferData(new Float32Array(positionArray), gl.STATIC_DRAW);
+        this.normalBuffer.bufferData(new Float32Array(normalArray), gl.STATIC_DRAW);
+        this.uvBuffer.bufferData(new Float32Array(uvArray), gl.STATIC_DRAW);
     }
 
     private generateIndexArray(filas: number, columnas: number) {
@@ -93,7 +98,7 @@ export abstract class Surface implements Renderable {
             }
         }
         this.indexesSize = indexArray.length;
-        this.indexBuffer.bufferData(new Uint16Array(indexArray), this.gl.STATIC_DRAW);
+        this.indexBuffer.bufferData(new Uint16Array(indexArray), this.glContext.gl.STATIC_DRAW);
     }
 
     protected getUV(x: number, y: number): number[] {
@@ -108,12 +113,12 @@ export abstract class Surface implements Renderable {
 export class Sphere extends Surface {
     private readonly radio: number;
 
-    constructor(gl: WebGLRenderingContext, radio: number, filas: number, columnas: number) {
-        super(gl, filas, columnas);
+    constructor(glContext: GlContext, radio: number, filas: number, columnas: number) {
+        super(glContext, filas, columnas);
         this.radio = radio;
     }
 
-    protected getPosicion(u: number, v: number): number[] {
+    protected getPosition(u: number, v: number): number[] {
         const centerU = u - 0.5;
         const centerV = v - 0.5;
         const x = this.radio * Math.cos(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
@@ -131,7 +136,7 @@ export class Sphere extends Surface {
         return [x, y, z];
     }
 
-    public getCoordenadasTextura(u: number, v: number): number[]{
+    public getTextureCoords(u: number, v: number): number[] {
         return [u, v];
     }
 }
