@@ -2792,723 +2792,6 @@ var forEach = function () {
 
 /***/ }),
 
-/***/ "./node_modules/gl-matrix/esm/vec4.js":
-/*!********************************************!*\
-  !*** ./node_modules/gl-matrix/esm/vec4.js ***!
-  \********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "add": () => (/* binding */ add),
-/* harmony export */   "ceil": () => (/* binding */ ceil),
-/* harmony export */   "clone": () => (/* binding */ clone),
-/* harmony export */   "copy": () => (/* binding */ copy),
-/* harmony export */   "create": () => (/* binding */ create),
-/* harmony export */   "cross": () => (/* binding */ cross),
-/* harmony export */   "dist": () => (/* binding */ dist),
-/* harmony export */   "distance": () => (/* binding */ distance),
-/* harmony export */   "div": () => (/* binding */ div),
-/* harmony export */   "divide": () => (/* binding */ divide),
-/* harmony export */   "dot": () => (/* binding */ dot),
-/* harmony export */   "equals": () => (/* binding */ equals),
-/* harmony export */   "exactEquals": () => (/* binding */ exactEquals),
-/* harmony export */   "floor": () => (/* binding */ floor),
-/* harmony export */   "forEach": () => (/* binding */ forEach),
-/* harmony export */   "fromValues": () => (/* binding */ fromValues),
-/* harmony export */   "inverse": () => (/* binding */ inverse),
-/* harmony export */   "len": () => (/* binding */ len),
-/* harmony export */   "length": () => (/* binding */ length),
-/* harmony export */   "lerp": () => (/* binding */ lerp),
-/* harmony export */   "max": () => (/* binding */ max),
-/* harmony export */   "min": () => (/* binding */ min),
-/* harmony export */   "mul": () => (/* binding */ mul),
-/* harmony export */   "multiply": () => (/* binding */ multiply),
-/* harmony export */   "negate": () => (/* binding */ negate),
-/* harmony export */   "normalize": () => (/* binding */ normalize),
-/* harmony export */   "random": () => (/* binding */ random),
-/* harmony export */   "round": () => (/* binding */ round),
-/* harmony export */   "scale": () => (/* binding */ scale),
-/* harmony export */   "scaleAndAdd": () => (/* binding */ scaleAndAdd),
-/* harmony export */   "set": () => (/* binding */ set),
-/* harmony export */   "sqrDist": () => (/* binding */ sqrDist),
-/* harmony export */   "sqrLen": () => (/* binding */ sqrLen),
-/* harmony export */   "squaredDistance": () => (/* binding */ squaredDistance),
-/* harmony export */   "squaredLength": () => (/* binding */ squaredLength),
-/* harmony export */   "str": () => (/* binding */ str),
-/* harmony export */   "sub": () => (/* binding */ sub),
-/* harmony export */   "subtract": () => (/* binding */ subtract),
-/* harmony export */   "transformMat4": () => (/* binding */ transformMat4),
-/* harmony export */   "transformQuat": () => (/* binding */ transformQuat),
-/* harmony export */   "zero": () => (/* binding */ zero)
-/* harmony export */ });
-/* harmony import */ var _common_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./common.js */ "./node_modules/gl-matrix/esm/common.js");
-
-/**
- * 4 Dimensional Vector
- * @module vec4
- */
-
-/**
- * Creates a new, empty vec4
- *
- * @returns {vec4} a new 4D vector
- */
-
-function create() {
-  var out = new _common_js__WEBPACK_IMPORTED_MODULE_0__.ARRAY_TYPE(4);
-
-  if (_common_js__WEBPACK_IMPORTED_MODULE_0__.ARRAY_TYPE != Float32Array) {
-    out[0] = 0;
-    out[1] = 0;
-    out[2] = 0;
-    out[3] = 0;
-  }
-
-  return out;
-}
-/**
- * Creates a new vec4 initialized with values from an existing vector
- *
- * @param {ReadonlyVec4} a vector to clone
- * @returns {vec4} a new 4D vector
- */
-
-function clone(a) {
-  var out = new _common_js__WEBPACK_IMPORTED_MODULE_0__.ARRAY_TYPE(4);
-  out[0] = a[0];
-  out[1] = a[1];
-  out[2] = a[2];
-  out[3] = a[3];
-  return out;
-}
-/**
- * Creates a new vec4 initialized with the given values
- *
- * @param {Number} x X component
- * @param {Number} y Y component
- * @param {Number} z Z component
- * @param {Number} w W component
- * @returns {vec4} a new 4D vector
- */
-
-function fromValues(x, y, z, w) {
-  var out = new _common_js__WEBPACK_IMPORTED_MODULE_0__.ARRAY_TYPE(4);
-  out[0] = x;
-  out[1] = y;
-  out[2] = z;
-  out[3] = w;
-  return out;
-}
-/**
- * Copy the values from one vec4 to another
- *
- * @param {vec4} out the receiving vector
- * @param {ReadonlyVec4} a the source vector
- * @returns {vec4} out
- */
-
-function copy(out, a) {
-  out[0] = a[0];
-  out[1] = a[1];
-  out[2] = a[2];
-  out[3] = a[3];
-  return out;
-}
-/**
- * Set the components of a vec4 to the given values
- *
- * @param {vec4} out the receiving vector
- * @param {Number} x X component
- * @param {Number} y Y component
- * @param {Number} z Z component
- * @param {Number} w W component
- * @returns {vec4} out
- */
-
-function set(out, x, y, z, w) {
-  out[0] = x;
-  out[1] = y;
-  out[2] = z;
-  out[3] = w;
-  return out;
-}
-/**
- * Adds two vec4's
- *
- * @param {vec4} out the receiving vector
- * @param {ReadonlyVec4} a the first operand
- * @param {ReadonlyVec4} b the second operand
- * @returns {vec4} out
- */
-
-function add(out, a, b) {
-  out[0] = a[0] + b[0];
-  out[1] = a[1] + b[1];
-  out[2] = a[2] + b[2];
-  out[3] = a[3] + b[3];
-  return out;
-}
-/**
- * Subtracts vector b from vector a
- *
- * @param {vec4} out the receiving vector
- * @param {ReadonlyVec4} a the first operand
- * @param {ReadonlyVec4} b the second operand
- * @returns {vec4} out
- */
-
-function subtract(out, a, b) {
-  out[0] = a[0] - b[0];
-  out[1] = a[1] - b[1];
-  out[2] = a[2] - b[2];
-  out[3] = a[3] - b[3];
-  return out;
-}
-/**
- * Multiplies two vec4's
- *
- * @param {vec4} out the receiving vector
- * @param {ReadonlyVec4} a the first operand
- * @param {ReadonlyVec4} b the second operand
- * @returns {vec4} out
- */
-
-function multiply(out, a, b) {
-  out[0] = a[0] * b[0];
-  out[1] = a[1] * b[1];
-  out[2] = a[2] * b[2];
-  out[3] = a[3] * b[3];
-  return out;
-}
-/**
- * Divides two vec4's
- *
- * @param {vec4} out the receiving vector
- * @param {ReadonlyVec4} a the first operand
- * @param {ReadonlyVec4} b the second operand
- * @returns {vec4} out
- */
-
-function divide(out, a, b) {
-  out[0] = a[0] / b[0];
-  out[1] = a[1] / b[1];
-  out[2] = a[2] / b[2];
-  out[3] = a[3] / b[3];
-  return out;
-}
-/**
- * Math.ceil the components of a vec4
- *
- * @param {vec4} out the receiving vector
- * @param {ReadonlyVec4} a vector to ceil
- * @returns {vec4} out
- */
-
-function ceil(out, a) {
-  out[0] = Math.ceil(a[0]);
-  out[1] = Math.ceil(a[1]);
-  out[2] = Math.ceil(a[2]);
-  out[3] = Math.ceil(a[3]);
-  return out;
-}
-/**
- * Math.floor the components of a vec4
- *
- * @param {vec4} out the receiving vector
- * @param {ReadonlyVec4} a vector to floor
- * @returns {vec4} out
- */
-
-function floor(out, a) {
-  out[0] = Math.floor(a[0]);
-  out[1] = Math.floor(a[1]);
-  out[2] = Math.floor(a[2]);
-  out[3] = Math.floor(a[3]);
-  return out;
-}
-/**
- * Returns the minimum of two vec4's
- *
- * @param {vec4} out the receiving vector
- * @param {ReadonlyVec4} a the first operand
- * @param {ReadonlyVec4} b the second operand
- * @returns {vec4} out
- */
-
-function min(out, a, b) {
-  out[0] = Math.min(a[0], b[0]);
-  out[1] = Math.min(a[1], b[1]);
-  out[2] = Math.min(a[2], b[2]);
-  out[3] = Math.min(a[3], b[3]);
-  return out;
-}
-/**
- * Returns the maximum of two vec4's
- *
- * @param {vec4} out the receiving vector
- * @param {ReadonlyVec4} a the first operand
- * @param {ReadonlyVec4} b the second operand
- * @returns {vec4} out
- */
-
-function max(out, a, b) {
-  out[0] = Math.max(a[0], b[0]);
-  out[1] = Math.max(a[1], b[1]);
-  out[2] = Math.max(a[2], b[2]);
-  out[3] = Math.max(a[3], b[3]);
-  return out;
-}
-/**
- * Math.round the components of a vec4
- *
- * @param {vec4} out the receiving vector
- * @param {ReadonlyVec4} a vector to round
- * @returns {vec4} out
- */
-
-function round(out, a) {
-  out[0] = Math.round(a[0]);
-  out[1] = Math.round(a[1]);
-  out[2] = Math.round(a[2]);
-  out[3] = Math.round(a[3]);
-  return out;
-}
-/**
- * Scales a vec4 by a scalar number
- *
- * @param {vec4} out the receiving vector
- * @param {ReadonlyVec4} a the vector to scale
- * @param {Number} b amount to scale the vector by
- * @returns {vec4} out
- */
-
-function scale(out, a, b) {
-  out[0] = a[0] * b;
-  out[1] = a[1] * b;
-  out[2] = a[2] * b;
-  out[3] = a[3] * b;
-  return out;
-}
-/**
- * Adds two vec4's after scaling the second operand by a scalar value
- *
- * @param {vec4} out the receiving vector
- * @param {ReadonlyVec4} a the first operand
- * @param {ReadonlyVec4} b the second operand
- * @param {Number} scale the amount to scale b by before adding
- * @returns {vec4} out
- */
-
-function scaleAndAdd(out, a, b, scale) {
-  out[0] = a[0] + b[0] * scale;
-  out[1] = a[1] + b[1] * scale;
-  out[2] = a[2] + b[2] * scale;
-  out[3] = a[3] + b[3] * scale;
-  return out;
-}
-/**
- * Calculates the euclidian distance between two vec4's
- *
- * @param {ReadonlyVec4} a the first operand
- * @param {ReadonlyVec4} b the second operand
- * @returns {Number} distance between a and b
- */
-
-function distance(a, b) {
-  var x = b[0] - a[0];
-  var y = b[1] - a[1];
-  var z = b[2] - a[2];
-  var w = b[3] - a[3];
-  return Math.hypot(x, y, z, w);
-}
-/**
- * Calculates the squared euclidian distance between two vec4's
- *
- * @param {ReadonlyVec4} a the first operand
- * @param {ReadonlyVec4} b the second operand
- * @returns {Number} squared distance between a and b
- */
-
-function squaredDistance(a, b) {
-  var x = b[0] - a[0];
-  var y = b[1] - a[1];
-  var z = b[2] - a[2];
-  var w = b[3] - a[3];
-  return x * x + y * y + z * z + w * w;
-}
-/**
- * Calculates the length of a vec4
- *
- * @param {ReadonlyVec4} a vector to calculate length of
- * @returns {Number} length of a
- */
-
-function length(a) {
-  var x = a[0];
-  var y = a[1];
-  var z = a[2];
-  var w = a[3];
-  return Math.hypot(x, y, z, w);
-}
-/**
- * Calculates the squared length of a vec4
- *
- * @param {ReadonlyVec4} a vector to calculate squared length of
- * @returns {Number} squared length of a
- */
-
-function squaredLength(a) {
-  var x = a[0];
-  var y = a[1];
-  var z = a[2];
-  var w = a[3];
-  return x * x + y * y + z * z + w * w;
-}
-/**
- * Negates the components of a vec4
- *
- * @param {vec4} out the receiving vector
- * @param {ReadonlyVec4} a vector to negate
- * @returns {vec4} out
- */
-
-function negate(out, a) {
-  out[0] = -a[0];
-  out[1] = -a[1];
-  out[2] = -a[2];
-  out[3] = -a[3];
-  return out;
-}
-/**
- * Returns the inverse of the components of a vec4
- *
- * @param {vec4} out the receiving vector
- * @param {ReadonlyVec4} a vector to invert
- * @returns {vec4} out
- */
-
-function inverse(out, a) {
-  out[0] = 1.0 / a[0];
-  out[1] = 1.0 / a[1];
-  out[2] = 1.0 / a[2];
-  out[3] = 1.0 / a[3];
-  return out;
-}
-/**
- * Normalize a vec4
- *
- * @param {vec4} out the receiving vector
- * @param {ReadonlyVec4} a vector to normalize
- * @returns {vec4} out
- */
-
-function normalize(out, a) {
-  var x = a[0];
-  var y = a[1];
-  var z = a[2];
-  var w = a[3];
-  var len = x * x + y * y + z * z + w * w;
-
-  if (len > 0) {
-    len = 1 / Math.sqrt(len);
-  }
-
-  out[0] = x * len;
-  out[1] = y * len;
-  out[2] = z * len;
-  out[3] = w * len;
-  return out;
-}
-/**
- * Calculates the dot product of two vec4's
- *
- * @param {ReadonlyVec4} a the first operand
- * @param {ReadonlyVec4} b the second operand
- * @returns {Number} dot product of a and b
- */
-
-function dot(a, b) {
-  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3];
-}
-/**
- * Returns the cross-product of three vectors in a 4-dimensional space
- *
- * @param {ReadonlyVec4} result the receiving vector
- * @param {ReadonlyVec4} U the first vector
- * @param {ReadonlyVec4} V the second vector
- * @param {ReadonlyVec4} W the third vector
- * @returns {vec4} result
- */
-
-function cross(out, u, v, w) {
-  var A = v[0] * w[1] - v[1] * w[0],
-      B = v[0] * w[2] - v[2] * w[0],
-      C = v[0] * w[3] - v[3] * w[0],
-      D = v[1] * w[2] - v[2] * w[1],
-      E = v[1] * w[3] - v[3] * w[1],
-      F = v[2] * w[3] - v[3] * w[2];
-  var G = u[0];
-  var H = u[1];
-  var I = u[2];
-  var J = u[3];
-  out[0] = H * F - I * E + J * D;
-  out[1] = -(G * F) + I * C - J * B;
-  out[2] = G * E - H * C + J * A;
-  out[3] = -(G * D) + H * B - I * A;
-  return out;
-}
-/**
- * Performs a linear interpolation between two vec4's
- *
- * @param {vec4} out the receiving vector
- * @param {ReadonlyVec4} a the first operand
- * @param {ReadonlyVec4} b the second operand
- * @param {Number} t interpolation amount, in the range [0-1], between the two inputs
- * @returns {vec4} out
- */
-
-function lerp(out, a, b, t) {
-  var ax = a[0];
-  var ay = a[1];
-  var az = a[2];
-  var aw = a[3];
-  out[0] = ax + t * (b[0] - ax);
-  out[1] = ay + t * (b[1] - ay);
-  out[2] = az + t * (b[2] - az);
-  out[3] = aw + t * (b[3] - aw);
-  return out;
-}
-/**
- * Generates a random vector with the given scale
- *
- * @param {vec4} out the receiving vector
- * @param {Number} [scale] Length of the resulting vector. If ommitted, a unit vector will be returned
- * @returns {vec4} out
- */
-
-function random(out, scale) {
-  scale = scale || 1.0; // Marsaglia, George. Choosing a Point from the Surface of a
-  // Sphere. Ann. Math. Statist. 43 (1972), no. 2, 645--646.
-  // http://projecteuclid.org/euclid.aoms/1177692644;
-
-  var v1, v2, v3, v4;
-  var s1, s2;
-
-  do {
-    v1 = _common_js__WEBPACK_IMPORTED_MODULE_0__.RANDOM() * 2 - 1;
-    v2 = _common_js__WEBPACK_IMPORTED_MODULE_0__.RANDOM() * 2 - 1;
-    s1 = v1 * v1 + v2 * v2;
-  } while (s1 >= 1);
-
-  do {
-    v3 = _common_js__WEBPACK_IMPORTED_MODULE_0__.RANDOM() * 2 - 1;
-    v4 = _common_js__WEBPACK_IMPORTED_MODULE_0__.RANDOM() * 2 - 1;
-    s2 = v3 * v3 + v4 * v4;
-  } while (s2 >= 1);
-
-  var d = Math.sqrt((1 - s1) / s2);
-  out[0] = scale * v1;
-  out[1] = scale * v2;
-  out[2] = scale * v3 * d;
-  out[3] = scale * v4 * d;
-  return out;
-}
-/**
- * Transforms the vec4 with a mat4.
- *
- * @param {vec4} out the receiving vector
- * @param {ReadonlyVec4} a the vector to transform
- * @param {ReadonlyMat4} m matrix to transform with
- * @returns {vec4} out
- */
-
-function transformMat4(out, a, m) {
-  var x = a[0],
-      y = a[1],
-      z = a[2],
-      w = a[3];
-  out[0] = m[0] * x + m[4] * y + m[8] * z + m[12] * w;
-  out[1] = m[1] * x + m[5] * y + m[9] * z + m[13] * w;
-  out[2] = m[2] * x + m[6] * y + m[10] * z + m[14] * w;
-  out[3] = m[3] * x + m[7] * y + m[11] * z + m[15] * w;
-  return out;
-}
-/**
- * Transforms the vec4 with a quat
- *
- * @param {vec4} out the receiving vector
- * @param {ReadonlyVec4} a the vector to transform
- * @param {ReadonlyQuat} q quaternion to transform with
- * @returns {vec4} out
- */
-
-function transformQuat(out, a, q) {
-  var x = a[0],
-      y = a[1],
-      z = a[2];
-  var qx = q[0],
-      qy = q[1],
-      qz = q[2],
-      qw = q[3]; // calculate quat * vec
-
-  var ix = qw * x + qy * z - qz * y;
-  var iy = qw * y + qz * x - qx * z;
-  var iz = qw * z + qx * y - qy * x;
-  var iw = -qx * x - qy * y - qz * z; // calculate result * inverse quat
-
-  out[0] = ix * qw + iw * -qx + iy * -qz - iz * -qy;
-  out[1] = iy * qw + iw * -qy + iz * -qx - ix * -qz;
-  out[2] = iz * qw + iw * -qz + ix * -qy - iy * -qx;
-  out[3] = a[3];
-  return out;
-}
-/**
- * Set the components of a vec4 to zero
- *
- * @param {vec4} out the receiving vector
- * @returns {vec4} out
- */
-
-function zero(out) {
-  out[0] = 0.0;
-  out[1] = 0.0;
-  out[2] = 0.0;
-  out[3] = 0.0;
-  return out;
-}
-/**
- * Returns a string representation of a vector
- *
- * @param {ReadonlyVec4} a vector to represent as a string
- * @returns {String} string representation of the vector
- */
-
-function str(a) {
-  return "vec4(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ")";
-}
-/**
- * Returns whether or not the vectors have exactly the same elements in the same position (when compared with ===)
- *
- * @param {ReadonlyVec4} a The first vector.
- * @param {ReadonlyVec4} b The second vector.
- * @returns {Boolean} True if the vectors are equal, false otherwise.
- */
-
-function exactEquals(a, b) {
-  return a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3];
-}
-/**
- * Returns whether or not the vectors have approximately the same elements in the same position.
- *
- * @param {ReadonlyVec4} a The first vector.
- * @param {ReadonlyVec4} b The second vector.
- * @returns {Boolean} True if the vectors are equal, false otherwise.
- */
-
-function equals(a, b) {
-  var a0 = a[0],
-      a1 = a[1],
-      a2 = a[2],
-      a3 = a[3];
-  var b0 = b[0],
-      b1 = b[1],
-      b2 = b[2],
-      b3 = b[3];
-  return Math.abs(a0 - b0) <= _common_js__WEBPACK_IMPORTED_MODULE_0__.EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) && Math.abs(a1 - b1) <= _common_js__WEBPACK_IMPORTED_MODULE_0__.EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) && Math.abs(a2 - b2) <= _common_js__WEBPACK_IMPORTED_MODULE_0__.EPSILON * Math.max(1.0, Math.abs(a2), Math.abs(b2)) && Math.abs(a3 - b3) <= _common_js__WEBPACK_IMPORTED_MODULE_0__.EPSILON * Math.max(1.0, Math.abs(a3), Math.abs(b3));
-}
-/**
- * Alias for {@link vec4.subtract}
- * @function
- */
-
-var sub = subtract;
-/**
- * Alias for {@link vec4.multiply}
- * @function
- */
-
-var mul = multiply;
-/**
- * Alias for {@link vec4.divide}
- * @function
- */
-
-var div = divide;
-/**
- * Alias for {@link vec4.distance}
- * @function
- */
-
-var dist = distance;
-/**
- * Alias for {@link vec4.squaredDistance}
- * @function
- */
-
-var sqrDist = squaredDistance;
-/**
- * Alias for {@link vec4.length}
- * @function
- */
-
-var len = length;
-/**
- * Alias for {@link vec4.squaredLength}
- * @function
- */
-
-var sqrLen = squaredLength;
-/**
- * Perform some operation over an array of vec4s.
- *
- * @param {Array} a the array of vectors to iterate over
- * @param {Number} stride Number of elements between the start of each vec4. If 0 assumes tightly packed
- * @param {Number} offset Number of elements to skip at the beginning of the array
- * @param {Number} count Number of vec4s to iterate over. If 0 iterates over entire array
- * @param {Function} fn Function to call for each vector in the array
- * @param {Object} [arg] additional argument to pass to fn
- * @returns {Array} a
- * @function
- */
-
-var forEach = function () {
-  var vec = create();
-  return function (a, stride, offset, count, fn, arg) {
-    var i, l;
-
-    if (!stride) {
-      stride = 4;
-    }
-
-    if (!offset) {
-      offset = 0;
-    }
-
-    if (count) {
-      l = Math.min(count * stride + offset, a.length);
-    } else {
-      l = a.length;
-    }
-
-    for (i = offset; i < l; i += stride) {
-      vec[0] = a[i];
-      vec[1] = a[i + 1];
-      vec[2] = a[i + 2];
-      vec[3] = a[i + 3];
-      fn(vec, vec, arg);
-      a[i] = vec[0];
-      a[i + 1] = vec[1];
-      a[i + 2] = vec[2];
-      a[i + 3] = vec[3];
-    }
-
-    return a;
-  };
-}();
-
-/***/ }),
-
 /***/ "./src/curves/bezier.ts":
 /*!******************************!*\
   !*** ./src/curves/bezier.ts ***!
@@ -3523,7 +2806,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! gl-matrix/esm/vec3 */ "./node_modules/gl-matrix/esm/vec3.js");
 // @ts-ignore
 
-// const vec3 = GlMatrix.vec3;
 function combinations(n, k) {
     // Optimization
     const aux = k < n / 2 ? k : n - k;
@@ -3637,21 +2919,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Polygon)
 /* harmony export */ });
-/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
 /* harmony import */ var _gl__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../gl */ "./src/gl.ts");
-// @ts-ignore
-
 
 class Polygon {
-    constructor(glContext) {
+    constructor(glContext, glProgram) {
         this.size = 3; // 3components per iteration
         this.normalize = false; // don't normalize the data
         this.stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
         this.offset = 0; // start at the beginning of the buffer
         this.bufferSize = 0;
-        this.baseModelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.create();
-        this.modelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.create();
         this.glContext = glContext;
+        this.glProgram = glProgram;
         this.buffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(this.glContext.gl);
         this.type = this.glContext.gl.FLOAT;
     }
@@ -3662,9 +2940,10 @@ class Polygon {
         this.buffer.bufferData(new Float32Array(positions), this.glContext.gl.STATIC_DRAW);
         this.bufferSize = positions.length / this.size;
     }
-    render(positionAttributeLocation) {
+    render() {
         const gl = this.glContext.gl;
         this.buffer.bindBuffer();
+        const positionAttributeLocation = this.glProgram.getAttribLocation("a_position");
         gl.vertexAttribPointer(positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
         gl.drawArrays(gl.LINE_STRIP, 0, this.bufferSize);
     }
@@ -3844,57 +3123,47 @@ class MouseCamera {
 
 /***/ }),
 
-/***/ "./src/scene/renderable.ts":
-/*!*********************************!*\
-  !*** ./src/scene/renderable.ts ***!
-  \*********************************/
+/***/ "./src/scene/compositeObject.ts":
+/*!**************************************!*\
+  !*** ./src/scene/compositeObject.ts ***!
+  \**************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "CompositeObject": () => (/* binding */ CompositeObject)
 /* harmony export */ });
-/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var _sceneObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./sceneObject */ "./src/scene/sceneObject.ts");
 // @ts-ignore
 
-class CompositeObject {
-    constructor(glContext) {
+
+class CompositeObject extends _sceneObject__WEBPACK_IMPORTED_MODULE_0__["default"] {
+    constructor(glContext, glProgram) {
+        super(glContext, glProgram, undefined);
         this.glContext = glContext;
-        this.baseModelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_0__.create();
-        this.modelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_0__.create();
+        this.glProgram = glProgram;
+        this.baseModelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.create();
         this.childList = new Array();
     }
     addChild(child) {
-        // @ts-ignore
-        if (child.updateModelMatrix) {
-            // @ts-ignore
-            child.updateModelMatrix(this.modelMatrix);
-        }
-        else {
-            console.warn("Child has no matrix");
-        }
+        child.updateModelMatrix(this.modelMatrix);
         this.childList.push(child);
     }
     setBaseModelMatrix(mMatrix) {
         this.baseModelMatrix = mMatrix;
     }
     updateModelMatrix(parentMatrix) {
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_0__.multiply(this.modelMatrix, this.baseModelMatrix, parentMatrix);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.multiply(this.modelMatrix, parentMatrix, this.baseModelMatrix);
         for (const child of this.childList) {
-            // @ts-ignore
-            if (child.updateModelMatrix) {
-                // @ts-ignore
-                child.updateModelMatrix(this.modelMatrix);
-            }
-            else {
-                console.warn("Child has no matrix");
-            }
+            child.updateModelMatrix(this.modelMatrix);
         }
     }
-    render(positionAttributeLocation, modelMatrixLoc) {
+    render() {
         for (const child of this.childList) {
+            const modelMatrixLoc = this.glProgram.getUniformLocation("modelMatrix");
             this.glContext.gl.uniformMatrix4fv(modelMatrixLoc, false, this.modelMatrix);
-            child.render(positionAttributeLocation, modelMatrixLoc);
+            child.render();
         }
     }
 }
@@ -3914,19 +3183,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _curves_bezier__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../curves/bezier */ "./src/curves/bezier.ts");
 /* harmony import */ var _curves_polygon__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../curves/polygon */ "./src/curves/polygon.ts");
-/* harmony import */ var _shapes_cube__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../shapes/cube */ "./src/shapes/cube.ts");
-/* harmony import */ var _shapes_surface__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../shapes/surface */ "./src/shapes/surface.ts");
-/* harmony import */ var _shapes_sweepSurface__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../shapes/sweepSurface */ "./src/shapes/sweepSurface.ts");
-/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
-/* harmony import */ var gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! gl-matrix/esm/vec3 */ "./node_modules/gl-matrix/esm/vec3.js");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils */ "./src/utils.ts");
-/* harmony import */ var _renderable__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./renderable */ "./src/scene/renderable.ts");
+/* harmony import */ var _shapes_cylinder__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../shapes/cylinder */ "./src/shapes/cylinder.ts");
+/* harmony import */ var _shapes_cube__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../shapes/cube */ "./src/shapes/cube.ts");
+/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./compositeObject */ "./src/scene/compositeObject.ts");
+/* harmony import */ var _sceneObject__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./sceneObject */ "./src/scene/sceneObject.ts");
 
 
 
-
-
-// @ts-ignore
 
 // @ts-ignore
 
@@ -3940,7 +3204,7 @@ class Scene {
         this.camera = camera;
         this.buildRenderables();
     }
-    render() {
+    updateModel() {
         const gl = this.glContext.gl;
         const positionAttributeLocation = this.program.getAttribLocation("a_position");
         const modelMatrixLoc = this.program.getUniformLocation("modelMatrix");
@@ -3948,47 +3212,88 @@ class Scene {
         const projMatrixLoc = this.program.getUniformLocation("projMatrix");
         // Turn on the attribute
         gl.enableVertexAttribArray(positionAttributeLocation);
-        // draw
         const cameraMatrix = this.camera.getMatrix();
-        const projMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__.identity(projMatrix);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__.perspective(projMatrix, 45, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
-        const modelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__.identity(modelMatrix);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__.scale(modelMatrix, modelMatrix, gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_8__.fromValues(1, 0.5, 0.5));
+        const projMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.identity(projMatrix);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.perspective(projMatrix, 45, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
+        const modelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.identity(modelMatrix);
         gl.uniformMatrix4fv(cameraMatrixLoc, false, cameraMatrix);
         gl.uniformMatrix4fv(projMatrixLoc, false, projMatrix);
         gl.uniformMatrix4fv(modelMatrixLoc, false, modelMatrix);
+        for (const object of this.renderableList) {
+            object.updateModelMatrix(modelMatrix);
+        }
+    }
+    render() {
         for (const renderable of this.renderableList) {
-            renderable.render(positionAttributeLocation, modelMatrixLoc);
+            renderable.render();
         }
     }
     buildRenderables() {
         const curve = new _curves_bezier__WEBPACK_IMPORTED_MODULE_0__.CubicBezier([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0], 20);
-        const polygon = new _curves_polygon__WEBPACK_IMPORTED_MODULE_1__["default"](this.glContext);
+        const polygon = new _curves_polygon__WEBPACK_IMPORTED_MODULE_1__["default"](this.glContext, this.program);
         polygon.setVecPoints(curve.points);
-        const cube = new _shapes_cube__WEBPACK_IMPORTED_MODULE_2__["default"](this.glContext);
-        const sphere = new _shapes_surface__WEBPACK_IMPORTED_MODULE_3__.Sphere(this.glContext, 1, 8, 8);
-        sphere.build();
-        const cat = new _renderable__WEBPACK_IMPORTED_MODULE_6__.CompositeObject(this.glContext);
-        const modelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__.identity(modelMatrix);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__.rotate(modelMatrix, modelMatrix, (0,_utils__WEBPACK_IMPORTED_MODULE_5__.degToRad)(45), gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_8__.fromValues(1, 0, 0));
-        cube.setBaseModelMatrix(modelMatrix);
-        // @ts-ignore
-        cat.addChild(sphere);
-        // @ts-ignore
-        cat.addChild(cube);
-        // sphere.build();
-        const myShape = [gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_8__.fromValues(0.1, 0.1, 0),
-            gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_8__.fromValues(0.2, 0.3, 0),
-            gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_8__.fromValues(0.3, 0.1, 0),
-            gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_8__.fromValues(0.2, 0.2, 0.1)];
-        const sweepSurface = new _shapes_sweepSurface__WEBPACK_IMPORTED_MODULE_4__.SweepSurface(this.glContext, myShape, curve);
-        sweepSurface.build();
-        this.renderableList.push(polygon);
-        this.renderableList.push(sweepSurface);
-        this.renderableList.push(cat);
+        const wheels = new _compositeObject__WEBPACK_IMPORTED_MODULE_4__.CompositeObject(this.glContext, this.program);
+        for (let i = 0; i < 4; ++i) {
+            const cylinder = new _shapes_cylinder__WEBPACK_IMPORTED_MODULE_2__["default"](this.glContext, this.program, 10);
+            const cylinderObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_5__["default"](this.glContext, this.program, cylinder);
+            const cylinderMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.create();
+            const axis = Math.floor(i / 2);
+            const distance = 4;
+            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.fromTranslation(cylinderMatrix, [axis * distance, 0, i % 2 * distance]);
+            cylinderObj.baseModelMatrix = cylinderMatrix;
+            wheels.addChild(cylinderObj);
+        }
+        const wheelsMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.fromScaling(wheelsMatrix, [0.2, 0.2, 0.2]);
+        wheels.setBaseModelMatrix(wheelsMatrix);
+        const catapultBase = new _shapes_cube__WEBPACK_IMPORTED_MODULE_3__["default"](this.glContext, this.program);
+        const catapultBaseObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_5__["default"](this.glContext, this.program, catapultBase);
+        const catapultBaseMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.fromScaling(catapultBaseMatrix, [2, 0.2, 0.8]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.translate(catapultBaseMatrix, catapultBaseMatrix, [-0.3, -0.2, 0.1]);
+        catapultBaseObj.baseModelMatrix = catapultBaseMatrix;
+        const catapult = new _compositeObject__WEBPACK_IMPORTED_MODULE_4__.CompositeObject(this.glContext, this.program);
+        catapult.addChild(wheels);
+        catapult.addChild(catapultBaseObj);
+        this.renderableList.push(catapult);
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/scene/sceneObject.ts":
+/*!**********************************!*\
+  !*** ./src/scene/sceneObject.ts ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ SceneObject)
+/* harmony export */ });
+/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+// @ts-ignore
+
+class SceneObject {
+    constructor(glContext, glProgram, renderable) {
+        this.glContext = glContext;
+        this.glProgram = glProgram;
+        this.modelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_0__.create();
+        this.baseModelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_0__.create();
+        this.renderable = renderable;
+    }
+    updateModelMatrix(parentMatrix) {
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_0__.multiply(this.modelMatrix, parentMatrix, this.baseModelMatrix);
+    }
+    render() {
+        if (this.renderable) {
+            const modelMatrixLoc = this.glProgram.getUniformLocation("modelMatrix");
+            this.glContext.gl.uniformMatrix4fv(modelMatrixLoc, false, this.modelMatrix);
+            this.renderable.render();
+        }
     }
 }
 
@@ -4006,20 +3311,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ Cube)
 /* harmony export */ });
 /* harmony import */ var _gl__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../gl */ "./src/gl.ts");
-/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
-
-// @ts-ignore
 
 class Cube {
-    constructor(glContext) {
-        this.baseModelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.create();
-        this.modelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.create();
+    constructor(glContext, glProgram) {
         this.size = 3; // 3components per iteration
         this.normalize = false; // don't normalize the data
         this.stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
         this.offset = 0; // start at the beginning of the buffer
         this.indexes = [0, 1, 2, 3, 6, 7, 7, 3, 5, 1, 4, 0, 0, 2, 4, 6, 5, 7];
         this.glContext = glContext;
+        this.glProgram = glProgram;
         const gl = glContext.gl;
         this.type = gl.FLOAT;
         this.buffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(gl);
@@ -4038,18 +3339,12 @@ class Cube {
         this.indexBuffer.bufferData(new Uint16Array(this.indexes), gl.STATIC_DRAW);
         this.bufferSize = positions.length / this.size;
     }
-    setBaseModelMatrix(mMatrix) {
-        this.baseModelMatrix = mMatrix;
-    }
-    updateModelMatrix(parentMatrix) {
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.multiply(this.modelMatrix, this.baseModelMatrix, parentMatrix);
-    }
-    render(positionAttributeLocation, modelMatrixLoc) {
+    render() {
         const gl = this.glContext.gl;
         this.buffer.bindBuffer();
         this.indexBuffer.bindBuffer();
+        const positionAttributeLocation = this.glProgram.getAttribLocation("a_position");
         gl.vertexAttribPointer(positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
-        gl.uniformMatrix4fv(modelMatrixLoc, false, this.modelMatrix);
         gl.drawElements(gl.TRIANGLE_STRIP, this.indexes.length, gl.UNSIGNED_SHORT, 0);
         gl.drawElements(gl.LINE_STRIP, this.indexes.length, gl.UNSIGNED_SHORT, 0);
     }
@@ -4058,193 +3353,86 @@ class Cube {
 
 /***/ }),
 
-/***/ "./src/shapes/surface.ts":
-/*!*******************************!*\
-  !*** ./src/shapes/surface.ts ***!
-  \*******************************/
+/***/ "./src/shapes/cylinder.ts":
+/*!********************************!*\
+  !*** ./src/shapes/cylinder.ts ***!
+  \********************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "Sphere": () => (/* binding */ Sphere),
-/* harmony export */   "Surface": () => (/* binding */ Surface)
+/* harmony export */   "default": () => (/* binding */ Cylinder)
 /* harmony export */ });
 /* harmony import */ var _gl__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../gl */ "./src/gl.ts");
 
-class Surface {
-    constructor(glContext, filas, columnas) {
+class Cylinder {
+    constructor(glContext, glProgram, circlePoints) {
         this.size = 3; // 3components per iteration
         this.normalize = false; // don't normalize the data
         this.stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
         this.offset = 0; // start at the beginning of the buffer
         this.glContext = glContext;
-        const gl = this.glContext.gl;
-        this.type = gl.FLOAT;
-        this.positionBuffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(gl);
-        this.normalBuffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(gl);
-        this.uvBuffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(gl);
-        this.indexBuffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(gl, gl.ELEMENT_ARRAY_BUFFER);
-        this.indexesSize = 0;
-        this.filas = filas;
-        this.columnas = columnas;
-    }
-    build() {
-        this.generateSurface(this.filas, this.columnas);
-        this.generateIndexArray(this.filas, this.columnas);
-    }
-    render(positionAttributeLocation) {
-        const gl = this.glContext.gl;
-        this.positionBuffer.bindBuffer();
-        this.indexBuffer.bindBuffer();
-        gl.vertexAttribPointer(positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
-        gl.drawElements(gl.TRIANGLE_STRIP, this.indexesSize, gl.UNSIGNED_SHORT, 0);
-        gl.drawElements(gl.LINE_STRIP, this.indexesSize, gl.UNSIGNED_SHORT, 0);
-    }
-    generateSurface(filas, columnas) {
-        const positionArray = [];
-        const normalArray = [];
-        const uvArray = [];
-        for (let i = 0; i <= filas; i++) {
-            for (let j = 0; j <= columnas; j++) {
-                const uv = this.getUV(j, i);
-                const pos = this.getPosition(uv[0], uv[1]);
-                positionArray.push(pos[0]);
-                positionArray.push(pos[1]);
-                positionArray.push(pos[2]);
-                const nrm = this.getNormal(uv[0], uv[1]);
-                normalArray.push(nrm[0]);
-                normalArray.push(nrm[1]);
-                normalArray.push(nrm[2]);
-                const uvs = this.getTextureCoords(uv[0], uv[1]);
-                uvArray.push(uvs[0]);
-                uvArray.push(uvs[1]);
-            }
-        }
-        const gl = this.glContext.gl;
-        this.positionBuffer.bufferData(new Float32Array(positionArray), gl.STATIC_DRAW);
-        this.normalBuffer.bufferData(new Float32Array(normalArray), gl.STATIC_DRAW);
-        this.uvBuffer.bufferData(new Float32Array(uvArray), gl.STATIC_DRAW);
-    }
-    generateIndexArray(filas, columnas) {
-        const indexArray = [];
-        for (let i = 0; i < filas; i++) {
-            for (let j = 0; j <= columnas; j++) {
-                let col = j;
-                if (i % 2 !== 0) {
-                    col = columnas - j;
-                }
-                indexArray.push(this.getIndexFromXY(col, i));
-                indexArray.push(this.getIndexFromXY(col, i + 1));
-            }
-        }
-        this.indexesSize = indexArray.length;
-        this.indexBuffer.bufferData(new Uint16Array(indexArray), this.glContext.gl.STATIC_DRAW);
-    }
-    getUV(x, y) {
-        return [x / this.columnas, y / this.filas];
-    }
-    getIndexFromXY(x, y) {
-        return x + y * (this.columnas + 1);
-    }
-}
-class Sphere extends Surface {
-    constructor(glContext, radio, filas, columnas) {
-        super(glContext, filas, columnas);
-        this.radio = radio;
-    }
-    getPosition(u, v) {
-        const centerU = u - 0.5;
-        const centerV = v - 0.5;
-        const x = this.radio * Math.cos(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
-        const y = this.radio * Math.sin(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
-        const z = this.radio * Math.sin(Math.PI * centerV);
-        return [x, y, z];
-    }
-    getNormal(u, v) {
-        const centerU = u - 0.5;
-        const centerV = v - 0.5;
-        const x = Math.cos(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
-        const y = Math.sin(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
-        const z = Math.sin(Math.PI * centerV);
-        return [x, y, z];
-    }
-    getTextureCoords(u, v) {
-        return [u, v];
-    }
-}
-
-
-/***/ }),
-
-/***/ "./src/shapes/sweepSurface.ts":
-/*!************************************!*\
-  !*** ./src/shapes/sweepSurface.ts ***!
-  \************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "SweepSurface": () => (/* binding */ SweepSurface)
-/* harmony export */ });
-/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
-/* harmony import */ var gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! gl-matrix/esm/vec3 */ "./node_modules/gl-matrix/esm/vec3.js");
-/* harmony import */ var gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! gl-matrix/esm/vec4 */ "./node_modules/gl-matrix/esm/vec4.js");
-/* harmony import */ var _surface__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./surface */ "./src/shapes/surface.ts");
-// @ts-ignore
-
-// @ts-ignore
-
-// @ts-ignore
-
-
-class SweepSurface extends _surface__WEBPACK_IMPORTED_MODULE_0__.Surface {
-    constructor(glContext, shape, path) {
+        this.glProgram = glProgram;
         const gl = glContext.gl;
-        const rows = path.points.length;
-        super(glContext, rows - 1, shape.length - 1);
-        this.points = new Array();
-        for (let i = 0; i < rows; ++i) {
-            const pathMat = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.fromValues(...path.normals[i], 0, ...path.binormals[i], 0, ...path.tangents[i], 0, ...path.points[i], 1);
-            for (const shapePoint of shape) {
-                const extPoint = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_2__.fromValues(...shapePoint, 1);
-                const point4d = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_2__.create();
-                gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_2__.transformMat4(point4d, extPoint, pathMat);
-                const point3d = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.fromValues(...point4d);
-                this.points.push(point3d);
+        this.type = gl.FLOAT;
+        this.buffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(gl);
+        this.lateralIndexBuffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(gl, gl.ELEMENT_ARRAY_BUFFER);
+        this.faceIndexBuffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(gl, gl.ELEMENT_ARRAY_BUFFER);
+        this.circlePoints = circlePoints;
+        const positions = this.buildPoints();
+        const lateralIndexes = this.buildLateralIndexes();
+        const faceIndexes = this.buildFaceIndexes();
+        this.buffer.bufferData(new Float32Array(positions), gl.STATIC_DRAW);
+        this.lateralIndexBuffer.bufferData(new Uint16Array(lateralIndexes), gl.STATIC_DRAW);
+        this.faceIndexBuffer.bufferData(new Uint16Array(faceIndexes), gl.STATIC_DRAW);
+        this.bufferSize = positions.length / this.size;
+    }
+    render() {
+        const gl = this.glContext.gl;
+        this.buffer.bindBuffer();
+        const positionAttributeLocation = this.glProgram.getAttribLocation("a_position");
+        gl.vertexAttribPointer(positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
+        this.faceIndexBuffer.bindBuffer();
+        gl.drawElements(gl.TRIANGLE_FAN, this.circlePoints + 1, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLE_FAN, this.circlePoints + 1, gl.UNSIGNED_SHORT, (this.circlePoints + 1) * 2);
+        gl.drawArrays(gl.LINE_STRIP, 0, this.circlePoints + 1);
+        gl.drawArrays(gl.LINE_STRIP, this.circlePoints + 1, this.circlePoints + 1);
+        this.lateralIndexBuffer.bindBuffer();
+        gl.drawElements(gl.TRIANGLE_STRIP, this.circlePoints * 2, gl.UNSIGNED_SHORT, 0);
+    }
+    buildPoints() {
+        const points = new Array();
+        for (let height = 0; height <= 1; height++) {
+            points.push(0);
+            points.push(0);
+            points.push(height);
+            for (let i = 0; i < this.circlePoints; i++) {
+                const angle = (Math.PI * 2 / (this.circlePoints - 1)) * i;
+                points.push(Math.cos(angle));
+                points.push(Math.sin(angle));
+                points.push(height);
             }
         }
+        return points;
     }
-    getTextureCoords(u, v) {
-        return [];
+    buildFaceIndexes() {
+        const points = new Array();
+        const totalIndexes = (this.circlePoints + 1) * 2;
+        for (let i = 0; i < totalIndexes; i++) {
+            points.push(i);
+        }
+        return points;
     }
-    getNormal(u, v) {
-        return [];
+    buildLateralIndexes() {
+        const points = new Array();
+        for (let i = 1; i < this.circlePoints; i++) {
+            points.push(i);
+            points.push(i + this.circlePoints + 1);
+        }
+        points.push(2);
+        points.push(2 + this.circlePoints);
+        return points;
     }
-    getUV(x, y) {
-        return [x, y];
-    }
-    getPosition(u, v) {
-        const pointIdx = this.getIndexFromXY(u, v);
-        const point = this.points[pointIdx];
-        return [...point];
-    }
-}
-
-
-/***/ }),
-
-/***/ "./src/utils.ts":
-/*!**********************!*\
-  !*** ./src/utils.ts ***!
-  \**********************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "degToRad": () => (/* binding */ degToRad)
-/* harmony export */ });
-function degToRad(degrees) {
-    return degrees * (Math.PI / 180);
 }
 
 
@@ -4359,6 +3547,7 @@ function tick() {
       requestAnimationFrame(tick);
     }, fpsInterval);*/
     requestAnimationFrame(tick);
+    scene.updateModel();
     scene.render();
 }
 window.onload = main;

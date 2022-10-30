@@ -11,10 +11,10 @@ import {Surface} from "./surface";
 export class SweepSurface extends Surface {
     private readonly points: vec3[];
 
-    constructor(glContext: GlContext, shape: vec3[], path: CubicBezier) {
+    constructor(glContext: GlContext, glProgram: GlProgram, shape: vec3[], path: CubicBezier) {
         const gl = glContext.gl;
         const rows = path.points.length;
-        super(glContext, rows - 1, shape.length - 1);
+        super(glContext, glProgram, rows - 1, shape.length - 1);
         this.points = new Array();
         for (let i = 0; i < rows; ++i) {
             const pathMat = mat4.fromValues(

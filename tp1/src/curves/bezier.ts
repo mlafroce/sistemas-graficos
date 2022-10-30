@@ -1,8 +1,6 @@
 // @ts-ignore
 import * as vec3 from "gl-matrix/esm/vec3";
 
-// const vec3 = GlMatrix.vec3;
-
 function combinations(n: number, k: number): number {
     // Optimization
     const aux = k < n / 2 ? k : n - k;

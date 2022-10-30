@@ -1,6 +1,7 @@
 import {CubicBezier} from "../curves/bezier";
 import Polygon from "../curves/polygon";
 import {GlContext, GlProgram} from "../gl";
+import Cylinder from "../shapes/cylinder";
 import Cube from "../shapes/cube";
 import {Sphere} from "../shapes/surface";
 import {SweepSurface} from "../shapes/sweepSurface";
@@ -10,7 +11,9 @@ import * as mat4 from "gl-matrix/esm/mat4";
 // @ts-ignore
 import * as vec3 from "gl-matrix/esm/vec3";
 import {degToRad} from "../utils";
-import {CompositeObject, Renderable} from "./renderable";
+import {CompositeObject} from "./compositeObject";
+import Renderable from "./renderable";
+import SceneObject from "./sceneObject";
 
 export interface Camera {
     getMatrix(): mat4;
@@ -21,7 +24,7 @@ export default class Scene {
     private readonly program: GlProgram;
     private readonly camera: Camera;
 
-    private renderableList: Renderable[] = new Array();
+    private renderableList: SceneObject[] = new Array();
 
     constructor(gl: GlContext, program: GlProgram, camera: Camera) {
         this.glContext = gl;
@@ -30,7 +33,7 @@ export default class Scene {
         this.buildRenderables();
     }
 
-    public render() {
+    public updateModel() {
         const gl = this.glContext.gl;
         const positionAttributeLocation = this.program.getAttribLocation("a_position");
         const modelMatrixLoc = this.program.getUniformLocation("modelMatrix");
@@ -39,7 +42,6 @@ export default class Scene {
         // Turn on the attribute
         gl.enableVertexAttribArray(positionAttributeLocation);
 
-        // draw
         const cameraMatrix = this.camera.getMatrix();
 
         const projMatrix = mat4.create();
@@ -48,47 +50,54 @@ export default class Scene {
 
         const modelMatrix = mat4.create();
         mat4.identity(modelMatrix);
-        mat4.scale(modelMatrix, modelMatrix, vec3.fromValues(1, 0.5, 0.5));
 
         gl.uniformMatrix4fv(cameraMatrixLoc, false, cameraMatrix);
         gl.uniformMatrix4fv(projMatrixLoc, false, projMatrix);
         gl.uniformMatrix4fv(modelMatrixLoc, false, modelMatrix);
 
+        for (const object of this.renderableList) {
+            object.updateModelMatrix(modelMatrix);
+        }
+    }
+
+    public render() {
         for (const renderable of this.renderableList) {
-            renderable.render(positionAttributeLocation, modelMatrixLoc);
+            renderable.render();
         }
     }
 
     private buildRenderables() {
         const curve = new CubicBezier([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0], 20);
-        const polygon = new Polygon(this.glContext);
+        const polygon = new Polygon(this.glContext, this.program);
         polygon.setVecPoints(curve.points);
 
-        const cube = new Cube(this.glContext);
-        const sphere = new Sphere(this.glContext, 1, 8, 8);
-        sphere.build();
-        const cat = new CompositeObject(this.glContext);
+        const wheels = new CompositeObject(this.glContext, this.program);
+        for (let i = 0; i < 4; ++i) {
+            const cylinder = new Cylinder(this.glContext, this.program, 10);
+            const cylinderObj = new SceneObject(this.glContext, this.program, cylinder);
 
-        const modelMatrix = mat4.create();
-        mat4.identity(modelMatrix);
-        mat4.rotate(modelMatrix, modelMatrix, degToRad(45), vec3.fromValues(1, 0, 0));
-        cube.setBaseModelMatrix(modelMatrix);
+            const cylinderMatrix = mat4.create();
+            const axis = Math.floor(i / 2);
+            const distance = 4;
+            mat4.fromTranslation(cylinderMatrix, [axis * distance, 0, i % 2 * distance]);
+            cylinderObj.baseModelMatrix = cylinderMatrix;
+            wheels.addChild(cylinderObj);
+        }
+        const wheelsMatrix = mat4.create();
+        mat4.fromScaling(wheelsMatrix, [0.2, 0.2, 0.2]);
+        wheels.setBaseModelMatrix(wheelsMatrix);
 
-        // @ts-ignore
-        cat.addChild(sphere);
-        // @ts-ignore
-        cat.addChild(cube);
-        // sphere.build();
+        const catapultBase = new Cube(this.glContext, this.program);
+        const catapultBaseObj = new SceneObject(this.glContext, this.program, catapultBase);
 
-        const myShape = [vec3.fromValues(0.1, 0.1, 0),
-                        vec3.fromValues(0.2, 0.3, 0),
-                        vec3.fromValues(0.3, 0.1, 0),
-                        vec3.fromValues(0.2, 0.2, 0.1)];
-        const sweepSurface = new SweepSurface(this.glContext, myShape, curve);
-        sweepSurface.build();
+        const catapultBaseMatrix = mat4.create();
+        mat4.fromScaling(catapultBaseMatrix, [2, 0.2, 0.8]);
+        mat4.translate(catapultBaseMatrix, catapultBaseMatrix, [-0.3, -0.2, 0.1]);
+        catapultBaseObj.baseModelMatrix = catapultBaseMatrix;
 
-        this.renderableList.push(polygon);
-        this.renderableList.push(sweepSurface);
-        this.renderableList.push(cat);
+        const catapult = new CompositeObject(this.glContext, this.program);
+        catapult.addChild(wheels);
+        catapult.addChild(catapultBaseObj);
+        this.renderableList.push(catapult);
     }
 }

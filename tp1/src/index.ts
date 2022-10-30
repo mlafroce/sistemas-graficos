@@ -51,6 +51,7 @@ function tick() {
     requestAnimationFrame(tick);
   }, fpsInterval);*/
   requestAnimationFrame(tick);
+  scene!.updateModel();
   scene!.render();
 }
 

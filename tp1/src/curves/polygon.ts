@@ -1,22 +1,23 @@
 // @ts-ignore
 import * as mat4 from "gl-matrix/esm/mat4";
-import {GlBuffer, GlContext} from "../gl";
+import {GlBuffer, GlContext, GlProgram} from "../gl";
+import Renderable from "../scene/renderable";
 
-export default class Polygon {
+export default class Polygon implements Renderable {
     private readonly size = 3;          // 3components per iteration
     private readonly type: number;      // the data is 32bit floats
     private readonly normalize = false; // don't normalize the data
     private readonly stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
     private readonly offset = 0;        // start at the beginning of the buffer
 
-    public glContext: GlContext;
+    public readonly glContext: GlContext;
+    public readonly glProgram: GlProgram;
     private buffer: GlBuffer;
     private bufferSize: number = 0;
-    public baseModelMatrix: mat4 = mat4.create();
-    public modelMatrix: mat4 = mat4.create();
 
-    constructor(glContext: GlContext) {
+    constructor(glContext: GlContext, glProgram: GlProgram) {
         this.glContext = glContext;
+        this.glProgram = glProgram;
         this.buffer = new GlBuffer(this.glContext.gl);
         this.type = this.glContext.gl.FLOAT;
     }
@@ -30,9 +31,10 @@ export default class Polygon {
         this.bufferSize = positions.length / this.size;
     }
 
-    public render(positionAttributeLocation: number) {
+    public render() {
         const gl = this.glContext.gl;
         this.buffer.bindBuffer();
+        const positionAttributeLocation = this.glProgram.getAttribLocation("a_position");
         gl.vertexAttribPointer(
             positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
         gl.drawArrays(gl.LINE_STRIP, 0, this.bufferSize);

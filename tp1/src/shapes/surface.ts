@@ -1,7 +1,7 @@
-import {GlBuffer, GlContext} from "../gl";
 // @ts-ignore
 import * as mat4 from "gl-matrix/esm/mat4";
-import {Renderable} from "../scene/renderable";
+import {GlBuffer, GlContext, GlProgram} from "../gl";
+import Renderable from "../scene/renderable";
 
 export abstract class Surface implements Renderable {
     private readonly size = 3;          // 3components per iteration
@@ -11,6 +11,7 @@ export abstract class Surface implements Renderable {
     private readonly offset = 0;        // start at the beginning of the buffer
 
     public readonly glContext: GlContext;
+    public readonly glProgram: GlProgram;
     private positionBuffer: GlBuffer;
     private normalBuffer: GlBuffer;
     private uvBuffer: GlBuffer;
@@ -19,8 +20,9 @@ export abstract class Surface implements Renderable {
     protected filas: number;
     protected columnas: number;
 
-    protected constructor(glContext: GlContext, filas: number, columnas: number) {
+    protected constructor(glContext: GlContext, glProgram: GlProgram, filas: number, columnas: number) {
         this.glContext = glContext;
+        this.glProgram = glProgram;
         const gl = this.glContext.gl;
         this.type = gl.FLOAT;
         this.positionBuffer = new GlBuffer(gl);
@@ -43,10 +45,11 @@ export abstract class Surface implements Renderable {
 
     protected abstract getTextureCoords(u: number, v: number): number[];
 
-    public render(positionAttributeLocation: number) {
+    public render() {
         const gl = this.glContext.gl;
         this.positionBuffer.bindBuffer();
         this.indexBuffer.bindBuffer();
+        const positionAttributeLocation = this.glProgram.getAttribLocation("a_position");
         gl.vertexAttribPointer(
             positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
         gl.drawElements(gl.TRIANGLE_STRIP, this.indexesSize, gl.UNSIGNED_SHORT, 0);
@@ -113,8 +116,8 @@ export abstract class Surface implements Renderable {
 export class Sphere extends Surface {
     private readonly radio: number;
 
-    constructor(glContext: GlContext, radio: number, filas: number, columnas: number) {
-        super(glContext, filas, columnas);
+    constructor(glContext: GlContext, glProgram: GlProgram, radio: number, filas: number, columnas: number) {
+        super(glContext, glProgram, filas, columnas);
         this.radio = radio;
     }
 
