@@ -8,10 +8,13 @@ export interface Camera {
 }
 
 export class MouseCamera implements Camera {
+    private cursorX: number = 0;
+    private cursorY: number = 0;
     private angle: vec3;
     private position: vec3;
     private mouseDown: boolean = false;
     private readonly cameraSpeed: number = 100;
+    private readonly touchSpeed: number = this.cameraSpeed * 5;
     private readonly keyboardSpeed: number = 0.2;
 
     constructor() {
@@ -40,6 +43,19 @@ export class MouseCamera implements Camera {
 
     public mouseupListener(e: MouseEvent) {
         this.mouseDown = false;
+    }
+
+    public touchstartListener(e: TouchEvent) {
+        this.cursorX = e.touches[0].pageX;
+        this.cursorY = e.touches[0].pageY;
+    }
+
+    public touchmoveListener(e: TouchEvent) {
+        const offsetX = this.cursorX - e.touches[0].pageX;
+        const offsetY = this.cursorY - e.touches[0].pageY;
+        this.angle[0] += (offsetX / this.touchSpeed);
+        this.angle[1] += (offsetY / this.touchSpeed);
+        this.touchstartListener(e);
     }
 
     public keypressListener(e: KeyboardEvent) {

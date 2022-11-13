@@ -38,11 +38,13 @@ async function main() {
   program.use();
   // Camera init
   const camera: MouseCamera = new MouseCamera();
-  canvas.addEventListener("wheel", (e) => { camera.wheelListener(e); });
   canvas.addEventListener("mousedown", (e) => { camera.mousedownListener(e); });
   canvas.addEventListener("mousemove", (e) => { camera.mousemoveListener(e); });
-  window.addEventListener("keydown", (e) => { camera.keypressListener(e); });
+  canvas.addEventListener("wheel", (e) => { camera.wheelListener(e); });
+  canvas.addEventListener("touchstart", (e) => { camera.touchstartListener(e); });
+  canvas.addEventListener("touchmove", (e) => { camera.touchmoveListener(e); });
   window.addEventListener("mouseup", (e) => { camera.mouseupListener(e); });
+  window.addEventListener("keydown", (e) => { camera.keypressListener(e); });
 
   // Menu
   initMenu();

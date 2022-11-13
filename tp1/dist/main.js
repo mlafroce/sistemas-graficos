@@ -6362,8 +6362,11 @@ __webpack_require__.r(__webpack_exports__);
 
 class MouseCamera {
     constructor() {
+        this.cursorX = 0;
+        this.cursorY = 0;
         this.mouseDown = false;
         this.cameraSpeed = 100;
+        this.touchSpeed = this.cameraSpeed * 5;
         this.keyboardSpeed = 0.2;
         this.angle = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.create();
         this.angle[1] = -30 * Math.PI / 180;
@@ -6386,6 +6389,17 @@ class MouseCamera {
     }
     mouseupListener(e) {
         this.mouseDown = false;
+    }
+    touchstartListener(e) {
+        this.cursorX = e.touches[0].pageX;
+        this.cursorY = e.touches[0].pageY;
+    }
+    touchmoveListener(e) {
+        const offsetX = this.cursorX - e.touches[0].pageX;
+        const offsetY = this.cursorY - e.touches[0].pageY;
+        this.angle[0] += (offsetX / this.touchSpeed);
+        this.angle[1] += (offsetY / this.touchSpeed);
+        this.touchstartListener(e);
     }
     keypressListener(e) {
         switch (e.key) {
@@ -7483,11 +7497,13 @@ async function main() {
     program.use();
     // Camera init
     const camera = new _scene_camera__WEBPACK_IMPORTED_MODULE_1__.MouseCamera();
-    canvas.addEventListener("wheel", (e) => { camera.wheelListener(e); });
     canvas.addEventListener("mousedown", (e) => { camera.mousedownListener(e); });
     canvas.addEventListener("mousemove", (e) => { camera.mousemoveListener(e); });
-    window.addEventListener("keydown", (e) => { camera.keypressListener(e); });
+    canvas.addEventListener("wheel", (e) => { camera.wheelListener(e); });
+    canvas.addEventListener("touchstart", (e) => { camera.touchstartListener(e); });
+    canvas.addEventListener("touchmove", (e) => { camera.touchmoveListener(e); });
     window.addEventListener("mouseup", (e) => { camera.mouseupListener(e); });
+    window.addEventListener("keydown", (e) => { camera.keypressListener(e); });
     // Menu
     initMenu();
     // Scene init
