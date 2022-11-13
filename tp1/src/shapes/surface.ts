@@ -47,11 +47,19 @@ export abstract class Surface implements Renderable {
 
     public render() {
         const gl = this.glContext.gl;
+
+        // normals
+        this.normalBuffer.bindBuffer();
+        const normalFragAttr = this.glProgram.getAttribLocation("aNormal");
+        gl.vertexAttribPointer(normalFragAttr, this.size, this.type, this.normalize, this.stride, this.offset);
+
+        // pos attribute
         this.positionBuffer.bindBuffer();
-        this.indexBuffer.bindBuffer();
         const positionAttributeLocation = this.glProgram.getAttribLocation("a_position");
         gl.vertexAttribPointer(
             positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
+
+        this.indexBuffer.bindBuffer();
         gl.drawElements(gl.TRIANGLE_STRIP, this.indexesSize, gl.UNSIGNED_SHORT, 0);
         gl.drawElements(gl.LINE_STRIP, this.indexesSize, gl.UNSIGNED_SHORT, 0);
     }
@@ -110,36 +118,5 @@ export abstract class Surface implements Renderable {
 
     protected getIndexFromXY(x: number, y: number) {
         return x + y * (this.columnas + 1);
-    }
-}
-
-export class Sphere extends Surface {
-    private readonly radio: number;
-
-    constructor(glContext: GlContext, glProgram: GlProgram, radio: number, filas: number, columnas: number) {
-        super(glContext, glProgram, filas, columnas);
-        this.radio = radio;
-    }
-
-    protected getPosition(u: number, v: number): number[] {
-        const centerU = u - 0.5;
-        const centerV = v - 0.5;
-        const x = this.radio * Math.cos(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
-        const y = this.radio * Math.sin(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
-        const z = this.radio * Math.sin(Math.PI * centerV);
-        return [x, y, z];
-    }
-
-    public getNormal(u: number, v: number): number[] {
-        const centerU = u - 0.5;
-        const centerV = v - 0.5;
-        const x = Math.cos(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
-        const y = Math.sin(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
-        const z = Math.sin(Math.PI * centerV);
-        return [x, y, z];
-    }
-
-    public getTextureCoords(u: number, v: number): number[] {
-        return [u, v];
     }
 }

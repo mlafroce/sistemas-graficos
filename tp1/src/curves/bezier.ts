@@ -13,8 +13,8 @@ function combinations(n: number, k: number): number {
     return upper / lower;
 }
 
-export default class Bezier {
-    public static build_generic_1d(controlPoints: number[], curvePoints: number): number[] {
+class Bezier {
+    public static buildGeneric1d(controlPoints: number[], curvePoints: number): number[] {
         const order = controlPoints.length - 1;
         const result: number[] = new Array();
         for (let i = 0; i < curvePoints; i++) {
@@ -45,47 +45,10 @@ export class CubicBezier {
         this.normals = new Array();
         this.binormals = new Array();
 
-        const controlPointsAux = [new Array(), new Array(), new Array()];
-        const points = controlPoints.length;
-        for (let i = 0; i < points; i++) {
-            controlPointsAux[i % 3].push(controlPoints[i]);
-        }
-        // Positions
-        const xbezPoints = Bezier.build_generic_1d(controlPointsAux[0], curvePoints);
-        const ybezPoints = Bezier.build_generic_1d(controlPointsAux[1], curvePoints);
-        const zbezPoints = Bezier.build_generic_1d(controlPointsAux[2], curvePoints);
-        for (let i = 0; i < xbezPoints.length; i++) {
-            const v = vec3.fromValues([xbezPoints[i]], ybezPoints[i], zbezPoints[i]);
-            this.points.push(v);
-        }
-
-        // Tangents
-        const xbezTans = CubicBezier.build_cubic_tangent_1d(controlPointsAux[0], curvePoints);
-        const ybezTans = CubicBezier.build_cubic_tangent_1d(controlPointsAux[1], curvePoints);
-        const zbezTans = CubicBezier.build_cubic_tangent_1d(controlPointsAux[2], curvePoints);
-        for (let i = 0; i < xbezPoints.length; i++) {
-            const v = vec3.fromValues([xbezTans[i]], ybezTans[i], zbezTans[i]);
-            this.tangents.push(vec3.normalize(v, v));
-        }
-
-        // Normals
-        const xbezNorms = CubicBezier.build_cubic_normal_1d(controlPointsAux[0], curvePoints);
-        const ybezNorms = CubicBezier.build_cubic_normal_1d(controlPointsAux[1], curvePoints);
-        const zbezNorms = CubicBezier.build_cubic_normal_1d(controlPointsAux[2], curvePoints);
-        for (let i = 0; i < xbezPoints.length; i++) {
-            const v = vec3.fromValues([xbezNorms[i]], ybezNorms[i], zbezNorms[i]);
-            this.normals.push(vec3.normalize(v, v));
-        }
-
-        // Binormals
-        for (let i = 0; i < this.normals.length; i++) {
-            const binormal = vec3.create();
-            vec3.cross(binormal, this.tangents[i], this.normals[i]);
-            this.binormals.push(vec3.normalize(binormal, binormal));
-        }
+        this.buildCubicBezier(controlPoints, curvePoints);
     }
 
-    public static build_cubic_tangent_1d(controlPoints: number[], curvePoints: number): number[] {
+    public static buildCubicTangent1d(controlPoints: number[], curvePoints: number): number[] {
         const result: number[] = new Array();
         const p0 = controlPoints[0];
         const p1 = controlPoints[1];
@@ -99,7 +62,7 @@ export class CubicBezier {
         return result;
     }
 
-    public static build_cubic_normal_1d(controlPoints: number[], curvePoints: number): number[] {
+    public static buildCubicNormal1d(controlPoints: number[], curvePoints: number): number[] {
         const result: number[] = new Array();
         const p0 = controlPoints[0];
         const p1 = controlPoints[1];
@@ -111,5 +74,55 @@ export class CubicBezier {
             result.push(pu);
         }
         return result;
+    }
+
+    private buildCubicBezier(controlPoints: number[], curvePoints: number) {
+        const controlPointsAux = [new Array(), new Array(), new Array()];
+        const points = controlPoints.length;
+        for (let i = 0; i < points; i++) {
+            controlPointsAux[i % 3].push(controlPoints[i]);
+        }
+        // Positions
+        const xbezPoints = Bezier.buildGeneric1d(controlPointsAux[0], curvePoints);
+        const ybezPoints = Bezier.buildGeneric1d(controlPointsAux[1], curvePoints);
+        const zbezPoints = Bezier.buildGeneric1d(controlPointsAux[2], curvePoints);
+        for (let i = 0; i < xbezPoints.length; i++) {
+            const v = vec3.fromValues([xbezPoints[i]], ybezPoints[i], zbezPoints[i]);
+            this.points.push(v);
+        }
+
+        // Tangents
+        const xbezTans = CubicBezier.buildCubicTangent1d(controlPointsAux[0], curvePoints);
+        const ybezTans = CubicBezier.buildCubicTangent1d(controlPointsAux[1], curvePoints);
+        const zbezTans = CubicBezier.buildCubicTangent1d(controlPointsAux[2], curvePoints);
+        for (let i = 0; i < xbezPoints.length; i++) {
+            const v = vec3.fromValues([xbezTans[i]], ybezTans[i], zbezTans[i]);
+            this.tangents.push(vec3.normalize(v, v));
+        }
+        // used if points are collinear
+        const auxNormal = vec3.create();
+        vec3.rotateZ(auxNormal, this.tangents[0], [0, 0, 0], Math.PI / 2);
+
+        // Normals
+        const xbezNorms = CubicBezier.buildCubicNormal1d(controlPointsAux[0], curvePoints);
+        const ybezNorms = CubicBezier.buildCubicNormal1d(controlPointsAux[1], curvePoints);
+        const zbezNorms = CubicBezier.buildCubicNormal1d(controlPointsAux[2], curvePoints);
+        for (let i = 0; i < xbezPoints.length; i++) {
+            const v = vec3.fromValues([xbezNorms[i]], ybezNorms[i], zbezNorms[i]);
+            vec3.normalize(v, v);
+            // check if normal is empty or collinear
+            if (!vec3.equals(v, [0, 0, 0]) && !vec3.equals(v, this.tangents[i])) {
+                this.normals.push(v);
+            } else {
+                this.normals.push(auxNormal);
+            }
+        }
+
+        // Binormals
+        for (let i = 0; i < this.normals.length; i++) {
+            const binormal = vec3.create();
+            vec3.cross(binormal, this.tangents[i], this.normals[i]);
+            this.binormals.push(vec3.normalize(binormal, binormal));
+        }
     }
 }

@@ -1,7 +1,6 @@
 // @ts-ignore
 import * as mat4 from "gl-matrix/esm/mat4";
 import {GlContext, GlProgram} from "../gl";
-import Renderable from "./renderable";
 import SceneObject from "./sceneObject";
 
 export class CompositeObject extends SceneObject {

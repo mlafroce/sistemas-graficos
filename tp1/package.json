@@ -4,6 +4,7 @@
   "description": "TP Sistemas gráficos",
   "main": "main.js",
   "dependencies": {
+    "dat.gui": "^0.7.9",
     "gl-matrix": "3.3.0"
   },
   "devDependencies": {

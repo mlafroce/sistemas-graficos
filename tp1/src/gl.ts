@@ -42,8 +42,8 @@ export class GlContext {
         if (success) {
             return program;
         } else {
-            console.log(this.gl.getProgramInfoLog(program));
-            this.gl.deleteProgram(program);
+            console.log(this.gl.getProgramInfoLog(program.program));
+            this.gl.deleteProgram(program.program);
             throw new Error("Program failed to run");
         }
     }
@@ -73,6 +73,7 @@ export class GlContext {
         // Clear the canvas
         this.gl.clearColor(0, 0, 0, 0);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+        this.gl.enable(this.gl.DEPTH_TEST);
     }
 }
 

@@ -1,28 +1,40 @@
 // @ts-ignore
 import * as mat4 from "gl-matrix/esm/mat4";
-import {Camera} from "./scene";
+// @ts-ignore
+import * as vec3 from "gl-matrix/esm/vec3";
+
+export interface Camera {
+    getMatrix(): mat4;
+}
 
 export class MouseCamera implements Camera {
-    private angleX: number = 0;
-    private angleY: number = 0;
-    private distanceZ: number = 4;
+    private angle: vec3;
+    private position: vec3;
     private mouseDown: boolean = false;
     private readonly cameraSpeed: number = 100;
+    private readonly keyboardSpeed: number = 0.2;
+
+    constructor() {
+        this.angle = vec3.create();
+        this.angle[1] = - 30 * Math.PI / 180;
+        this.position = vec3.create();
+        this.position[2] = -10;
+    }
 
     public wheelListener(e: WheelEvent) {
-        this.distanceZ += e.deltaY / this.cameraSpeed;
+        this.position[2] -= e.deltaY / this.cameraSpeed;
     }
 
     public mousedownListener(e: MouseEvent) {
-        this.angleX += (e.movementX / this.cameraSpeed);
-        this.angleY += (e.movementY / this.cameraSpeed);
+        this.angle[0] += (e.movementX / this.cameraSpeed);
+        this.angle[1] += (e.movementY / this.cameraSpeed);
         this.mouseDown = true;
     }
 
     public mousemoveListener(e: MouseEvent) {
         if (this.mouseDown) {
-            this.angleX += (e.movementX / this.cameraSpeed);
-            this.angleY += (e.movementY / this.cameraSpeed);
+            this.angle[0] += (e.movementX / this.cameraSpeed);
+            this.angle[1] += (e.movementY / this.cameraSpeed);
         }
     }
 
@@ -30,13 +42,30 @@ export class MouseCamera implements Camera {
         this.mouseDown = false;
     }
 
+    public keypressListener(e: KeyboardEvent) {
+        switch (e.key) {
+            case "a":
+                this.position[0] += this.keyboardSpeed;
+                break;
+            case "d":
+                this.position[0] -= this.keyboardSpeed;
+                break;
+            case "s":
+                this.position[1] += this.keyboardSpeed;
+                break;
+            case "w":
+                this.position[1] -= this.keyboardSpeed;
+                break;
+        }
+    }
+
     public getMatrix(): mat4 {
         const matrix = mat4.create();
         mat4.identity(matrix);
-        mat4.translate(matrix, matrix, [0, 0, -this.distanceZ]);
-        mat4.rotate(matrix, matrix, this.angleX, [0, 1, 0]);
-        mat4.rotate(matrix, matrix, this.angleY, [1, 0, 0]);
-        mat4.rotate(matrix, matrix, 30 * Math.PI / 180, [1, 0, 0]);
+        mat4.translate(matrix, matrix, this.position);
+        mat4.rotateY(matrix, matrix, this.angle[0]);
+        mat4.rotateX(matrix, matrix, this.angle[1]);
+        mat4.rotateZ(matrix, matrix, this.angle[2]);
         return matrix;
     }
 }

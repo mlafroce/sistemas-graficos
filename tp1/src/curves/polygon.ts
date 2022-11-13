@@ -12,13 +12,13 @@ export default class Polygon implements Renderable {
 
     public readonly glContext: GlContext;
     public readonly glProgram: GlProgram;
-    private buffer: GlBuffer;
-    private bufferSize: number = 0;
+    private pointsBuffer: GlBuffer;
+    private pointsSize: number = 0;
 
     constructor(glContext: GlContext, glProgram: GlProgram) {
         this.glContext = glContext;
         this.glProgram = glProgram;
-        this.buffer = new GlBuffer(this.glContext.gl);
+        this.pointsBuffer = new GlBuffer(this.glContext.gl);
         this.type = this.glContext.gl.FLOAT;
     }
 
@@ -27,16 +27,16 @@ export default class Polygon implements Renderable {
     }
 
     public setPoints(positions: number[]) {
-        this.buffer.bufferData(new Float32Array(positions), this.glContext.gl.STATIC_DRAW);
-        this.bufferSize = positions.length / this.size;
+        this.pointsBuffer.bufferData(new Float32Array(positions), this.glContext.gl.STATIC_DRAW);
+        this.pointsSize = positions.length / this.size;
     }
 
     public render() {
         const gl = this.glContext.gl;
-        this.buffer.bindBuffer();
+        this.pointsBuffer.bindBuffer();
         const positionAttributeLocation = this.glProgram.getAttribLocation("a_position");
         gl.vertexAttribPointer(
             positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
-        gl.drawArrays(gl.LINE_STRIP, 0, this.bufferSize);
+        gl.drawArrays(gl.LINE_STRIP, 0, this.pointsSize);
     }
 }
