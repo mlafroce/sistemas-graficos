@@ -1,9 +1,12 @@
 // @ts-ignore
+import * as mat3 from "gl-matrix/esm/mat3";
+// @ts-ignore
 import * as mat4 from "gl-matrix/esm/mat4";
 // @ts-ignore
 import * as vec3 from "gl-matrix/esm/vec3";
 // @ts-ignore
 import * as vec4 from "gl-matrix/esm/vec4";
+import Path from "../curves/path";
 import {GlContext, GlProgram} from "../gl";
 import {Surface} from "./surface";
 
@@ -18,12 +21,12 @@ import {Surface} from "./surface";
  */
 export default class RevolutionSurface extends Surface {
     private readonly points: vec3[];
-    private readonly normals: vec3[];
+    public readonly normals: vec3[];
 
-    constructor(glContext: GlContext, glProgram: GlProgram, shape: vec3[], angle: number, rows: number) {
-        super(glContext, glProgram, rows - 1, shape.length - 1);
-        this.points = new Array();
-        this.normals = new Array();
+    constructor(glContext: GlContext, glProgram: GlProgram, shape: Path, angle: number, rows: number) {
+        super(glContext, glProgram, rows - 1, shape.points.length - 1);
+        this.points = [];
+        this.normals = [];
         const angleStep = angle / (rows - 1);
         // Since we only rotate around Z axis, we can fix normal matrix
         for (let i = 0; i < rows; ++i) {
@@ -38,24 +41,21 @@ export default class RevolutionSurface extends Surface {
                 ... row2,
                 ... row3,
                 ... positionVector);
-            for (let shapeIdx = 0; shapeIdx < shape.length; shapeIdx++) {
-                const shapePoint = shape[shapeIdx];
-                const extPoint = vec4.fromValues(... shapePoint, 1);
+
+            for (const shapePoint of shape.points) {
+                const extPoint = vec4.fromValues(...shapePoint, 1);
                 const point4d = vec4.create();
                 vec4.transformMat4(point4d, extPoint, pathMat);
-                const point3d = vec3.fromValues(... point4d);
-                if (shapeIdx !== 0) {
-                    const normal = vec3.create();
-                    vec3.sub(normal, shape[shapeIdx], shape[shapeIdx - 1]);
-                    vec3.normalize(normal, normal);
-                    vec3.rotateX(normal, normal, [0, 0, 0], curAngle);
-                    this.normals.push(normal);
-                } else {
-                    const normal = vec3.create();
-                    vec3.fromValues(normal, [Math.sin(curAngle), Math.cos(curAngle), 0]);
-                    this.normals.push(normal);
-                }
+                const point3d = vec3.fromValues(...point4d);
                 this.points.push(point3d);
+            }
+
+            for (const shapeNormal of shape.normals) {
+                const normal = vec4.fromValues(...shapeNormal, 0);
+                vec4.transformMat4(normal, normal, pathMat);
+                const normalv3 = vec3.fromValues(...normal);
+                vec3.normalize(normalv3, normalv3);
+                this.normals.push(normalv3);
             }
         }
     }

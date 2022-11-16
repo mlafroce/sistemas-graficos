@@ -6152,8 +6152,21 @@ class CubicBezier {
             this.tangents.push(gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.normalize(v, v));
         }
         // used if points are collinear
-        const auxNormal = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.create();
-        gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.rotateZ(auxNormal, this.tangents[0], [0, 0, 0], Math.PI / 2);
+        // Find a point that belongs to tangent normal plane
+        // aX + bY + cZ = 0
+        // Z = (aX + bY) / (-c)
+        // Where [a, b, c] is the tangent line
+        // Let's find Z value for X = 1 and Y = 0
+        // First, lets check if our tangent is on XY plane
+        let auxNormal;
+        if (this.tangents[0][2] === 0) {
+            auxNormal = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.fromValues(0, 0, 1);
+        }
+        else {
+            const normZ = this.tangents[0][0] / this.tangents[0][2];
+            auxNormal = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.fromValues(1, 0, normZ);
+            gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.normalize(auxNormal, auxNormal);
+        }
         // Normals
         const xbezNorms = CubicBezier.buildCubicNormal1d(controlPointsAux[0], curvePoints);
         const ybezNorms = CubicBezier.buildCubicNormal1d(controlPointsAux[1], curvePoints);
@@ -6164,6 +6177,7 @@ class CubicBezier {
             // check if normal is empty or collinear
             if (!gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.equals(v, [0, 0, 0]) && !gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.equals(v, this.tangents[i])) {
                 this.normals.push(v);
+                auxNormal = v;
             }
             else {
                 this.normals.push(auxNormal);
@@ -6172,9 +6186,68 @@ class CubicBezier {
         // Binormals
         for (let i = 0; i < this.normals.length; i++) {
             const binormal = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.create();
-            gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.cross(binormal, this.tangents[i], this.normals[i]);
+            gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.cross(binormal, this.normals[i], this.tangents[i]);
             this.binormals.push(gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.normalize(binormal, binormal));
         }
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/curves/path.ts":
+/*!****************************!*\
+  !*** ./src/curves/path.ts ***!
+  \****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "CompositePath": () => (/* binding */ CompositePath)
+/* harmony export */ });
+/* harmony import */ var gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! gl-matrix/esm/vec3 */ "./node_modules/gl-matrix/esm/vec3.js");
+// @ts-ignore
+
+class CompositePath {
+    constructor() {
+        this.points = new Array();
+        this.tangents = new Array();
+        this.normals = new Array();
+        this.binormals = new Array();
+    }
+    addPath(path) {
+        this.points.push(...path.points);
+        this.tangents.push(...path.tangents);
+        this.normals.push(...path.normals);
+        this.binormals.push(...path.binormals);
+    }
+    static fromPoints(path) {
+        const output = new CompositePath();
+        for (let i = 0; i < path.length - 1; i++) {
+            const tangent = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.create();
+            gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.sub(tangent, path[i + 1], path[i]);
+            gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.normalize(tangent, tangent);
+            const normal = getNormal(tangent);
+            output.points.push(path[i]);
+            output.tangents.push(tangent);
+            output.normals.push(normal);
+        }
+        // Add last point and duplicate last tangents and normals
+        output.points.push(path[path.length - 1]);
+        output.tangents.push(output.tangents[output.tangents.length - 1]);
+        output.normals.push(output.normals[output.normals.length - 1]);
+        return output;
+    }
+}
+function getNormal(tangent) {
+    if (tangent[2] === 0) {
+        return gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.fromValues(0, 0, 1);
+    }
+    else {
+        const normZ = tangent[0] / tangent[2];
+        const auxNormal = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.fromValues(1, 0, normZ);
+        gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.normalize(auxNormal, auxNormal);
+        return auxNormal;
     }
 }
 
@@ -6344,18 +6417,21 @@ class GlBuffer {
 
 /***/ }),
 
-/***/ "./src/scene/camera.ts":
-/*!*****************************!*\
-  !*** ./src/scene/camera.ts ***!
-  \*****************************/
+/***/ "./src/scene/camera/camera.ts":
+/*!************************************!*\
+  !*** ./src/scene/camera/camera.ts ***!
+  \************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "MouseCamera": () => (/* binding */ MouseCamera)
 /* harmony export */ });
-/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
 /* harmony import */ var gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! gl-matrix/esm/vec3 */ "./node_modules/gl-matrix/esm/vec3.js");
+/* harmony import */ var gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! gl-matrix/esm/vec4 */ "./node_modules/gl-matrix/esm/vec4.js");
+// @ts-ignore
+
 // @ts-ignore
 
 // @ts-ignore
@@ -6371,10 +6447,14 @@ class MouseCamera {
         this.angle = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.create();
         this.angle[1] = -30 * Math.PI / 180;
         this.position = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.create();
+        this.position[1] = 10;
         this.position[2] = -10;
     }
     wheelListener(e) {
-        this.position[2] -= e.deltaY / this.cameraSpeed;
+        const deltaPos = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_1__.fromValues(0, e.deltaY / this.cameraSpeed, 0, 0);
+        const cameraMatrix = this.getMatrix();
+        gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_1__.transformMat4(deltaPos, deltaPos, cameraMatrix);
+        gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_1__.add(this.position, this.position, deltaPos);
     }
     mousedownListener(e) {
         this.angle[0] += (e.movementX / this.cameraSpeed);
@@ -6403,28 +6483,106 @@ class MouseCamera {
     }
     keypressListener(e) {
         switch (e.key) {
+            case "w":
+                this.position[2] -= this.keyboardSpeed;
+                break;
             case "a":
                 this.position[0] += this.keyboardSpeed;
+                break;
+            case "s":
+                this.position[2] += this.keyboardSpeed;
                 break;
             case "d":
                 this.position[0] -= this.keyboardSpeed;
                 break;
-            case "s":
-                this.position[1] += this.keyboardSpeed;
-                break;
-            case "w":
-                this.position[1] -= this.keyboardSpeed;
-                break;
         }
+    }
+    registerCallbacks(canvas) {
+        canvas.addEventListener("mousedown", (e) => { this.mousedownListener(e); });
+        canvas.addEventListener("mousemove", (e) => { this.mousemoveListener(e); });
+        canvas.addEventListener("wheel", (e) => { this.wheelListener(e); });
+        canvas.addEventListener("touchstart", (e) => { this.touchstartListener(e); });
+        canvas.addEventListener("touchmove", (e) => { this.touchmoveListener(e); });
+        window.addEventListener("mouseup", (e) => { this.mouseupListener(e); });
+        window.addEventListener("keydown", (e) => { this.keypressListener(e); });
+    }
+    getMatrix() {
+        const matrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_2__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_2__.identity(matrix);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_2__.rotateZ(matrix, matrix, this.angle[2]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_2__.rotateY(matrix, matrix, this.angle[0]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_2__.rotateX(matrix, matrix, this.angle[1]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_2__.translate(matrix, matrix, this.position);
+        return matrix;
+    }
+    // tslint:disable-next-line:no-empty
+    update() { }
+}
+
+
+/***/ }),
+
+/***/ "./src/scene/camera/orbitalCamera.ts":
+/*!*******************************************!*\
+  !*** ./src/scene/camera/orbitalCamera.ts ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "OrbitalCamera": () => (/* binding */ OrbitalCamera)
+/* harmony export */ });
+/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! gl-matrix/esm/vec3 */ "./node_modules/gl-matrix/esm/vec3.js");
+// @ts-ignore
+
+// @ts-ignore
+
+const kCameraSpeedDiv = 200;
+class OrbitalCamera {
+    constructor() {
+        this.cameraSpeed = 100;
+        this.mouseDown = false;
+        this.xRotation = 0;
+        this.zRotation = 0;
+        this.basePosition = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.fromValues(0, 10, -5);
+        this.up = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.fromValues(0, 0, 1);
+    }
+    wheelListener(e) {
+        const deltaPos = e.deltaY / this.cameraSpeed;
+        this.basePosition[1] -= deltaPos;
+        this.basePosition[2] += deltaPos / 2;
+    }
+    mousedownListener(e) {
+        this.mouseDown = true;
+    }
+    mousemoveListener(e) {
+        if (this.mouseDown) {
+            this.xRotation += e.movementY / this.cameraSpeed;
+            this.zRotation += e.movementX / this.cameraSpeed;
+            gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.rotateX(this.up, [0, 0, 1], [0, 0, 1], this.xRotation);
+        }
+    }
+    mouseupListener(e) {
+        this.mouseDown = false;
+    }
+    registerCallbacks(canvas) {
+        canvas.addEventListener("mousedown", (e) => { this.mousedownListener(e); });
+        canvas.addEventListener("mousemove", (e) => { this.mousemoveListener(e); });
+        canvas.addEventListener("wheel", (e) => { this.wheelListener(e); });
+        window.addEventListener("mouseup", (e) => { this.mouseupListener(e); });
     }
     getMatrix() {
         const matrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.create();
         gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.identity(matrix);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.translate(matrix, matrix, this.position);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.rotateY(matrix, matrix, this.angle[0]);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.rotateX(matrix, matrix, this.angle[1]);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.rotateZ(matrix, matrix, this.angle[2]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.lookAt(matrix, [0, 0, 0], this.basePosition, this.up);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.translate(matrix, matrix, this.basePosition);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.rotateX(matrix, matrix, this.xRotation);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.rotateZ(matrix, matrix, this.zRotation);
         return matrix;
+    }
+    update() {
+        //this.step += 1;
     }
 }
 
@@ -6469,8 +6627,6 @@ class CompositeObject extends _sceneObject__WEBPACK_IMPORTED_MODULE_0__["default
     }
     render() {
         for (const child of this.childList) {
-            const modelMatrixLoc = this.glProgram.getUniformLocation("modelMatrix");
-            this.glContext.gl.uniformMatrix4fv(modelMatrixLoc, false, this.modelMatrix);
             child.render();
         }
     }
@@ -6490,9 +6646,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ Castle)
 /* harmony export */ });
 /* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! gl-matrix/esm/vec4 */ "./node_modules/gl-matrix/esm/vec4.js");
 /* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
 /* harmony import */ var _castleFloor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./castleFloor */ "./src/scene/objects/castleFloor.ts");
 /* harmony import */ var _castleTower__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./castleTower */ "./src/scene/objects/castleTower.ts");
+// @ts-ignore
+
 // @ts-ignore
 
 
@@ -6501,19 +6660,20 @@ __webpack_require__.r(__webpack_exports__);
 class Castle extends _compositeObject__WEBPACK_IMPORTED_MODULE_0__.CompositeObject {
     constructor(glContext, glProgram, config) {
         super(glContext, glProgram);
-        for (let i = 0; i < config.pisosCastillo; i++) {
+        for (let i = 0; i < config.castleFloors; i++) {
             const castleBody = new _castleFloor__WEBPACK_IMPORTED_MODULE_1__["default"](glContext, glProgram, config);
             const bodyMat = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.create();
             const position = [0, 0, i];
             gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.fromTranslation(bodyMat, position);
             castleBody.setBaseModelMatrix(bodyMat);
+            castleBody.baseColor = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_4__.fromValues(0.8, 0.8, 0.4, 1);
             this.addChild(castleBody);
         }
         const towerPositions = [
-            [-config.anchoCastillo / 2, -config.largoCastillo / 2, 0],
-            [-config.anchoCastillo / 2, config.largoCastillo / 2, 0],
-            [config.anchoCastillo / 2, -config.largoCastillo / 2, 0],
-            [config.anchoCastillo / 2, config.largoCastillo / 2, 0],
+            [-config.castleWidth / 2, -config.castleLength / 2, 0],
+            [-config.castleWidth / 2, config.castleLength / 2, 0],
+            [config.castleWidth / 2, -config.castleLength / 2, 0],
+            [config.castleWidth / 2, config.castleLength / 2, 0],
         ];
         for (const position of towerPositions) {
             const tower = new _castleTower__WEBPACK_IMPORTED_MODULE_2__["default"](glContext, glProgram, config);
@@ -6540,9 +6700,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ CastleFloor)
 /* harmony export */ });
 /* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! gl-matrix/esm/vec4 */ "./node_modules/gl-matrix/esm/vec4.js");
 /* harmony import */ var _shapes_cube__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../shapes/cube */ "./src/shapes/cube.ts");
 /* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
 /* harmony import */ var _sceneObject__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../sceneObject */ "./src/scene/sceneObject.ts");
+// @ts-ignore
+
 // @ts-ignore
 
 
@@ -6557,9 +6720,10 @@ class CastleFloor extends _compositeObject__WEBPACK_IMPORTED_MODULE_1__.Composit
         const base = new _shapes_cube__WEBPACK_IMPORTED_MODULE_0__["default"](glContext, glProgram);
         const baseObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_2__["default"](glContext, glProgram, base);
         const mMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.fromScaling(mMatrix, [config.anchoCastillo, config.largoCastillo, 1]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.fromScaling(mMatrix, [config.castleWidth, config.castleLength, 1]);
         gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.translate(mMatrix, mMatrix, [-0.5, -0.5, 0]);
         baseObj.baseModelMatrix = mMatrix;
+        baseObj.baseColor = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_4__.fromValues(0.8, 0.8, 0.4, 1);
         this.addChild(baseObj);
     }
 }
@@ -6577,20 +6741,25 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ CastleTower)
 /* harmony export */ });
-/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! gl-matrix/esm/vec4 */ "./node_modules/gl-matrix/esm/vec4.js");
 /* harmony import */ var _curves_bezier__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../curves/bezier */ "./src/curves/bezier.ts");
-/* harmony import */ var _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../shapes/revolutionSurface */ "./src/shapes/revolutionSurface.ts");
-/* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
-/* harmony import */ var _sceneObject__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../sceneObject */ "./src/scene/sceneObject.ts");
+/* harmony import */ var _curves_path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../curves/path */ "./src/curves/path.ts");
+/* harmony import */ var _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../shapes/revolutionSurface */ "./src/shapes/revolutionSurface.ts");
+/* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
+/* harmony import */ var _sceneObject__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../sceneObject */ "./src/scene/sceneObject.ts");
+// @ts-ignore
+
 // @ts-ignore
 
 
 
 
 
-const bodySRadius = 0.7;
+
+const bodySRadius = 0.5;
 const bodyLRadius = 0.95;
-class CastleTower extends _compositeObject__WEBPACK_IMPORTED_MODULE_2__.CompositeObject {
+class CastleTower extends _compositeObject__WEBPACK_IMPORTED_MODULE_3__.CompositeObject {
     constructor(glContext, glProgram, config) {
         super(glContext, glProgram);
         this.buildRoof(glContext, glProgram, config);
@@ -6598,26 +6767,35 @@ class CastleTower extends _compositeObject__WEBPACK_IMPORTED_MODULE_2__.Composit
     }
     buildRoof(glContext, glProgram, config) {
         const curve = new _curves_bezier__WEBPACK_IMPORTED_MODULE_0__.CubicBezier([1, 0, 0, 0, 0, 0.5, 0.1, 0, 1, 0, 0, 1], 10);
-        const roof = new _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_1__["default"](glContext, glProgram, curve.points, Math.PI * 2, 20);
+        const roof = new _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_2__["default"](glContext, glProgram, curve, Math.PI * 2, 20);
         roof.build();
-        const roofObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_3__["default"](glContext, glProgram, roof);
-        const roofMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromTranslation(roofMatrix, [0, 0, config.pisosCastillo + 0.5]);
+        const roofObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, roof);
+        const roofMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.fromTranslation(roofMatrix, [0, 0, config.castleFloors + 0.5]);
         roofObj.baseModelMatrix = roofMatrix;
+        roofObj.baseColor = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_6__.fromValues(0.4, 0.4, 0.8, 1);
         this.addChild(roofObj);
     }
     buildBody(glContext, glProgram, config) {
-        const bodyPoints = new Array();
-        bodyPoints.push([bodySRadius, 0, 0]);
-        const curve = new _curves_bezier__WEBPACK_IMPORTED_MODULE_0__.CubicBezier([bodySRadius, 0, config.pisosCastillo - 0.5,
-            bodySRadius, 0, config.pisosCastillo - 0.25,
-            bodyLRadius, 0, config.pisosCastillo - 0.25,
-            bodyLRadius, 0, config.pisosCastillo + 0.25], 5);
-        bodyPoints.push(...curve.points);
-        bodyPoints.push([bodyLRadius, 0, config.pisosCastillo + 0.5]);
-        const body = new _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_1__["default"](glContext, glProgram, bodyPoints, Math.PI * 2, 10);
+        const bodyPath = new _curves_path__WEBPACK_IMPORTED_MODULE_1__.CompositePath();
+        bodyPath.addPath(_curves_path__WEBPACK_IMPORTED_MODULE_1__.CompositePath.fromPoints([
+            [bodySRadius, 0, 0],
+            [bodySRadius, 0, config.castleFloors - 0.5],
+        ]));
+        console.log("Castle tower body: ", bodyPath);
+        const curve = new _curves_bezier__WEBPACK_IMPORTED_MODULE_0__.CubicBezier([bodySRadius, 0, config.castleFloors - 0.5,
+            bodySRadius, 0, config.castleFloors - 0.25,
+            bodyLRadius, 0, config.castleFloors + 0.25,
+            bodyLRadius, 0, config.castleFloors + 0.25], 10);
+        bodyPath.addPath(curve);
+        bodyPath.addPath(_curves_path__WEBPACK_IMPORTED_MODULE_1__.CompositePath.fromPoints([
+            [bodyLRadius, 0, config.castleFloors + 0.25],
+            [bodyLRadius, 0, config.castleFloors + 0.5],
+        ]));
+        const body = new _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_2__["default"](glContext, glProgram, bodyPath, Math.PI * 2, 10);
         body.build();
-        const bodyObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_3__["default"](glContext, glProgram, body);
+        const bodyObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, body);
+        bodyObj.baseColor = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_6__.fromValues(0.8, 0.8, 0.4, 1);
         this.addChild(bodyObj);
     }
 }
@@ -6715,7 +6893,7 @@ const kTowerWidth = 1;
 class FortressWall extends _compositeObject__WEBPACK_IMPORTED_MODULE_0__.CompositeObject {
     constructor(glContext, glProgram, config) {
         super(glContext, glProgram);
-        const fortressTowers = config.ladosMuralla;
+        const fortressTowers = config.nWalls;
         const angleStep = Math.PI * 2 / fortressTowers;
         const baseAngle = angleStep / 2;
         // Towers
@@ -6731,22 +6909,73 @@ class FortressWall extends _compositeObject__WEBPACK_IMPORTED_MODULE_0__.Composi
         }
         // Walls
         for (let i = 0; i < fortressTowers - 1; i++) {
-            const tower = new _wall__WEBPACK_IMPORTED_MODULE_1__["default"](glContext, glProgram);
+            const wall = new _wall__WEBPACK_IMPORTED_MODULE_1__["default"](glContext, glProgram);
             const mMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.create();
             gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.fromZRotation(mMatrix, angleStep * i + baseAngle);
-            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.translate(mMatrix, mMatrix, [kWallRadius + (kTowerWidth - kWallWidth) / 2, 0, 0]);
+            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.translate(mMatrix, mMatrix, [kWallRadius + (kTowerWidth + kWallWidth * 3) / 2, -3 * kWallWidth, 0]);
             const wallAngle = -(Math.PI - angleStep) / 2;
             gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.rotateZ(mMatrix, mMatrix, wallAngle);
             const wallLength = this.getWallLength(angleStep, kWallRadius);
-            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.scale(mMatrix, mMatrix, [wallLength, kWallWidth, 1.5]);
             gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.translate(mMatrix, mMatrix, [-1, 0, 0]);
-            tower.baseModelMatrix = mMatrix;
-            this.addChild(tower);
+            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.scale(mMatrix, mMatrix, [wallLength, kWallWidth, 1]);
+            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.rotateZ(mMatrix, mMatrix, Math.PI / 2);
+            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.rotateX(mMatrix, mMatrix, -Math.PI / 2);
+            wall.baseModelMatrix = mMatrix;
+            this.addChild(wall);
         }
     }
     getWallLength(angle, radius) {
         const s = Math.sin(angle / 2);
         return s * radius * 2;
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/scene/objects/land.ts":
+/*!***********************************!*\
+  !*** ./src/scene/objects/land.ts ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Land)
+/* harmony export */ });
+/* harmony import */ var _curves_path__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../curves/path */ "./src/curves/path.ts");
+/* harmony import */ var _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../shapes/revolutionSurface */ "./src/shapes/revolutionSurface.ts");
+/* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
+/* harmony import */ var _sceneObject__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../sceneObject */ "./src/scene/sceneObject.ts");
+
+
+
+
+class Land extends _compositeObject__WEBPACK_IMPORTED_MODULE_2__.CompositeObject {
+    constructor(glContext, glProgram) {
+        super(glContext, glProgram);
+        this.buildCenter(glContext, glProgram);
+        this.buildLand(glContext, glProgram);
+    }
+    buildCenter(glContext, glProgram) {
+        const shape = _curves_path__WEBPACK_IMPORTED_MODULE_0__.CompositePath.fromPoints([[0, 0, 0.25], [0.34, 0, 0.25], [0.35, 0, 0.25], [0.40, 0, 0]]);
+        const center = new _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_1__["default"](glContext, glProgram, shape, Math.PI * 2, 20);
+        center.build();
+        const centerObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_3__["default"](glContext, glProgram, center);
+        this.addChild(centerObj);
+    }
+    buildLand(glContext, glProgram) {
+        const shape = _curves_path__WEBPACK_IMPORTED_MODULE_0__.CompositePath.fromPoints([
+            [0, 0, 0],
+            [0.49, 0, 0], [0.5, 0, 0],
+            [0.55, 0, 0.25],
+            [0.99, 0, 0.25],
+            [1, 0, 0.25],
+        ]);
+        const land = new _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_1__["default"](glContext, glProgram, shape, Math.PI * 2, 9);
+        land.build();
+        const centerObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_3__["default"](glContext, glProgram, land);
+        this.addChild(centerObj);
     }
 }
 
@@ -6763,52 +6992,58 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Wall)
 /* harmony export */ });
-/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! gl-matrix/esm/vec4 */ "./node_modules/gl-matrix/esm/vec4.js");
 /* harmony import */ var _curves_bezier__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../curves/bezier */ "./src/curves/bezier.ts");
-/* harmony import */ var _shapes_sweepSurface__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../shapes/sweepSurface */ "./src/shapes/sweepSurface.ts");
-/* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
-/* harmony import */ var _sceneObject__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../sceneObject */ "./src/scene/sceneObject.ts");
+/* harmony import */ var _curves_path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../curves/path */ "./src/curves/path.ts");
+/* harmony import */ var _shapes_sweepSurface__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../shapes/sweepSurface */ "./src/shapes/sweepSurface.ts");
+/* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
+/* harmony import */ var _sceneObject__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../sceneObject */ "./src/scene/sceneObject.ts");
+// @ts-ignore
+
 // @ts-ignore
 
 
 
 
 
+
 const wallTopHeight = 0.2;
-class Wall extends _compositeObject__WEBPACK_IMPORTED_MODULE_2__.CompositeObject {
+class Wall extends _compositeObject__WEBPACK_IMPORTED_MODULE_3__.CompositeObject {
     constructor(glContext, glProgram) {
         super(glContext, glProgram);
         this.buildWall(glContext, glProgram);
         this.buildTop(glContext, glProgram);
-        const mMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromScaling(mMatrix, [1, 0.2, 1]);
-        this.baseModelMatrix = mMatrix;
+        this.baseColor = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_5__.fromValues(0.4, 0.4, 0.4, 1);
     }
     buildTop(glContext, glProgram) {
         // TODO: Improve with a linear path
-        const path = new _curves_bezier__WEBPACK_IMPORTED_MODULE_0__.CubicBezier([0, 0, 0, 0.33, 0, 0, 0.66, 0, 0, 1, 0, 0], 8);
-        const shape = [[0, 0, 0], [0, 1, 0], [0.25, 1, 0], [0.25, 0.5, 0],
-            [0.75, 0.5, 0], [0.75, 1, 0], [1, 1, 0], [1, 0, 0]];
-        const top = new _shapes_sweepSurface__WEBPACK_IMPORTED_MODULE_1__.SweepSurface(glContext, glProgram, shape, path);
+        const path = new _curves_bezier__WEBPACK_IMPORTED_MODULE_0__.CubicBezier([0, 0, 0, 0, 0, 0.33, 0, 0, 0.66, 0, 0, 1], 8);
+        const shape = _curves_path__WEBPACK_IMPORTED_MODULE_1__.CompositePath.fromPoints([
+            [0, 0, 0], [0, 1, 0], [0.25, 1, 0], [0.25, 0.5, 0],
+            [0.75, 0.5, 0], [0.75, 1, 0], [1, 1, 0], [1, 0, 0]
+        ]);
+        const top = new _shapes_sweepSurface__WEBPACK_IMPORTED_MODULE_2__.SweepSurface(glContext, glProgram, shape, path);
         top.build();
-        const obj = new _sceneObject__WEBPACK_IMPORTED_MODULE_3__["default"](glContext, glProgram, top);
-        const objMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromTranslation(objMatrix, [0, -1, 1]);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.scale(objMatrix, objMatrix, [1, 1, wallTopHeight]);
+        const obj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, top);
+        const objMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.fromTranslation(objMatrix, [-1, -1, 0]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.scale(objMatrix, objMatrix, [1, wallTopHeight, 1]);
         obj.baseModelMatrix = objMatrix;
         this.addChild(obj);
     }
     buildWall(glContext, glProgram) {
         // TODO: use Extrude or similar
-        const path = new _curves_bezier__WEBPACK_IMPORTED_MODULE_0__.CubicBezier([0, 0, 0, 0.33, 0, 0, 0.66, 0, 0, 1, 0, 0], 8);
-        const shape = new _curves_bezier__WEBPACK_IMPORTED_MODULE_0__.CubicBezier([1, 0, 0, 1, 0.5, 0, 0, 0.5, 0, 0, 1, 0], 10);
-        const wall = new _shapes_sweepSurface__WEBPACK_IMPORTED_MODULE_1__.SweepSurface(glContext, glProgram, shape.points, path);
+        const path = new _curves_bezier__WEBPACK_IMPORTED_MODULE_0__.CubicBezier([0, 0, 0, 0, 0, 0.33, 0, 0, 0.66, 0, 0, 1], 4);
+        console.log("Wall path:", path);
+        const shape = new _curves_bezier__WEBPACK_IMPORTED_MODULE_0__.CubicBezier([1, 0, 0, 1, 0.25, 0, 0, 0.75, 0, 0, 1, 0], 20);
+        const wall = new _shapes_sweepSurface__WEBPACK_IMPORTED_MODULE_2__.SweepSurface(glContext, glProgram, shape, path);
         wall.build();
-        const wallObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_3__["default"](glContext, glProgram, wall);
-        const wallObj2 = new _sceneObject__WEBPACK_IMPORTED_MODULE_3__["default"](glContext, glProgram, wall);
-        const wall2Matrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromZRotation(wall2Matrix, Math.PI);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.translate(wall2Matrix, wall2Matrix, [-1, 1, 0]);
+        const wallObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, wall);
+        const wallObj2 = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, wall);
+        const wall2Matrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.fromYRotation(wall2Matrix, Math.PI);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.translate(wall2Matrix, wall2Matrix, [1, 0, -1]);
         wallObj2.baseModelMatrix = wall2Matrix;
         this.addChild(wallObj);
         this.addChild(wallObj2);
@@ -6829,9 +7064,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ WallTower)
 /* harmony export */ });
 /* harmony import */ var _curves_bezier__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../curves/bezier */ "./src/curves/bezier.ts");
-/* harmony import */ var _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../shapes/revolutionSurface */ "./src/shapes/revolutionSurface.ts");
-/* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
-/* harmony import */ var _sceneObject__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../sceneObject */ "./src/scene/sceneObject.ts");
+/* harmony import */ var _curves_path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../curves/path */ "./src/curves/path.ts");
+/* harmony import */ var _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../shapes/revolutionSurface */ "./src/shapes/revolutionSurface.ts");
+/* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
+/* harmony import */ var _sceneObject__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../sceneObject */ "./src/scene/sceneObject.ts");
+
 
 
 
@@ -6840,28 +7077,29 @@ const bodySRadius = 0.7;
 const bodyMRadius = 0.8;
 const bodyLRadius = 1;
 const towerHeight = 5;
-class WallTower extends _compositeObject__WEBPACK_IMPORTED_MODULE_2__.CompositeObject {
+class WallTower extends _compositeObject__WEBPACK_IMPORTED_MODULE_3__.CompositeObject {
     constructor(glContext, glProgram) {
         super(glContext, glProgram);
         this.buildBody(glContext, glProgram);
     }
     buildBody(glContext, glProgram) {
-        const path = new Array();
+        const path = new _curves_path__WEBPACK_IMPORTED_MODULE_1__.CompositePath();
         const pathCurve = new _curves_bezier__WEBPACK_IMPORTED_MODULE_0__.CubicBezier([bodyLRadius, 0, 0,
             bodyLRadius, 0, 0.5 * towerHeight,
             bodySRadius * 0.5, 0, 0.8 * towerHeight,
             bodyMRadius, 0, towerHeight], 8);
-        path.push(...pathCurve.points);
-        const wallTopPoints = [
+        path.addPath(pathCurve);
+        const wallTopPath = _curves_path__WEBPACK_IMPORTED_MODULE_1__.CompositePath.fromPoints([
             [bodyMRadius, 0, towerHeight + 1],
             [bodySRadius, 0, towerHeight + 1],
             [bodySRadius, 0, towerHeight + 0.5],
             [0, 0, towerHeight + 0.5],
-        ];
-        path.push(...wallTopPoints);
-        const body = new _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_1__["default"](glContext, glProgram, path, Math.PI * 2, 20);
+            [0, 0, towerHeight + 0.5],
+        ]);
+        path.addPath(wallTopPath);
+        const body = new _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_2__["default"](glContext, glProgram, path, Math.PI * 2, 10);
         body.build();
-        const bodyObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_3__["default"](glContext, glProgram, body);
+        const bodyObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, body);
         this.addChild(bodyObj);
     }
 }
@@ -6881,13 +7119,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _curves_bezier__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../curves/bezier */ "./src/curves/bezier.ts");
 /* harmony import */ var _curves_polygon__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../curves/polygon */ "./src/curves/polygon.ts");
-/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
 /* harmony import */ var _objects_castle__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./objects/castle */ "./src/scene/objects/castle.ts");
 /* harmony import */ var _objects_catapult__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./objects/catapult */ "./src/scene/objects/catapult.ts");
 /* harmony import */ var _objects_fortressWall__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./objects/fortressWall */ "./src/scene/objects/fortressWall.ts");
+/* harmony import */ var _objects_land__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./objects/land */ "./src/scene/objects/land.ts");
 
 
 // @ts-ignore
+
 
 
 
@@ -6914,11 +7154,11 @@ class Scene {
         const normalFragAttr = this.program.getAttribLocation("aNormal");
         gl.enableVertexAttribArray(normalFragAttr);
         const cameraMatrix = this.camera.getMatrix();
-        const projMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.identity(projMatrix);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.perspective(projMatrix, 45, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
-        const modelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.identity(modelMatrix);
+        const projMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.identity(projMatrix);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.perspective(projMatrix, 45, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
+        const modelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.identity(modelMatrix);
         // Set uniforms
         const modelMatrixLoc = this.program.getUniformLocation("modelMatrix");
         const cameraMatrixLoc = this.program.getUniformLocation("cameraMatrix");
@@ -6932,26 +7172,36 @@ class Scene {
         for (const object of this.renderableList) {
             object.updateModelMatrix(modelMatrix);
         }
+        this.camera.update();
     }
     render() {
         for (const renderable of this.renderableList) {
             renderable.render();
         }
     }
+    setCamera(camera) {
+        this.camera = camera;
+    }
     buildRenderables() {
         const curve = new _curves_bezier__WEBPACK_IMPORTED_MODULE_0__.CubicBezier([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0], 20);
         const polygon = new _curves_polygon__WEBPACK_IMPORTED_MODULE_1__["default"](this.glContext, this.program);
         polygon.setVecPoints(curve.points);
+        const land = new _objects_land__WEBPACK_IMPORTED_MODULE_5__["default"](this.glContext, this.program);
+        const landMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.fromScaling(landMatrix, [20, 20, 2]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.translate(landMatrix, landMatrix, [0, 0, -0.25]);
+        land.setBaseModelMatrix(landMatrix);
+        this.renderableList.push(land);
         const catapult = new _objects_catapult__WEBPACK_IMPORTED_MODULE_3__["default"](this.glContext, this.program);
-        const catapultMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.fromTranslation(catapultMatrix, [10, 0, 0]);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.scale(catapultMatrix, catapultMatrix, [0.2, 0.2, 0.2]);
+        const catapultMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.fromTranslation(catapultMatrix, [10, 0, 0]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.scale(catapultMatrix, catapultMatrix, [0.2, 0.2, 0.2]);
         catapult.baseModelMatrix = catapultMatrix;
         this.renderableList.push(catapult);
         const castle = new _objects_castle__WEBPACK_IMPORTED_MODULE_2__["default"](this.glContext, this.program, this.config);
         this.renderableList.push(castle);
-        const wallTower = new _objects_fortressWall__WEBPACK_IMPORTED_MODULE_4__["default"](this.glContext, this.program, this.config);
-        this.renderableList.push(wallTower);
+        const fortressWall = new _objects_fortressWall__WEBPACK_IMPORTED_MODULE_4__["default"](this.glContext, this.program, this.config);
+        this.renderableList.push(fortressWall);
     }
 }
 
@@ -6968,24 +7218,35 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ SceneObject)
 /* harmony export */ });
-/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! gl-matrix/esm/vec4 */ "./node_modules/gl-matrix/esm/vec4.js");
+// @ts-ignore
+
 // @ts-ignore
 
 class SceneObject {
     constructor(glContext, glProgram, renderable) {
         this.glContext = glContext;
         this.glProgram = glProgram;
-        this.modelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_0__.create();
-        this.baseModelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_0__.create();
+        this.baseColor = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_0__.fromValues(0.6, 0.6, 0.6, 1);
+        this.normalMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.create();
+        this.modelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.create();
+        this.baseModelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.create();
         this.renderable = renderable;
     }
     updateModelMatrix(parentMatrix) {
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_0__.multiply(this.modelMatrix, parentMatrix, this.baseModelMatrix);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.multiply(this.modelMatrix, parentMatrix, this.baseModelMatrix);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.invert(this.normalMatrix, this.modelMatrix);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.transpose(this.normalMatrix, this.normalMatrix);
     }
     render() {
         if (this.renderable) {
             const modelMatrixLoc = this.glProgram.getUniformLocation("modelMatrix");
             this.glContext.gl.uniformMatrix4fv(modelMatrixLoc, false, this.modelMatrix);
+            const normalMatrixLoc = this.glProgram.getUniformLocation("normalMatrix");
+            this.glContext.gl.uniformMatrix4fv(normalMatrixLoc, false, this.normalMatrix);
+            const baseColor = this.glProgram.getUniformLocation("modelColor");
+            this.glContext.gl.uniform4fv(baseColor, this.baseColor);
             this.renderable.render();
         }
     }
@@ -7006,41 +7267,89 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _gl__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../gl */ "./src/gl.ts");
 
-class Cube {
-    constructor(glContext, glProgram) {
+class Square {
+    constructor(glContext, glProgram, positions, normal) {
         this.size = 3; // 3components per iteration
         this.normalize = false; // don't normalize the data
         this.stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
         this.offset = 0; // start at the beginning of the buffer
-        this.indexes = [0, 1, 2, 3, 6, 7, 7, 3, 5, 1, 4, 0, 0, 2, 4, 6, 5, 7];
         this.glContext = glContext;
         this.glProgram = glProgram;
         const gl = glContext.gl;
         this.type = gl.FLOAT;
-        this.buffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(gl);
+        this.positions = positions;
+        this.normals = [];
+        this.indexes = [0, 1, 2, 3];
+        for (const i of this.indexes) {
+            this.normals.push(...normal);
+        }
+        this.positionBuffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(gl);
+        this.normalBuffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(gl);
         this.indexBuffer = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlBuffer(gl, gl.ELEMENT_ARRAY_BUFFER);
-        const positions = [
-            0, 0, 0,
+        this.positionBuffer.bufferData(new Float32Array(this.positions), gl.STATIC_DRAW);
+        this.indexBuffer.bufferData(new Uint16Array(this.indexes), gl.STATIC_DRAW);
+        this.normalBuffer.bufferData(new Float32Array(this.normals), gl.STATIC_DRAW);
+    }
+    render() {
+        const gl = this.glContext.gl;
+        // normals
+        this.normalBuffer.bindBuffer();
+        const normalFragAttr = this.glProgram.getAttribLocation("aNormal");
+        gl.vertexAttribPointer(normalFragAttr, this.size, this.type, this.normalize, this.stride, this.offset);
+        // pos attribute
+        this.positionBuffer.bindBuffer();
+        const positionAttributeLocation = this.glProgram.getAttribLocation("a_position");
+        gl.vertexAttribPointer(positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
+        this.indexBuffer.bindBuffer();
+        gl.drawElements(gl.TRIANGLE_STRIP, this.indexes.length, gl.UNSIGNED_SHORT, 0);
+    }
+}
+class Cube {
+    constructor(glContext, glProgram) {
+        this.glContext = glContext;
+        this.glProgram = glProgram;
+        this.faces = [];
+        let facePoints = [0, 0, 0,
             0, 0, 1,
             0, 1, 0,
             0, 1, 1,
+        ];
+        this.faces.push(new Square(glContext, glProgram, facePoints, [-1, 0, 0]));
+        facePoints = [0, 0, 0,
+            0, 0, 1,
             1, 0, 0,
+            1, 0, 1,
+        ];
+        this.faces.push(new Square(glContext, glProgram, facePoints, [0, -1, 0]));
+        facePoints = [0, 0, 0,
+            1, 0, 0,
+            0, 1, 0,
+            1, 1, 0,
+        ];
+        this.faces.push(new Square(glContext, glProgram, facePoints, [0, 0, -1]));
+        facePoints = [1, 0, 0,
             1, 0, 1,
             1, 1, 0,
             1, 1, 1,
         ];
-        this.buffer.bufferData(new Float32Array(positions), gl.STATIC_DRAW);
-        this.indexBuffer.bufferData(new Uint16Array(this.indexes), gl.STATIC_DRAW);
-        this.bufferSize = positions.length / this.size;
+        this.faces.push(new Square(glContext, glProgram, facePoints, [1, 0, 0]));
+        facePoints = [0, 1, 0,
+            0, 1, 1,
+            1, 1, 0,
+            1, 1, 1,
+        ];
+        this.faces.push(new Square(glContext, glProgram, facePoints, [0, 1, 0]));
+        facePoints = [0, 0, 1,
+            1, 0, 1,
+            0, 1, 1,
+            1, 1, 1,
+        ];
+        this.faces.push(new Square(glContext, glProgram, facePoints, [0, 0, 1]));
     }
     render() {
-        const gl = this.glContext.gl;
-        this.buffer.bindBuffer();
-        this.indexBuffer.bindBuffer();
-        const positionAttributeLocation = this.glProgram.getAttribLocation("a_position");
-        gl.vertexAttribPointer(positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
-        gl.drawElements(gl.TRIANGLE_STRIP, this.indexes.length, gl.UNSIGNED_SHORT, 0);
-        gl.drawElements(gl.LINE_STRIP, this.indexes.length, gl.UNSIGNED_SHORT, 0);
+        for (const face of this.faces) {
+            face.render();
+        }
     }
 }
 
@@ -7164,9 +7473,9 @@ __webpack_require__.r(__webpack_exports__);
  */
 class RevolutionSurface extends _surface__WEBPACK_IMPORTED_MODULE_0__.Surface {
     constructor(glContext, glProgram, shape, angle, rows) {
-        super(glContext, glProgram, rows - 1, shape.length - 1);
-        this.points = new Array();
-        this.normals = new Array();
+        super(glContext, glProgram, rows - 1, shape.points.length - 1);
+        this.points = [];
+        this.normals = [];
         const angleStep = angle / (rows - 1);
         // Since we only rotate around Z axis, we can fix normal matrix
         for (let i = 0; i < rows; ++i) {
@@ -7176,25 +7485,19 @@ class RevolutionSurface extends _surface__WEBPACK_IMPORTED_MODULE_0__.Surface {
             const row3 = [0, 0, 1, 0];
             const positionVector = [0, 0, 0, 1];
             const pathMat = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.fromValues(...row1, ...row2, ...row3, ...positionVector);
-            for (let shapeIdx = 0; shapeIdx < shape.length; shapeIdx++) {
-                const shapePoint = shape[shapeIdx];
+            for (const shapePoint of shape.points) {
                 const extPoint = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_2__.fromValues(...shapePoint, 1);
                 const point4d = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_2__.create();
                 gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_2__.transformMat4(point4d, extPoint, pathMat);
                 const point3d = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.fromValues(...point4d);
-                if (shapeIdx !== 0) {
-                    const normal = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.create();
-                    gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.sub(normal, shape[shapeIdx], shape[shapeIdx - 1]);
-                    gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.normalize(normal, normal);
-                    gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.rotateX(normal, normal, [0, 0, 0], curAngle);
-                    this.normals.push(normal);
-                }
-                else {
-                    const normal = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.create();
-                    gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.fromValues(normal, [Math.sin(curAngle), Math.cos(curAngle), 0]);
-                    this.normals.push(normal);
-                }
                 this.points.push(point3d);
+            }
+            for (const shapeNormal of shape.normals) {
+                const normal = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_2__.fromValues(...shapeNormal, 0);
+                gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_2__.transformMat4(normal, normal, pathMat);
+                const normalv3 = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.fromValues(...normal);
+                gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.normalize(normalv3, normalv3);
+                this.normals.push(normalv3);
             }
         }
     }
@@ -7329,8 +7632,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "SweepSurface": () => (/* binding */ SweepSurface)
 /* harmony export */ });
 /* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
-/* harmony import */ var gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! gl-matrix/esm/vec3 */ "./node_modules/gl-matrix/esm/vec3.js");
-/* harmony import */ var gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! gl-matrix/esm/vec4 */ "./node_modules/gl-matrix/esm/vec4.js");
+/* harmony import */ var gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! gl-matrix/esm/vec3 */ "./node_modules/gl-matrix/esm/vec3.js");
+/* harmony import */ var gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! gl-matrix/esm/vec4 */ "./node_modules/gl-matrix/esm/vec4.js");
 /* harmony import */ var _surface__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./surface */ "./src/shapes/surface.ts");
 // @ts-ignore
 
@@ -7342,16 +7645,22 @@ __webpack_require__.r(__webpack_exports__);
 class SweepSurface extends _surface__WEBPACK_IMPORTED_MODULE_0__.Surface {
     constructor(glContext, glProgram, shape, path) {
         const rows = path.points.length;
-        super(glContext, glProgram, rows - 1, shape.length - 1);
+        super(glContext, glProgram, rows - 1, shape.points.length - 1);
         this.points = new Array();
+        this.normals = new Array();
         for (let i = 0; i < rows; ++i) {
             const pathMat = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.fromValues(...path.normals[i], 0, ...path.binormals[i], 0, ...path.tangents[i], 0, ...path.points[i], 1);
-            for (const shapePoint of shape) {
-                const extPoint = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_2__.fromValues(...shapePoint, 1);
-                const point4d = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_2__.create();
-                gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_2__.transformMat4(point4d, extPoint, pathMat);
-                const point3d = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.fromValues(...point4d);
-                this.points.push(point3d);
+            for (const shapePoint of shape.points) {
+                const point = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_2__.create();
+                gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_2__.transformMat4(point, shapePoint, pathMat);
+                this.points.push(point);
+            }
+            for (const shapeNormal of shape.normals) {
+                const normal = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_3__.fromValues(...shapeNormal, 0);
+                gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_3__.transformMat4(normal, normal, pathMat);
+                const normalv3 = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_2__.fromValues(...normal);
+                gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_2__.normalize(normalv3, normalv3);
+                this.normals.push(normalv3);
             }
         }
     }
@@ -7359,7 +7668,9 @@ class SweepSurface extends _surface__WEBPACK_IMPORTED_MODULE_0__.Surface {
         return [];
     }
     getNormal(u, v) {
-        return [0.5, 0.5, 0.5];
+        const normalIdx = this.getIndexFromXY(u, v);
+        const normal = this.normals[normalIdx];
+        return [...normal];
     }
     getUV(x, y) {
         return [x, y];
@@ -7386,11 +7697,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 class Config {
     constructor() {
-        this.pisosCastillo = 1;
-        this.largoCastillo = 2;
-        this.anchoCastillo = 2;
-        this.ladosMuralla = 6;
-        this.alturaMuralla = 1;
+        this.castleFloors = 1;
+        this.castleLength = 2;
+        this.castleWidth = 2;
+        this.nWalls = 4;
+        this.wallHeight = 1;
+        this.cameraType = 1;
     }
 }
 
@@ -7461,11 +7773,13 @@ var __webpack_exports__ = {};
   \**********************/
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _gl__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./gl */ "./src/gl.ts");
-/* harmony import */ var _scene_camera__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./scene/camera */ "./src/scene/camera.ts");
-/* harmony import */ var _scene_scene__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./scene/scene */ "./src/scene/scene.ts");
-/* harmony import */ var dat_gui__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! dat.gui */ "./node_modules/dat.gui/build/dat.gui.module.js");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils */ "./src/utils.ts");
+/* harmony import */ var _scene_camera_camera__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./scene/camera/camera */ "./src/scene/camera/camera.ts");
+/* harmony import */ var _scene_camera_orbitalCamera__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./scene/camera/orbitalCamera */ "./src/scene/camera/orbitalCamera.ts");
+/* harmony import */ var _scene_scene__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./scene/scene */ "./src/scene/scene.ts");
+/* harmony import */ var dat_gui__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! dat.gui */ "./node_modules/dat.gui/build/dat.gui.module.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils */ "./src/utils.ts");
 /* eslint no-console:0 consistent-return:0 */
+
 
 
 
@@ -7473,7 +7787,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 let scene;
-const config = new _utils__WEBPACK_IMPORTED_MODULE_4__.Config();
+const mouseCamera = new _scene_camera_camera__WEBPACK_IMPORTED_MODULE_1__.MouseCamera();
+const orbitalCamera = new _scene_camera_orbitalCamera__WEBPACK_IMPORTED_MODULE_2__.OrbitalCamera();
+const config = new _utils__WEBPACK_IMPORTED_MODULE_5__.Config();
 async function main() {
     // Get A WebGL context
     const canvas = document.querySelector("#glCanvas");
@@ -7496,18 +7812,12 @@ async function main() {
     // Tell it to use our program (pair of shaders)
     program.use();
     // Camera init
-    const camera = new _scene_camera__WEBPACK_IMPORTED_MODULE_1__.MouseCamera();
-    canvas.addEventListener("mousedown", (e) => { camera.mousedownListener(e); });
-    canvas.addEventListener("mousemove", (e) => { camera.mousemoveListener(e); });
-    canvas.addEventListener("wheel", (e) => { camera.wheelListener(e); });
-    canvas.addEventListener("touchstart", (e) => { camera.touchstartListener(e); });
-    canvas.addEventListener("touchmove", (e) => { camera.touchmoveListener(e); });
-    window.addEventListener("mouseup", (e) => { camera.mouseupListener(e); });
-    window.addEventListener("keydown", (e) => { camera.keypressListener(e); });
+    mouseCamera.registerCallbacks(canvas);
+    orbitalCamera.registerCallbacks(canvas);
     // Menu
     initMenu();
     // Scene init
-    scene = new _scene_scene__WEBPACK_IMPORTED_MODULE_2__["default"](context, program, camera, config);
+    scene = new _scene_scene__WEBPACK_IMPORTED_MODULE_3__["default"](context, program, orbitalCamera, config);
     // Render loop init
     tick();
 }
@@ -7521,12 +7831,28 @@ function tick() {
     scene.render();
 }
 function initMenu() {
-    const gui = new dat_gui__WEBPACK_IMPORTED_MODULE_3__.GUI();
-    gui.add(config, "pisosCastillo", 1, 5, 1).onChange(configChanged);
-    gui.add(config, "largoCastillo", 1, 3).onChange(configChanged);
-    gui.add(config, "anchoCastillo", 1, 3).onChange(configChanged);
-    gui.add(config, "ladosMuralla", 4, 8, 1).onChange(configChanged);
-    gui.add(config, "alturaMuralla", 1, 3).onChange(configChanged);
+    const gui = new dat_gui__WEBPACK_IMPORTED_MODULE_4__.GUI();
+    const castilloFolder = gui.addFolder("Castillo");
+    castilloFolder.add(config, "castleFloors", 1, 5, 1).name("Pisos").onChange(configChanged);
+    castilloFolder.add(config, "castleLength", 1, 3).name("Largo").onChange(configChanged);
+    castilloFolder.add(config, "castleWidth", 1, 3).name("Ancho").onChange(configChanged);
+    const murallaFolder = gui.addFolder("Muralla");
+    murallaFolder.add(config, "nWalls", 4, 8, 1).name("Cantidad de muros").onChange(configChanged);
+    murallaFolder.add(config, "wallHeight", 1, 3).name("Alto").onChange(configChanged);
+    const camaraFolder = gui.addFolder("Cámara");
+    camaraFolder.add(config, "cameraType", { "Primera persona": 0, "Orbital": 1 })
+        .name("Tipo de cámara")
+        .onChange(cameraChanged);
+}
+function cameraChanged(value) {
+    switch (value) {
+        case "0":
+            scene.setCamera(mouseCamera);
+            break;
+        case "1":
+            scene.setCamera(orbitalCamera);
+            break;
+    }
 }
 function configChanged() {
     scene.rebuildScene();

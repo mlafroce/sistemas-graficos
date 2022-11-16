@@ -1,5 +1,6 @@
 // @ts-ignore
 import * as vec3 from "gl-matrix/esm/vec3";
+import Path from "./path";
 
 function combinations(n: number, k: number): number {
     // Optimization
@@ -33,7 +34,7 @@ class Bezier {
     }
 }
 
-export class CubicBezier {
+export class CubicBezier implements Path {
     public points: Float32Array[];
     public tangents: Float32Array[];
     public normals: Float32Array[];
@@ -100,9 +101,20 @@ export class CubicBezier {
             this.tangents.push(vec3.normalize(v, v));
         }
         // used if points are collinear
-        const auxNormal = vec3.create();
-        vec3.rotateZ(auxNormal, this.tangents[0], [0, 0, 0], Math.PI / 2);
-
+        // Find a point that belongs to tangent normal plane
+        // aX + bY + cZ = 0
+        // Z = (aX + bY) / (-c)
+        // Where [a, b, c] is the tangent line
+        // Let's find Z value for X = 1 and Y = 0
+        // First, lets check if our tangent is on XY plane
+        let auxNormal;
+        if (this.tangents[0][2] === 0) {
+            auxNormal = vec3.fromValues(0 , 0, 1);
+        } else {
+            const normZ = this.tangents[0][0] / this.tangents[0][2];
+            auxNormal = vec3.fromValues(1, 0, normZ);
+            vec3.normalize(auxNormal, auxNormal);
+        }
         // Normals
         const xbezNorms = CubicBezier.buildCubicNormal1d(controlPointsAux[0], curvePoints);
         const ybezNorms = CubicBezier.buildCubicNormal1d(controlPointsAux[1], curvePoints);
@@ -113,6 +125,7 @@ export class CubicBezier {
             // check if normal is empty or collinear
             if (!vec3.equals(v, [0, 0, 0]) && !vec3.equals(v, this.tangents[i])) {
                 this.normals.push(v);
+                auxNormal = v;
             } else {
                 this.normals.push(auxNormal);
             }
@@ -121,7 +134,7 @@ export class CubicBezier {
         // Binormals
         for (let i = 0; i < this.normals.length; i++) {
             const binormal = vec3.create();
-            vec3.cross(binormal, this.tangents[i], this.normals[i]);
+            vec3.cross(binormal, this.normals[i], this.tangents[i]);
             this.binormals.push(vec3.normalize(binormal, binormal));
         }
     }

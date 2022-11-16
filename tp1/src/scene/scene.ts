@@ -7,17 +7,19 @@ import * as mat4 from "gl-matrix/esm/mat4";
 // @ts-ignore
 import * as vec3 from "gl-matrix/esm/vec3";
 import {Config} from "../utils";
-import {Camera} from "./camera";
+import {Camera} from "./camera/camera";
 import Castle from "./objects/castle";
 import Catapult from "./objects/catapult";
 import FortressWall from "./objects/fortressWall";
+import Wall from "./objects/fortressWall";
+import Land from "./objects/land";
 import SceneObject from "./sceneObject";
 
 export default class Scene {
     private readonly glContext: GlContext;
     private readonly program: GlProgram;
-    private readonly camera: Camera;
     private readonly config: Config;
+    private camera: Camera;
 
     private renderableList: SceneObject[] = new Array();
 
@@ -68,6 +70,8 @@ export default class Scene {
         for (const object of this.renderableList) {
             object.updateModelMatrix(modelMatrix);
         }
+
+        this.camera.update();
     }
 
     public render() {
@@ -76,11 +80,22 @@ export default class Scene {
         }
     }
 
+    public setCamera(camera: Camera) {
+        this.camera = camera;
+    }
+
     private buildRenderables() {
         const curve = new CubicBezier([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0], 20);
         const polygon = new Polygon(this.glContext, this.program);
 
         polygon.setVecPoints(curve.points);
+
+        const land = new Land(this.glContext, this.program);
+        const landMatrix = mat4.create();
+        mat4.fromScaling(landMatrix, [20, 20, 2]);
+        mat4.translate(landMatrix, landMatrix, [0, 0, -0.25]);
+        land.setBaseModelMatrix(landMatrix);
+        this.renderableList.push(land);
 
         const catapult = new Catapult(this.glContext, this.program);
         const catapultMatrix = mat4.create();
@@ -92,7 +107,7 @@ export default class Scene {
         const castle = new Castle(this.glContext, this.program, this.config);
         this.renderableList.push(castle);
 
-        const wallTower = new FortressWall(this.glContext, this.program, this.config);
-        this.renderableList.push(wallTower);
+        const fortressWall = new Wall(this.glContext, this.program, this.config);
+        this.renderableList.push(fortressWall);
     }
 }

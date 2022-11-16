@@ -1,7 +1,8 @@
 export class Config {
-    public pisosCastillo: number = 1;
-    public largoCastillo: number = 2;
-    public anchoCastillo: number = 2;
-    public ladosMuralla: number = 6;
-    public alturaMuralla: number = 1;
+    public castleFloors: number = 1;
+    public castleLength: number = 2;
+    public castleWidth: number = 2;
+    public nWalls: number = 4;
+    public wallHeight: number = 1;
+    public cameraType: number = 1;
 }

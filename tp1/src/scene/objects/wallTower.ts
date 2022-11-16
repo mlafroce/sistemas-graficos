@@ -1,4 +1,5 @@
 import {CubicBezier} from "../../curves/bezier";
+import {CompositePath} from "../../curves/path";
 import {GlContext, GlProgram} from "../../gl";
 import RevolutionSurface from "../../shapes/revolutionSurface";
 import {CompositeObject} from "../compositeObject";
@@ -16,23 +17,24 @@ export default class WallTower extends CompositeObject {
     }
 
     private buildBody(glContext: GlContext, glProgram: GlProgram) {
-        const path = new Array();
+        const path = new CompositePath();
         const pathCurve = new CubicBezier(
             [bodyLRadius, 0, 0,
                 bodyLRadius, 0, 0.5 * towerHeight,
                 bodySRadius * 0.5, 0, 0.8 * towerHeight,
                 bodyMRadius, 0, towerHeight],
             8);
-        path.push(...pathCurve.points);
-        const wallTopPoints = [
+        path.addPath(pathCurve);
+        const wallTopPath = CompositePath.fromPoints([
             [bodyMRadius, 0, towerHeight + 1],
             [bodySRadius, 0, towerHeight + 1],
             [bodySRadius, 0, towerHeight + 0.5],
             [0, 0, towerHeight + 0.5],
-        ];
-        path.push(...wallTopPoints);
+            [0, 0, towerHeight + 0.5],
+        ]);
+        path.addPath(wallTopPath);
 
-        const body = new RevolutionSurface(glContext, glProgram, path, Math.PI * 2, 20);
+        const body = new RevolutionSurface(glContext, glProgram, path, Math.PI * 2, 10);
         body.build();
         const bodyObj = new SceneObject(glContext, glProgram, body);
         this.addChild(bodyObj);

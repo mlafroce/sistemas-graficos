@@ -13,7 +13,7 @@ const kTowerWidth = 1;
 export default class FortressWall extends CompositeObject {
     constructor(glContext: GlContext, glProgram: GlProgram, config: Config) {
         super(glContext, glProgram);
-        const fortressTowers = config.ladosMuralla;
+        const fortressTowers = config.nWalls;
         const angleStep = Math.PI * 2 / fortressTowers;
         const baseAngle = angleStep / 2;
         // Towers
@@ -29,17 +29,19 @@ export default class FortressWall extends CompositeObject {
         }
         // Walls
         for (let i = 0; i < fortressTowers - 1; i++) {
-            const tower = new Wall(glContext, glProgram);
+            const wall = new Wall(glContext, glProgram);
             const mMatrix = mat4.create();
             mat4.fromZRotation(mMatrix, angleStep * i + baseAngle);
-            mat4.translate(mMatrix, mMatrix, [kWallRadius + (kTowerWidth - kWallWidth) / 2, 0, 0]);
+            mat4.translate(mMatrix, mMatrix, [kWallRadius + ( kTowerWidth + kWallWidth * 3) / 2, - 3 * kWallWidth, 0]);
             const wallAngle = - (Math.PI - angleStep) / 2;
             mat4.rotateZ(mMatrix, mMatrix, wallAngle);
             const wallLength = this.getWallLength(angleStep, kWallRadius);
-            mat4.scale(mMatrix, mMatrix, [wallLength, kWallWidth, 1.5]);
             mat4.translate(mMatrix, mMatrix, [-1, 0, 0]);
-            tower.baseModelMatrix = mMatrix;
-            this.addChild(tower);
+            mat4.scale(mMatrix, mMatrix, [wallLength, kWallWidth, 1]);
+            mat4.rotateZ(mMatrix, mMatrix, Math.PI / 2);
+            mat4.rotateX(mMatrix, mMatrix, -Math.PI / 2);
+            wall.baseModelMatrix = mMatrix;
+            this.addChild(wall);
         }
     }
 

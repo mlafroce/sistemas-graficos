@@ -1,12 +1,15 @@
 /* eslint no-console:0 consistent-return:0 */
 import {GlContext} from "./gl";
-import {MouseCamera} from "./scene/camera";
+import {MouseCamera} from "./scene/camera/camera";
+import {OrbitalCamera} from "./scene/camera/orbitalCamera";
 import Scene from "./scene/scene";
 // @ts-ignore
 import * as dat from "dat.gui";
 import {Config} from "./utils";
 
 let scene: Scene | undefined;
+const mouseCamera = new MouseCamera();
+const orbitalCamera = new OrbitalCamera();
 
 const config: Config = new Config();
 
@@ -37,19 +40,12 @@ async function main() {
   // Tell it to use our program (pair of shaders)
   program.use();
   // Camera init
-  const camera: MouseCamera = new MouseCamera();
-  canvas.addEventListener("mousedown", (e) => { camera.mousedownListener(e); });
-  canvas.addEventListener("mousemove", (e) => { camera.mousemoveListener(e); });
-  canvas.addEventListener("wheel", (e) => { camera.wheelListener(e); });
-  canvas.addEventListener("touchstart", (e) => { camera.touchstartListener(e); });
-  canvas.addEventListener("touchmove", (e) => { camera.touchmoveListener(e); });
-  window.addEventListener("mouseup", (e) => { camera.mouseupListener(e); });
-  window.addEventListener("keydown", (e) => { camera.keypressListener(e); });
-
+  mouseCamera.registerCallbacks(canvas);
+  orbitalCamera.registerCallbacks(canvas);
   // Menu
   initMenu();
   // Scene init
-  scene = new Scene(context, program, camera, config);
+  scene = new Scene(context, program, orbitalCamera, config);
   // Render loop init
   tick();
 }
@@ -67,11 +63,28 @@ function tick() {
 
 function initMenu() {
   const gui = new dat.GUI();
-  gui.add(config, "pisosCastillo", 1, 5, 1).onChange(configChanged);
-  gui.add(config, "largoCastillo", 1, 3).onChange(configChanged);
-  gui.add(config, "anchoCastillo", 1, 3).onChange(configChanged);
-  gui.add(config, "ladosMuralla", 4, 8, 1).onChange(configChanged);
-  gui.add(config, "alturaMuralla", 1, 3).onChange(configChanged);
+  const castilloFolder = gui.addFolder("Castillo");
+  castilloFolder.add(config, "castleFloors", 1, 5, 1).name("Pisos").onChange(configChanged);
+  castilloFolder.add(config, "castleLength", 1, 3).name("Largo").onChange(configChanged);
+  castilloFolder.add(config, "castleWidth", 1, 3).name("Ancho").onChange(configChanged);
+  const murallaFolder = gui.addFolder("Muralla");
+  murallaFolder.add(config, "nWalls", 4, 8, 1).name("Cantidad de muros").onChange(configChanged);
+  murallaFolder.add(config, "wallHeight", 1, 3).name("Alto").onChange(configChanged);
+  const camaraFolder = gui.addFolder("Cámara");
+  camaraFolder.add(config, "cameraType", {"Primera persona": 0, "Orbital": 1})
+      .name("Tipo de cámara")
+      .onChange(cameraChanged);
+}
+
+function cameraChanged(value: string) {
+  switch (value) {
+    case "0":
+      scene!.setCamera(mouseCamera);
+      break;
+    case "1":
+      scene!.setCamera(orbitalCamera);
+      break;
+  }
 }
 
 function configChanged() {
