@@ -4,7 +4,6 @@ import {GlContext, GlProgram} from "../gl";
 import SceneObject from "./sceneObject";
 
 export class CompositeObject extends SceneObject {
-    public baseModelMatrix: mat4 = mat4.create();
     protected childList: SceneObject[] = new Array();
 
     constructor(public glContext: GlContext, public glProgram: GlProgram) {

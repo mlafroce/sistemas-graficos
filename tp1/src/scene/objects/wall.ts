@@ -5,6 +5,7 @@ import * as vec4 from "gl-matrix/esm/vec4";
 import {CubicBezier} from "../../curves/bezier";
 import {CompositePath} from "../../curves/path";
 import {GlContext, GlProgram} from "../../gl";
+import RevolutionSurface from "../../shapes/revolutionSurface";
 import {SweepSurface} from "../../shapes/sweepSurface";
 import {CompositeObject} from "../compositeObject";
 import SceneObject from "../sceneObject";
@@ -21,7 +22,7 @@ export default class Wall extends CompositeObject {
 
     private buildTop(glContext: GlContext, glProgram: GlProgram) {
         // TODO: Improve with a linear path
-        const path = new CubicBezier([0, 0, 0, 0, 0, 0.33, 0, 0, 0.66, 0, 0, 1], 8);
+        const path = CubicBezier.from3dPoints([0, 0, 0, 0, 0, 0.33, 0, 0, 0.66, 0, 0, 1], 8);
         const shape = CompositePath.fromPoints([
             [0, 0, 0], [0, 1, 0], [0.25, 1, 0], [0.25, 0.5, 0],
             [0.75, 0.5, 0], [0.75, 1, 0], [1, 1, 0], [1, 0, 0]]);
@@ -37,9 +38,8 @@ export default class Wall extends CompositeObject {
 
     private buildWall(glContext: GlContext, glProgram: GlProgram) {
         // TODO: use Extrude or similar
-        const path = new CubicBezier([0, 0, 0, 0, 0, 0.33, 0, 0, 0.66, 0, 0, 1], 4);
-        console.log("Wall path:", path);
-        const shape = new CubicBezier([1, 0, 0, 1, 0.25, 0, 0, 0.75, 0, 0, 1, 0], 20);
+        const path = CubicBezier.from3dPoints([0, 0, 0, 0, 0, 0.33, 0, 0, 0.66, 0, 0, 1], 4);
+        const shape = CubicBezier.from2dPoints([[0, 1], [0, 0.6], [1, 0.4], [1, 0]], 5);
         const wall = new SweepSurface(glContext, glProgram, shape, path);
         wall.build();
         const wallObj = new SceneObject(glContext, glProgram, wall);

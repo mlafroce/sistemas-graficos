@@ -65,7 +65,7 @@ export default class Scene {
         gl.uniformMatrix4fv(cameraMatrixLoc, false, cameraMatrix);
         gl.uniformMatrix4fv(projMatrixLoc, false, projMatrix);
         gl.uniformMatrix4fv(modelMatrixLoc, false, modelMatrix);
-        gl.uniform4fv(baseColor, [0.6, 0.6, 0.6, 1]);
+        gl.uniform4fv(baseColor, [0.7, 0.7, 0.7, 1]);
 
         for (const object of this.renderableList) {
             object.updateModelMatrix(modelMatrix);
@@ -85,11 +85,6 @@ export default class Scene {
     }
 
     private buildRenderables() {
-        const curve = new CubicBezier([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0], 20);
-        const polygon = new Polygon(this.glContext, this.program);
-
-        polygon.setVecPoints(curve.points);
-
         const land = new Land(this.glContext, this.program);
         const landMatrix = mat4.create();
         mat4.fromScaling(landMatrix, [20, 20, 2]);

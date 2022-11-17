@@ -31,16 +31,10 @@ export default class RevolutionSurface extends Surface {
         // Since we only rotate around Z axis, we can fix normal matrix
         for (let i = 0; i < rows; ++i) {
             const curAngle = angleStep * i;
-            const row1 = [Math.sin(curAngle), Math.cos(curAngle), 0, 0];
-            const row2 = [Math.cos(curAngle), -Math.sin(curAngle), 0, 0];
-            const row3 = [0, 0, 1, 0];
-            const positionVector = [0, 0, 0, 1];
-
-            const pathMat = mat4.fromValues(
-                ... row1,
-                ... row2,
-                ... row3,
-                ... positionVector);
+            const pathMat = mat4.create();
+            mat4.fromZRotation(pathMat, curAngle);
+            // Our shape lives in XY plane, lets move it to XZ
+            mat4.rotateX(pathMat, pathMat, Math.PI / 2);
 
             for (const shapePoint of shape.points) {
                 const extPoint = vec4.fromValues(...shapePoint, 1);

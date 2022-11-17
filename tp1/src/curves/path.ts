@@ -1,6 +1,5 @@
 // @ts-ignore
 import * as vec3 from "gl-matrix/esm/vec3";
-import {CubicBezier} from "./bezier";
 
 export default interface Path {
     points: Float32Array[];
@@ -22,16 +21,23 @@ export class CompositePath implements Path {
         this.binormals.push(...path.binormals);
     }
 
+    /**
+     * Create a 3d path from an array of points
+     * @param path points to follow. If z component is 0, a binormal [0, 0, 1] is chosen
+     */
     public static fromPoints(path: vec3[]): CompositePath {
         const output = new CompositePath();
         for (let i = 0; i < path.length - 1; i++) {
             const tangent = vec3.create();
             vec3.sub(tangent, path[i + 1], path[i]);
             vec3.normalize(tangent, tangent);
-            const normal = getNormal(tangent);
+            const binormal = getBinormal(tangent);
+            const normal = vec3.create();
+            vec3.cross(normal, binormal, tangent);
             output.points.push(path[i]);
             output.tangents.push(tangent);
             output.normals.push(normal);
+            output.binormals.push(binormal);
         }
         // Add last point and duplicate last tangents and normals
         output.points.push(path[path.length - 1]);
@@ -41,7 +47,7 @@ export class CompositePath implements Path {
     }
 }
 
-function getNormal(tangent: vec3): vec3 {
+function getBinormal(tangent: vec3): vec3 {
     if (tangent[2] === 0) {
         return vec3.fromValues(0, 0, 1);
     } else {

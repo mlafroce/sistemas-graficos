@@ -30,13 +30,12 @@ export default class FortressWall extends CompositeObject {
         // Walls
         for (let i = 0; i < fortressTowers - 1; i++) {
             const wall = new Wall(glContext, glProgram);
+            const wallLength = this.getWallLength(angleStep, kWallRadius);
             const mMatrix = mat4.create();
             mat4.fromZRotation(mMatrix, angleStep * i + baseAngle);
-            mat4.translate(mMatrix, mMatrix, [kWallRadius + ( kTowerWidth + kWallWidth * 3) / 2, - 3 * kWallWidth, 0]);
+            mat4.translate(mMatrix, mMatrix, [kWallRadius + ( kTowerWidth) / 2, -2 * kWallWidth, 0]);
             const wallAngle = - (Math.PI - angleStep) / 2;
             mat4.rotateZ(mMatrix, mMatrix, wallAngle);
-            const wallLength = this.getWallLength(angleStep, kWallRadius);
-            mat4.translate(mMatrix, mMatrix, [-1, 0, 0]);
             mat4.scale(mMatrix, mMatrix, [wallLength, kWallWidth, 1]);
             mat4.rotateZ(mMatrix, mMatrix, Math.PI / 2);
             mat4.rotateX(mMatrix, mMatrix, -Math.PI / 2);

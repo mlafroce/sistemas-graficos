@@ -18,21 +18,21 @@ export default class WallTower extends CompositeObject {
 
     private buildBody(glContext: GlContext, glProgram: GlProgram) {
         const path = new CompositePath();
-        const pathCurve = new CubicBezier(
-            [bodyLRadius, 0, 0,
-                bodyLRadius, 0, 0.5 * towerHeight,
-                bodySRadius * 0.5, 0, 0.8 * towerHeight,
-                bodyMRadius, 0, towerHeight],
-            8);
-        path.addPath(pathCurve);
         const wallTopPath = CompositePath.fromPoints([
-            [bodyMRadius, 0, towerHeight + 1],
-            [bodySRadius, 0, towerHeight + 1],
-            [bodySRadius, 0, towerHeight + 0.5],
-            [0, 0, towerHeight + 0.5],
-            [0, 0, towerHeight + 0.5],
+            [0, towerHeight + 0.5, 0],
+            [bodySRadius - 0.1, towerHeight + 0.5, 0],
+            [bodySRadius, towerHeight + 0.5, 0],
+            [bodySRadius, towerHeight + 1, 0],
+            [bodyMRadius, towerHeight + 1, 0],
         ]);
         path.addPath(wallTopPath);
+        const pathCurve = CubicBezier.from2dPoints(
+            [[bodyMRadius, towerHeight],
+                [bodySRadius * 0.5, 0.8 * towerHeight],
+                [bodyLRadius, 0.5 * towerHeight],
+                [bodyLRadius, 0]],
+                8);
+        path.addPath(pathCurve);
 
         const body = new RevolutionSurface(glContext, glProgram, path, Math.PI * 2, 10);
         body.build();

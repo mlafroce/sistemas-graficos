@@ -10,8 +10,8 @@ import {Config} from "../../utils";
 import {CompositeObject} from "../compositeObject";
 import SceneObject from "../sceneObject";
 
-const bodySRadius = 0.5;
-const bodyLRadius = 0.95;
+const bodySRadius = 0.6;
+const bodyLRadius = 0.9;
 
 export default class CastleTower extends CompositeObject {
     constructor(glContext: GlContext, glProgram: GlProgram, config: Config) {
@@ -21,8 +21,8 @@ export default class CastleTower extends CompositeObject {
     }
 
     private buildRoof(glContext: GlContext, glProgram: GlProgram, config: Config) {
-        const curve = new CubicBezier([1, 0, 0, 0, 0, 0.5, 0.1, 0, 1, 0, 0, 1], 10);
-        const roof = new RevolutionSurface(glContext, glProgram, curve, Math.PI * 2, 20);
+        const curve = CubicBezier.from2dPoints([[0, 1], [0.5, 0], [1, 0.1], [1, 0]], 10);
+        const roof = new RevolutionSurface(glContext, glProgram, curve, Math.PI * 2, 10);
         roof.build();
         const roofObj = new SceneObject(glContext, glProgram, roof);
         const roofMatrix = mat4.create();
@@ -36,20 +36,19 @@ export default class CastleTower extends CompositeObject {
     private buildBody(glContext: GlContext, glProgram: GlProgram, config: Config) {
         const bodyPath = new CompositePath();
         bodyPath.addPath(CompositePath.fromPoints([
-            [bodySRadius, 0, 0],
-            [bodySRadius, 0, config.castleFloors - 0.5],
+            [bodyLRadius, config.castleFloors + 0.5, 0],
+            [bodyLRadius, config.castleFloors + 0.25, 0],
         ]));
-        console.log("Castle tower body: ", bodyPath);
-        const curve = new CubicBezier(
-            [bodySRadius, 0, config.castleFloors - 0.5,
-                bodySRadius, 0, config.castleFloors - 0.25,
-                bodyLRadius, 0, config.castleFloors + 0.25,
-                bodyLRadius, 0, config.castleFloors + 0.25],
+        const curve = CubicBezier.from2dPoints(
+            [[bodyLRadius, config.castleFloors + 0.25],
+                [bodyLRadius, config.castleFloors],
+                [bodySRadius, config.castleFloors ],
+                [bodySRadius, config.castleFloors - 0.25]],
             10);
         bodyPath.addPath(curve);
         bodyPath.addPath(CompositePath.fromPoints([
-            [bodyLRadius, 0, config.castleFloors + 0.25],
-            [bodyLRadius, 0, config.castleFloors + 0.5],
+            [bodySRadius, config.castleFloors - 0.25, 0],
+            [bodySRadius, 0, 0],
         ]));
 
         const body = new RevolutionSurface(glContext, glProgram, bodyPath, Math.PI * 2, 10);

@@ -1,4 +1,6 @@
 // @ts-ignore
+import * as vec2 from "gl-matrix/esm/vec2";
+// @ts-ignore
 import * as vec3 from "gl-matrix/esm/vec3";
 import Path from "./path";
 
@@ -17,7 +19,7 @@ function combinations(n: number, k: number): number {
 class Bezier {
     public static buildGeneric1d(controlPoints: number[], curvePoints: number): number[] {
         const order = controlPoints.length - 1;
-        const result: number[] = new Array();
+        const result: number[] = [];
         for (let i = 0; i < curvePoints; i++) {
             const u = i / (curvePoints - 1);
             // Bezier poly for each U
@@ -40,13 +42,49 @@ export class CubicBezier implements Path {
     public normals: Float32Array[];
     public binormals: Float32Array[];
 
-    constructor(controlPoints: number[], curvePoints: number) {
-        this.points = new Array();
-        this.tangents = new Array();
-        this.normals = new Array();
-        this.binormals = new Array();
+    private constructor() {
+        this.points = [];
+        this.tangents = [];
+        this.normals = [];
+        this.binormals = [];
+    }
 
-        this.buildCubicBezier(controlPoints, curvePoints);
+    public static from3dPoints(controlPoints: number[], curvePoints: number): CubicBezier {
+        const curve = new CubicBezier();
+        curve.buildCubicBezier(controlPoints, curvePoints);
+        return curve;
+    }
+
+    /*
+       2d bezier curves, useful for sweep and revolution surfaces!
+       Normal vectors are defined as [0, 0, 1]
+     */
+    public static from2dPoints(controlPoints: vec2[], curvePoints: number): CubicBezier {
+        const curve = new CubicBezier();
+
+        const xbezPoints = Bezier.buildGeneric1d(controlPoints.map((v) => v[0]), curvePoints);
+        const ybezPoints = Bezier.buildGeneric1d(controlPoints.map((v) => v[1]), curvePoints);
+        curve.points = xbezPoints.map((item, i) => vec3.fromValues(item, ybezPoints[i], 0));
+
+        const xbezTans = CubicBezier.buildCubicTangent1d(controlPoints.map((v) => v[0]), curvePoints);
+        const ybezTans = CubicBezier.buildCubicTangent1d(controlPoints.map((v) => v[1]), curvePoints);
+
+        curve.tangents = xbezTans.map((item, i) => {
+            const tangent = vec3.fromValues(item, ybezTans[i], 0);
+            return vec3.normalize(tangent, tangent);
+        });
+
+        // Normals
+        for (const tangent of curve.tangents) {
+            const normal = vec3.create();
+            vec3.cross(normal, [0, 0, 1], tangent);
+            curve.normals.push(vec3.normalize(normal, normal));
+        }
+
+        for (const _ of curve.points) {
+            curve.binormals.push(vec3.fromValues(0, 0, 1));
+        }
+        return curve;
     }
 
     public static buildCubicTangent1d(controlPoints: number[], curvePoints: number): number[] {
@@ -64,7 +102,7 @@ export class CubicBezier implements Path {
     }
 
     public static buildCubicNormal1d(controlPoints: number[], curvePoints: number): number[] {
-        const result: number[] = new Array();
+        const result: number[] = [];
         const p0 = controlPoints[0];
         const p1 = controlPoints[1];
         const p2 = controlPoints[2];
