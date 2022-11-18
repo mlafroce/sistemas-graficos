@@ -69,7 +69,7 @@ function initMenu() {
   castilloFolder.add(config, "castleWidth", 1, 3).name("Ancho").onChange(configChanged);
   const murallaFolder = gui.addFolder("Muralla");
   murallaFolder.add(config, "nWalls", 4, 8, 1).name("Cantidad de muros").onChange(configChanged);
-  murallaFolder.add(config, "wallHeight", 1, 3).name("Alto").onChange(configChanged);
+  murallaFolder.add(config, "wallHeight", 1, 2).name("Alto").onChange(configChanged);
   const camaraFolder = gui.addFolder("Cámara");
   camaraFolder.add(config, "cameraType", {"Primera persona": 0, "Orbital": 1})
       .name("Tipo de cámara")

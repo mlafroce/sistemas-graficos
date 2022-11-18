@@ -7,8 +7,9 @@ import Wall from "./wall";
 import WallTower from "./wallTower";
 
 const kWallRadius = 5;
-const kWallWidth = 0.25;
-const kTowerWidth = 1;
+const kWallWidth = 0.2;
+const kTowerWidth = 0.8;
+const kTowerHeight = 0.2;
 
 export default class FortressWall extends CompositeObject {
     constructor(glContext: GlContext, glProgram: GlProgram, config: Config) {
@@ -18,11 +19,11 @@ export default class FortressWall extends CompositeObject {
         const baseAngle = angleStep / 2;
         // Towers
         for (let i = 0; i < fortressTowers; i++) {
-            const tower = new WallTower(glContext, glProgram);
+            const tower = new WallTower(glContext, glProgram, config);
             const mMatrix = mat4.create();
             mat4.fromZRotation(mMatrix, angleStep * i + baseAngle);
             mat4.translate(mMatrix, mMatrix, [kWallRadius, 0, 0]);
-            mat4.scale(mMatrix, mMatrix, [kTowerWidth, kTowerWidth, 0.5]);
+            mat4.scale(mMatrix, mMatrix, [kTowerWidth, kTowerWidth, kTowerHeight]);
             mat4.rotateZ(mMatrix, mMatrix, -angleStep * i + baseAngle);
             tower.baseModelMatrix = mMatrix;
             this.addChild(tower);
@@ -33,10 +34,10 @@ export default class FortressWall extends CompositeObject {
             const wallLength = this.getWallLength(angleStep, kWallRadius);
             const mMatrix = mat4.create();
             mat4.fromZRotation(mMatrix, angleStep * i + baseAngle);
-            mat4.translate(mMatrix, mMatrix, [kWallRadius + ( kTowerWidth) / 2, -2 * kWallWidth, 0]);
+            mat4.translate(mMatrix, mMatrix, [kWallRadius + kWallWidth / 2 , kWallWidth / 2, 0]);
             const wallAngle = - (Math.PI - angleStep) / 2;
             mat4.rotateZ(mMatrix, mMatrix, wallAngle);
-            mat4.scale(mMatrix, mMatrix, [wallLength, kWallWidth, 1]);
+            mat4.scale(mMatrix, mMatrix, [wallLength, kWallWidth, config.wallHeight / 2]);
             mat4.rotateZ(mMatrix, mMatrix, Math.PI / 2);
             mat4.rotateX(mMatrix, mMatrix, -Math.PI / 2);
             wall.baseModelMatrix = mMatrix;
