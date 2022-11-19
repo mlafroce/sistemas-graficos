@@ -7,7 +7,7 @@ import * as mat4 from "gl-matrix/esm/mat4";
 // @ts-ignore
 import * as vec3 from "gl-matrix/esm/vec3";
 import {Config} from "../utils";
-import {Camera} from "./camera/camera";
+import {Camera} from "./camera/firstPersonCamera";
 import Castle from "./objects/castle";
 import Catapult from "./objects/catapult";
 import FortressWall from "./objects/fortressWall";

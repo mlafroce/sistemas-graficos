@@ -10,10 +10,11 @@ export interface Camera {
     update(): mat4;
 }
 
-export class MouseCamera implements Camera {
+export class FirstPersonCamera implements Camera {
     private cursorX: number = 0;
     private cursorY: number = 0;
-    private angle: vec3;
+    private angleX: number = 0;
+    private angleY: number = 0;
     private position: vec3;
     private mouseDown: boolean = false;
     private readonly cameraSpeed: number = 100;
@@ -21,31 +22,26 @@ export class MouseCamera implements Camera {
     private readonly keyboardSpeed: number = 0.2;
 
     constructor() {
-        this.angle = vec3.create();
-        this.angle[1] = -30 * Math.PI / 180;
+        //this.angle[1] = -30 * Math.PI / 180;
+        this.angleX = Math.PI / 2;
         this.position = vec3.create();
-        this.position[1] = 10;
-        this.position[2] = -10;
+        this.position[1] = -5;
+        this.position[2] = 2;
     }
 
     public wheelListener(e: WheelEvent) {
-        const deltaPos = vec4.fromValues(0, e.deltaY / this.cameraSpeed, 0, 0);
-        const cameraMatrix = this.getMatrix();
-
-        vec4.transformMat4(deltaPos, deltaPos, cameraMatrix);
-        vec4.add(this.position, this.position, deltaPos);
     }
 
     public mousedownListener(e: MouseEvent) {
-        this.angle[0] += (e.movementX / this.cameraSpeed);
-        this.angle[1] += (e.movementY / this.cameraSpeed);
+        this.angleX += (e.movementX / this.cameraSpeed);
+        this.angleY += (e.movementY / this.cameraSpeed);
         this.mouseDown = true;
     }
 
     public mousemoveListener(e: MouseEvent) {
         if (this.mouseDown) {
-            this.angle[0] += (e.movementX / this.cameraSpeed);
-            this.angle[1] += (e.movementY / this.cameraSpeed);
+            this.angleX += (e.movementX / this.cameraSpeed);
+            this.angleY += (e.movementY / this.cameraSpeed);
         }
     }
 
@@ -61,26 +57,30 @@ export class MouseCamera implements Camera {
     public touchmoveListener(e: TouchEvent) {
         const offsetX = this.cursorX - e.touches[0].pageX;
         const offsetY = this.cursorY - e.touches[0].pageY;
-        this.angle[0] += (offsetX / this.touchSpeed);
-        this.angle[1] += (offsetY / this.touchSpeed);
+        this.angleX += (offsetX / this.touchSpeed);
+        this.angleY += (offsetY / this.touchSpeed);
         this.touchstartListener(e);
     }
 
     public keypressListener(e: KeyboardEvent) {
+        const delta = vec3.create();
         switch (e.key) {
             case "w":
-                this.position[2] -= this.keyboardSpeed;
+                delta[1] = -this.keyboardSpeed;
                 break;
             case "a":
-                this.position[0] += this.keyboardSpeed;
+                delta[0] = -this.keyboardSpeed;
                 break;
             case "s":
-                this.position[2] += this.keyboardSpeed;
+                delta[1] = this.keyboardSpeed;
                 break;
             case "d":
-                this.position[0] -= this.keyboardSpeed;
+                delta[0] = this.keyboardSpeed;
                 break;
+            default:
+                return;
         }
+        vec3.add(this.position, this.position, delta);
     }
 
     public registerCallbacks(canvas: HTMLCanvasElement) {
@@ -94,12 +94,15 @@ export class MouseCamera implements Camera {
     }
 
     public getMatrix(): mat4 {
+        const angleDelta = [
+            Math.cos(this.angleX) * Math.cos(this.angleY),
+            Math.sin(this.angleX) * Math.cos(this.angleY),
+            Math.sin(this.angleY)];
+        const eyeTarget = vec3.create();
+        vec3.add(eyeTarget, this.position, angleDelta);
         const matrix = mat4.create();
         mat4.identity(matrix);
-        mat4.rotateZ(matrix, matrix, this.angle[2]);
-        mat4.rotateY(matrix, matrix, this.angle[0]);
-        mat4.rotateX(matrix, matrix, this.angle[1]);
-        mat4.translate(matrix, matrix, this.position);
+        mat4.lookAt(matrix, this.position, eyeTarget, [0, 0, 1]);
         return matrix;
     }
 

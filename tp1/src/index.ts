@@ -1,14 +1,14 @@
 /* eslint no-console:0 consistent-return:0 */
-import {GlContext} from "./gl";
-import {MouseCamera} from "./scene/camera/camera";
-import {OrbitalCamera} from "./scene/camera/orbitalCamera";
-import Scene from "./scene/scene";
 // @ts-ignore
 import * as dat from "dat.gui";
+import {GlContext} from "./gl";
+import {FirstPersonCamera} from "./scene/camera/firstPersonCamera";
+import {OrbitalCamera} from "./scene/camera/orbitalCamera";
+import Scene from "./scene/scene";
 import {Config} from "./utils";
 
 let scene: Scene | undefined;
-const mouseCamera = new MouseCamera();
+const fpCamera = new FirstPersonCamera();
 const orbitalCamera = new OrbitalCamera();
 
 const config: Config = new Config();
@@ -40,12 +40,12 @@ async function main() {
   // Tell it to use our program (pair of shaders)
   program.use();
   // Camera init
-  mouseCamera.registerCallbacks(canvas);
+  fpCamera.registerCallbacks(canvas);
   orbitalCamera.registerCallbacks(canvas);
   // Menu
   initMenu();
   // Scene init
-  scene = new Scene(context, program, orbitalCamera, config);
+  scene = new Scene(context, program, fpCamera, config);
   // Render loop init
   tick();
 }
@@ -79,7 +79,7 @@ function initMenu() {
 function cameraChanged(value: string) {
   switch (value) {
     case "0":
-      scene!.setCamera(mouseCamera);
+      scene!.setCamera(fpCamera);
       break;
     case "1":
       scene!.setCamera(orbitalCamera);
