@@ -7234,54 +7234,49 @@ class GlBuffer {
 
 /***/ }),
 
-/***/ "./src/scene/camera/camera.ts":
-/*!************************************!*\
-  !*** ./src/scene/camera/camera.ts ***!
-  \************************************/
+/***/ "./src/scene/camera/firstPersonCamera.ts":
+/*!***********************************************!*\
+  !*** ./src/scene/camera/firstPersonCamera.ts ***!
+  \***********************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "MouseCamera": () => (/* binding */ MouseCamera)
+/* harmony export */   "FirstPersonCamera": () => (/* binding */ FirstPersonCamera)
 /* harmony export */ });
-/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
 /* harmony import */ var gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! gl-matrix/esm/vec3 */ "./node_modules/gl-matrix/esm/vec3.js");
-/* harmony import */ var gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! gl-matrix/esm/vec4 */ "./node_modules/gl-matrix/esm/vec4.js");
 // @ts-ignore
 
 // @ts-ignore
 
-// @ts-ignore
-
-class MouseCamera {
+class FirstPersonCamera {
     constructor() {
         this.cursorX = 0;
         this.cursorY = 0;
+        this.angleX = 0;
+        this.angleY = 0;
         this.mouseDown = false;
         this.cameraSpeed = 100;
         this.touchSpeed = this.cameraSpeed * 5;
         this.keyboardSpeed = 0.2;
-        this.angle = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.create();
-        this.angle[1] = -30 * Math.PI / 180;
+        //this.angle[1] = -30 * Math.PI / 180;
+        this.angleX = Math.PI / 2;
         this.position = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.create();
-        this.position[1] = 10;
-        this.position[2] = -10;
+        this.position[1] = -5;
+        this.position[2] = 2;
     }
     wheelListener(e) {
-        const deltaPos = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_1__.fromValues(0, e.deltaY / this.cameraSpeed, 0, 0);
-        const cameraMatrix = this.getMatrix();
-        gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_1__.transformMat4(deltaPos, deltaPos, cameraMatrix);
-        gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_1__.add(this.position, this.position, deltaPos);
     }
     mousedownListener(e) {
-        this.angle[0] += (e.movementX / this.cameraSpeed);
-        this.angle[1] += (e.movementY / this.cameraSpeed);
+        this.angleX += (e.movementX / this.cameraSpeed);
+        this.angleY += (e.movementY / this.cameraSpeed);
         this.mouseDown = true;
     }
     mousemoveListener(e) {
         if (this.mouseDown) {
-            this.angle[0] += (e.movementX / this.cameraSpeed);
-            this.angle[1] += (e.movementY / this.cameraSpeed);
+            this.angleX += (e.movementX / this.cameraSpeed);
+            this.angleY += (e.movementY / this.cameraSpeed);
         }
     }
     mouseupListener(e) {
@@ -7294,25 +7289,29 @@ class MouseCamera {
     touchmoveListener(e) {
         const offsetX = this.cursorX - e.touches[0].pageX;
         const offsetY = this.cursorY - e.touches[0].pageY;
-        this.angle[0] += (offsetX / this.touchSpeed);
-        this.angle[1] += (offsetY / this.touchSpeed);
+        this.angleX += (offsetX / this.touchSpeed);
+        this.angleY += (offsetY / this.touchSpeed);
         this.touchstartListener(e);
     }
     keypressListener(e) {
+        const delta = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.create();
         switch (e.key) {
             case "w":
-                this.position[2] -= this.keyboardSpeed;
+                delta[1] = -this.keyboardSpeed;
                 break;
             case "a":
-                this.position[0] += this.keyboardSpeed;
+                delta[0] = -this.keyboardSpeed;
                 break;
             case "s":
-                this.position[2] += this.keyboardSpeed;
+                delta[1] = this.keyboardSpeed;
                 break;
             case "d":
-                this.position[0] -= this.keyboardSpeed;
+                delta[0] = this.keyboardSpeed;
                 break;
+            default:
+                return;
         }
+        gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.add(this.position, this.position, delta);
     }
     registerCallbacks(canvas) {
         canvas.addEventListener("mousedown", (e) => { this.mousedownListener(e); });
@@ -7324,16 +7323,18 @@ class MouseCamera {
         window.addEventListener("keydown", (e) => { this.keypressListener(e); });
     }
     getMatrix() {
-        const matrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_2__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_2__.identity(matrix);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_2__.rotateZ(matrix, matrix, this.angle[2]);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_2__.rotateY(matrix, matrix, this.angle[0]);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_2__.rotateX(matrix, matrix, this.angle[1]);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_2__.translate(matrix, matrix, this.position);
+        const angleDelta = [
+            Math.cos(this.angleX) * Math.cos(this.angleY),
+            Math.sin(this.angleX) * Math.cos(this.angleY),
+            Math.sin(this.angleY)
+        ];
+        const eyeTarget = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.create();
+        gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.add(eyeTarget, this.position, angleDelta);
+        const matrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.identity(matrix);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.lookAt(matrix, this.position, eyeTarget, [0, 0, 1]);
         return matrix;
     }
-    // tslint:disable-next-line:no-empty
-    update() { }
 }
 
 
@@ -7355,7 +7356,6 @@ __webpack_require__.r(__webpack_exports__);
 
 // @ts-ignore
 
-const kCameraSpeedDiv = 200;
 class OrbitalCamera {
     constructor() {
         this.cameraSpeed = 100;
@@ -7363,6 +7363,7 @@ class OrbitalCamera {
         this.xRotation = 0;
         this.zRotation = 0;
         this.basePosition = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.fromValues(0, 10, -5);
+        this.center = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.fromValues(0, 0, 0);
         this.up = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.fromValues(0, 0, 1);
     }
     wheelListener(e) {
@@ -7396,10 +7397,12 @@ class OrbitalCamera {
         gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.translate(matrix, matrix, this.basePosition);
         gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.rotateX(matrix, matrix, this.xRotation);
         gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.rotateZ(matrix, matrix, this.zRotation);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.translate(matrix, matrix, this.center);
         return matrix;
     }
-    update() {
-        //this.step += 1;
+    setCenter(center) {
+        this.center = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.fromValues(...center);
+        gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.scale(this.center, this.center, -1);
     }
 }
 
@@ -7628,12 +7631,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Catapult)
 /* harmony export */ });
-/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
 /* harmony import */ var _shapes_cube__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../shapes/cube */ "./src/shapes/cube.ts");
 /* harmony import */ var _shapes_cylinder__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../shapes/cylinder */ "./src/shapes/cylinder.ts");
-/* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
-/* harmony import */ var _sceneObject__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../sceneObject */ "./src/scene/sceneObject.ts");
+/* harmony import */ var _shapes_sphere__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../shapes/sphere */ "./src/shapes/sphere.ts");
+/* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
+/* harmony import */ var _sceneObject__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../sceneObject */ "./src/scene/sceneObject.ts");
 // @ts-ignore
+
 
 
 
@@ -7643,23 +7648,61 @@ const kWheels = 4;
 const kWheelDistance = 5;
 const axisDistance = 8;
 const kWheelPoints = 12;
+const kAxisPoints = 12;
 const kBaseSize = [10, 4, 1];
-class Catapult extends _compositeObject__WEBPACK_IMPORTED_MODULE_2__.CompositeObject {
+const kRockSize = [0.08, 0.08, 0.08];
+const kFrameSideSize = [1, 0.5, 4];
+const kArmSize = [10, 1, 0.25];
+const kGravity = -0.98;
+const kVInit = 4;
+class Catapult extends _compositeObject__WEBPACK_IMPORTED_MODULE_3__.CompositeObject {
     constructor(glContext, glProgram) {
         super(glContext, glProgram);
+        this.animationTime = 0;
+        this.idle = true;
         this.buildWheels(glContext, glProgram);
         this.buildBase(glContext, glProgram);
+        this.buildFrame(glContext, glProgram);
+        this.arm = this.buildArm(glContext, glProgram);
+        this.addChild(this.arm);
+        this.weight = this.buildWeight(glContext, glProgram);
+        this.addChild(this.weight);
+        this.rock = this.buildRock(glContext, glProgram);
+        this.addChild(this.rock);
+        this.updateRockModel();
+    }
+    launch() {
+        this.animationTime = 0;
+        this.idle = false;
+    }
+    updateRockModel() {
+        let rockZ = 4;
+        let rockX = 0;
+        if (!this.idle) {
+            const deltaZ = this.animationTime * this.animationTime * kGravity / 2 + kVInit * this.animationTime;
+            rockZ += deltaZ;
+            rockX += this.animationTime * kVInit / 2;
+            if (rockZ < 0.25) {
+                rockZ = 0.25;
+                this.idle = true;
+            }
+            this.animationTime += 0.2;
+        }
+        const rockMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.fromTranslation(rockMatrix, [10 - rockX, 2, rockZ]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.scale(rockMatrix, rockMatrix, kRockSize);
+        this.rock.baseModelMatrix = rockMatrix;
     }
     buildWheels(glContext, glProgram) {
-        const wheelsObj = new _compositeObject__WEBPACK_IMPORTED_MODULE_2__.CompositeObject(glContext, glProgram);
+        const wheelsObj = new _compositeObject__WEBPACK_IMPORTED_MODULE_3__.CompositeObject(glContext, glProgram);
         for (let i = 0; i < kWheels; ++i) {
             const cylinder = new _shapes_cylinder__WEBPACK_IMPORTED_MODULE_1__["default"](glContext, glProgram, kWheelPoints);
-            const cylinderObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_3__["default"](glContext, glProgram, cylinder);
+            const cylinderObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, cylinder);
             const axis = Math.floor(i / 2);
             const distance = kWheelDistance;
-            const cylinderMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
-            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromTranslation(cylinderMatrix, [axis * axisDistance + 1, i % 2 * distance, 0]);
-            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.rotateX(cylinderMatrix, cylinderMatrix, Math.PI / 2);
+            const cylinderMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.create();
+            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.fromTranslation(cylinderMatrix, [axis * axisDistance + 1, i % 2 * distance, 0]);
+            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.rotateX(cylinderMatrix, cylinderMatrix, Math.PI / 2);
             cylinderObj.baseModelMatrix = cylinderMatrix;
             wheelsObj.addChild(cylinderObj);
         }
@@ -7667,16 +7710,144 @@ class Catapult extends _compositeObject__WEBPACK_IMPORTED_MODULE_2__.CompositeOb
     }
     buildBase(glContext, glProgram) {
         const base = new _shapes_cube__WEBPACK_IMPORTED_MODULE_0__["default"](glContext, glProgram);
-        const baseObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_3__["default"](glContext, glProgram, base);
-        const catapultBaseMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromScaling(catapultBaseMatrix, kBaseSize);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.translate(catapultBaseMatrix, catapultBaseMatrix, [0, 0, -0.25]);
+        const baseObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, base);
+        const catapultBaseMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.fromScaling(catapultBaseMatrix, kBaseSize);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.translate(catapultBaseMatrix, catapultBaseMatrix, [0, 0, -0.25]);
         baseObj.baseModelMatrix = catapultBaseMatrix;
         this.addChild(baseObj);
     }
     buildFrame(glContext, glProgram) {
+        const frame = new CatapultFrame(glContext, glProgram);
+        this.addChild(frame);
     }
     buildArm(glContext, glProgram) {
+        const arm = new _shapes_cube__WEBPACK_IMPORTED_MODULE_0__["default"](glContext, glProgram);
+        const armObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, arm);
+        const armMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.fromTranslation(armMatrix, [0.5, 1.5, 3]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.scale(armMatrix, armMatrix, kArmSize);
+        armObj.baseModelMatrix = armMatrix;
+        return armObj;
+    }
+    buildWeight(glContext, glProgram) {
+        const cube = new _shapes_cube__WEBPACK_IMPORTED_MODULE_0__["default"](glContext, glProgram);
+        const cubeObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, cube);
+        const weightObj = new _compositeObject__WEBPACK_IMPORTED_MODULE_3__.CompositeObject(glContext, glProgram);
+        const grip = new CatapultFrame(glContext, glProgram);
+        const gripMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.fromTranslation(gripMatrix, [0, 0, 1]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.scale(gripMatrix, gripMatrix, [0.25, 0.25, 0.25]);
+        grip.baseModelMatrix = gripMatrix;
+        weightObj.addChild(cubeObj);
+        weightObj.addChild(grip);
+        const weightMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.fromTranslation(weightMatrix, [0, 1.5, 1.4]);
+        weightObj.baseModelMatrix = weightMatrix;
+        return weightObj;
+    }
+    buildRock(glContext, glProgram) {
+        const sphere = new _shapes_sphere__WEBPACK_IMPORTED_MODULE_2__["default"](glContext, glProgram, 10, 10, 10);
+        sphere.build();
+        const sphereObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, sphere);
+        return sphereObj;
+    }
+}
+class CatapultFrame extends _compositeObject__WEBPACK_IMPORTED_MODULE_3__.CompositeObject {
+    constructor(glContext, glProgram) {
+        super(glContext, glProgram);
+        const side = new _shapes_cube__WEBPACK_IMPORTED_MODULE_0__["default"](glContext, glProgram);
+        const sideLObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, side);
+        const sideLBaseMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.fromScaling(sideLBaseMatrix, kFrameSideSize);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.translate(sideLBaseMatrix, sideLBaseMatrix, [2, 1, 0]);
+        sideLObj.baseModelMatrix = sideLBaseMatrix;
+        this.addChild(sideLObj);
+        const sideRObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, side);
+        const sideRBaseMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.clone(sideLBaseMatrix);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.translate(sideRBaseMatrix, sideRBaseMatrix, [0, 5, 0]);
+        sideRObj.baseModelMatrix = sideRBaseMatrix;
+        this.addChild(sideRObj);
+        const axis = new _shapes_cylinder__WEBPACK_IMPORTED_MODULE_1__["default"](glContext, glProgram, kAxisPoints);
+        const axisObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, axis);
+        const axisMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.fromTranslation(axisMatrix, [2.5, 4, 3]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.rotateX(axisMatrix, axisMatrix, Math.PI / 2);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.scale(axisMatrix, axisMatrix, [0.25, 0.25, 4]);
+        axisObj.baseModelMatrix = axisMatrix;
+        this.addChild(axisObj);
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/scene/objects/fortressDoor.ts":
+/*!*******************************************!*\
+  !*** ./src/scene/objects/fortressDoor.ts ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ FortressDoor)
+/* harmony export */ });
+/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var _shapes_cube__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../shapes/cube */ "./src/shapes/cube.ts");
+/* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
+/* harmony import */ var _sceneObject__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../sceneObject */ "./src/scene/sceneObject.ts");
+/* harmony import */ var _wall__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./wall */ "./src/scene/objects/wall.ts");
+// @ts-ignore
+
+
+
+
+
+class FortressDoor extends _compositeObject__WEBPACK_IMPORTED_MODULE_1__.CompositeObject {
+    constructor(glContext, glProgram, config, wallWidth) {
+        super(glContext, glProgram);
+        const wallR = new _wall__WEBPACK_IMPORTED_MODULE_3__["default"](glContext, glProgram);
+        const wallMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromScaling(wallMatrix, [wallWidth, 1, 1]);
+        wallR.setBaseModelMatrix(wallMatrix);
+        this.addChild(wallR);
+        const wallL = new _wall__WEBPACK_IMPORTED_MODULE_3__["default"](glContext, glProgram);
+        const wallLMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromScaling(wallLMatrix, [wallWidth, 1, 1]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.translate(wallLMatrix, wallLMatrix, [0, 0, 2]);
+        wallL.setBaseModelMatrix(wallLMatrix);
+        this.addChild(wallL);
+        this.buildGate(glContext, glProgram, config, wallWidth);
+    }
+    buildGate(glContext, glProgram, config, wallWidth) {
+        const gateWall = new _shapes_cube__WEBPACK_IMPORTED_MODULE_0__["default"](glContext, glProgram);
+        const gateWallObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_2__["default"](glContext, glProgram, gateWall);
+        const wallMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromTranslation(wallMatrix, [-0.6, -1.5, 1]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.scale(wallMatrix, wallMatrix, [1, 1.5, 0.2]);
+        gateWallObj.baseModelMatrix = wallMatrix;
+        this.addChild(gateWallObj);
+        const gateWallRObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_2__["default"](glContext, glProgram, gateWall);
+        const wallRMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromTranslation(wallRMatrix, [-0.6, -1.5, 1.8]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.scale(wallRMatrix, wallRMatrix, [1, 1.5, 0.2]);
+        gateWallRObj.baseModelMatrix = wallRMatrix;
+        this.addChild(gateWallRObj);
+        const gateRoofObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_2__["default"](glContext, glProgram, gateWall);
+        const roofMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromTranslation(roofMatrix, [-0.6, -1.7, 1]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.scale(roofMatrix, roofMatrix, [1, 0.2, 1]);
+        gateRoofObj.baseModelMatrix = roofMatrix;
+        this.addChild(gateRoofObj);
+        const doorObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_2__["default"](glContext, glProgram, gateWall);
+        const doorMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromTranslation(doorMatrix, [0.45, 0, 0]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.rotateZ(doorMatrix, doorMatrix, -Math.PI * config.gateAngle / 180);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.translate(doorMatrix, doorMatrix, [0, -0.1, 1.2]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.scale(doorMatrix, doorMatrix, [1.5, 0.1, 0.6]);
+        doorObj.baseModelMatrix = doorMatrix;
+        doorObj.baseColor = [0.7, 0.4, 0, 1.0];
+        this.addChild(doorObj);
     }
 }
 
@@ -7693,11 +7864,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ FortressWall)
 /* harmony export */ });
-/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
 /* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
-/* harmony import */ var _wall__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./wall */ "./src/scene/objects/wall.ts");
-/* harmony import */ var _wallTower__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./wallTower */ "./src/scene/objects/wallTower.ts");
+/* harmony import */ var _fortressDoor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./fortressDoor */ "./src/scene/objects/fortressDoor.ts");
+/* harmony import */ var _wall__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./wall */ "./src/scene/objects/wall.ts");
+/* harmony import */ var _wallTower__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./wallTower */ "./src/scene/objects/wallTower.ts");
 // @ts-ignore
+
 
 
 
@@ -7714,30 +7887,43 @@ class FortressWall extends _compositeObject__WEBPACK_IMPORTED_MODULE_0__.Composi
         const baseAngle = angleStep / 2;
         // Towers
         for (let i = 0; i < fortressTowers; i++) {
-            const tower = new _wallTower__WEBPACK_IMPORTED_MODULE_2__["default"](glContext, glProgram, config);
-            const mMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.create();
-            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.fromZRotation(mMatrix, angleStep * i + baseAngle);
-            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.translate(mMatrix, mMatrix, [kWallRadius, 0, 0]);
-            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.scale(mMatrix, mMatrix, [kTowerWidth, kTowerWidth, kTowerHeight]);
-            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.rotateZ(mMatrix, mMatrix, -angleStep * i + baseAngle);
+            const tower = new _wallTower__WEBPACK_IMPORTED_MODULE_3__["default"](glContext, glProgram, config);
+            const mMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
+            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromZRotation(mMatrix, angleStep * i + baseAngle);
+            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.translate(mMatrix, mMatrix, [kWallRadius, 0, 0]);
+            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.scale(mMatrix, mMatrix, [kTowerWidth, kTowerWidth, kTowerHeight]);
+            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.rotateZ(mMatrix, mMatrix, -angleStep * i + baseAngle);
             tower.baseModelMatrix = mMatrix;
             this.addChild(tower);
         }
         // Walls
         for (let i = 0; i < fortressTowers - 1; i++) {
-            const wall = new _wall__WEBPACK_IMPORTED_MODULE_1__["default"](glContext, glProgram);
+            const wall = new _wall__WEBPACK_IMPORTED_MODULE_2__["default"](glContext, glProgram);
             const wallLength = this.getWallLength(angleStep, kWallRadius);
-            const mMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.create();
-            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.fromZRotation(mMatrix, angleStep * i + baseAngle);
-            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.translate(mMatrix, mMatrix, [kWallRadius + kWallWidth / 2, kWallWidth / 2, 0]);
+            const mMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
+            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromZRotation(mMatrix, angleStep * i + baseAngle);
+            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.translate(mMatrix, mMatrix, [kWallRadius + kWallWidth / 2, kWallWidth / 2, 0]);
             const wallAngle = -(Math.PI - angleStep) / 2;
-            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.rotateZ(mMatrix, mMatrix, wallAngle);
-            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.scale(mMatrix, mMatrix, [wallLength, kWallWidth, config.wallHeight / 2]);
-            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.rotateZ(mMatrix, mMatrix, Math.PI / 2);
-            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.rotateX(mMatrix, mMatrix, -Math.PI / 2);
+            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.rotateZ(mMatrix, mMatrix, wallAngle);
+            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.scale(mMatrix, mMatrix, [wallLength, kWallWidth, config.wallHeight / 2]);
+            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.rotateZ(mMatrix, mMatrix, Math.PI / 2);
+            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.rotateX(mMatrix, mMatrix, -Math.PI / 2);
             wall.baseModelMatrix = mMatrix;
             this.addChild(wall);
         }
+        // Entrance door
+        const door = new _fortressDoor__WEBPACK_IMPORTED_MODULE_1__["default"](glContext, glProgram, config, kWallWidth);
+        const doorMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromZRotation(doorMatrix, -baseAngle);
+        const wallLength = this.getWallLength(angleStep, kWallRadius);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.translate(doorMatrix, doorMatrix, [kWallRadius, 0, 0]);
+        const wallAngle = -(Math.PI - angleStep) / 2;
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.rotateZ(doorMatrix, doorMatrix, wallAngle);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.scale(doorMatrix, doorMatrix, [wallLength / 3, 1, config.wallHeight / 2]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.rotateZ(doorMatrix, doorMatrix, Math.PI / 2);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.rotateX(doorMatrix, doorMatrix, -Math.PI / 2);
+        door.setBaseModelMatrix(doorMatrix);
+        this.addChild(door);
     }
     getWallLength(angle, radius) {
         const s = Math.sin(angle / 2);
@@ -7758,10 +7944,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Land)
 /* harmony export */ });
+/* harmony import */ var gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! gl-matrix/esm/vec4 */ "./node_modules/gl-matrix/esm/vec4.js");
 /* harmony import */ var _curves_path__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../curves/path */ "./src/curves/path.ts");
 /* harmony import */ var _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../shapes/revolutionSurface */ "./src/shapes/revolutionSurface.ts");
 /* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
 /* harmony import */ var _sceneObject__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../sceneObject */ "./src/scene/sceneObject.ts");
+// @ts-ignore
+
 
 
 
@@ -7777,6 +7966,7 @@ class Land extends _compositeObject__WEBPACK_IMPORTED_MODULE_2__.CompositeObject
         const center = new _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_1__["default"](glContext, glProgram, shape, Math.PI * 2, 20);
         center.build();
         const centerObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_3__["default"](glContext, glProgram, center);
+        centerObj.baseColor = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_4__.fromValues(0.4, 0.8, 0.3, 1);
         this.addChild(centerObj);
     }
     buildLand(glContext, glProgram) {
@@ -7789,8 +7979,9 @@ class Land extends _compositeObject__WEBPACK_IMPORTED_MODULE_2__.CompositeObject
         ]);
         const land = new _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_1__["default"](glContext, glProgram, shape, Math.PI * 2, 9);
         land.build();
-        const centerObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_3__["default"](glContext, glProgram, land);
-        this.addChild(centerObj);
+        const landObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_3__["default"](glContext, glProgram, land);
+        landObj.baseColor = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_4__.fromValues(0.4, 0.8, 0.4, 1);
+        this.addChild(landObj);
     }
 }
 
@@ -7945,6 +8136,7 @@ __webpack_require__.r(__webpack_exports__);
 
 class Scene {
     constructor(gl, program, camera, config) {
+        this.catapultPosition = [12, 0, 0.25];
         this.renderableList = new Array();
         this.glContext = gl;
         this.program = program;
@@ -7980,10 +8172,10 @@ class Scene {
         gl.uniformMatrix4fv(projMatrixLoc, false, projMatrix);
         gl.uniformMatrix4fv(modelMatrixLoc, false, modelMatrix);
         gl.uniform4fv(baseColor, [0.7, 0.7, 0.7, 1]);
+        this.catapult.updateRockModel();
         for (const object of this.renderableList) {
             object.updateModelMatrix(modelMatrix);
         }
-        this.camera.update();
     }
     render() {
         for (const renderable of this.renderableList) {
@@ -7993,6 +8185,11 @@ class Scene {
     setCamera(camera) {
         this.camera = camera;
     }
+    keypressListener(e) {
+        if (e.key === " ") {
+            this.catapult.launch();
+        }
+    }
     buildRenderables() {
         const land = new _objects_land__WEBPACK_IMPORTED_MODULE_3__["default"](this.glContext, this.program);
         const landMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
@@ -8000,12 +8197,12 @@ class Scene {
         gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.translate(landMatrix, landMatrix, [0, 0, -0.25]);
         land.setBaseModelMatrix(landMatrix);
         this.renderableList.push(land);
-        const catapult = new _objects_catapult__WEBPACK_IMPORTED_MODULE_1__["default"](this.glContext, this.program);
+        this.catapult = new _objects_catapult__WEBPACK_IMPORTED_MODULE_1__["default"](this.glContext, this.program);
         const catapultMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromTranslation(catapultMatrix, [10, 0, 0]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromTranslation(catapultMatrix, this.catapultPosition);
         gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.scale(catapultMatrix, catapultMatrix, [0.2, 0.2, 0.2]);
-        catapult.baseModelMatrix = catapultMatrix;
-        this.renderableList.push(catapult);
+        this.catapult.baseModelMatrix = catapultMatrix;
+        this.renderableList.push(this.catapult);
         const castle = new _objects_castle__WEBPACK_IMPORTED_MODULE_0__["default"](this.glContext, this.program, this.config);
         this.renderableList.push(castle);
         const fortressWall = new _objects_fortressWall__WEBPACK_IMPORTED_MODULE_2__["default"](this.glContext, this.program, this.config);
@@ -8048,8 +8245,6 @@ class SceneObject {
     updateModelMatrix(parentMatrix) {
         gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_2__.multiply(this.modelMatrix, parentMatrix, this.baseModelMatrix);
         gl_matrix_esm_mat3__WEBPACK_IMPORTED_MODULE_1__.normalFromMat4(this.normalMatrix, this.modelMatrix);
-        //mat3.invert(this.normalMatrix, this.normalMatrix);
-        //mat4.transpose(this.normalMatrix, this.normalMatrix);
     }
     render() {
         if (this.renderable) {
@@ -8333,6 +8528,47 @@ class RevolutionSurface extends _surface__WEBPACK_IMPORTED_MODULE_0__.Surface {
 
 /***/ }),
 
+/***/ "./src/shapes/sphere.ts":
+/*!******************************!*\
+  !*** ./src/shapes/sphere.ts ***!
+  \******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Sphere)
+/* harmony export */ });
+/* harmony import */ var _surface__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./surface */ "./src/shapes/surface.ts");
+
+class Sphere extends _surface__WEBPACK_IMPORTED_MODULE_0__.Surface {
+    constructor(glContext, glProgram, radio, filas, columnas) {
+        super(glContext, glProgram, filas, columnas);
+        this.radio = radio;
+    }
+    getPosition(u, v) {
+        const centerU = u - 0.5;
+        const centerV = v - 0.5;
+        const x = this.radio * Math.cos(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
+        const y = this.radio * Math.sin(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
+        const z = this.radio * Math.sin(Math.PI * centerV);
+        return [x, y, z];
+    }
+    getNormal(u, v) {
+        const centerU = u - 0.5;
+        const centerV = v - 0.5;
+        const x = Math.cos(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
+        const y = Math.sin(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
+        const z = Math.sin(Math.PI * centerV);
+        return [x, y, z];
+    }
+    getTextureCoords(u, v) {
+        return [u, v];
+    }
+}
+
+
+/***/ }),
+
 /***/ "./src/shapes/surface.ts":
 /*!*******************************!*\
   !*** ./src/shapes/surface.ts ***!
@@ -8513,7 +8749,8 @@ class Config {
         this.castleWidth = 2;
         this.nWalls = 4;
         this.wallHeight = 1.5;
-        this.cameraType = 1;
+        this.cameraType = 2;
+        this.gateAngle = 0;
     }
 }
 
@@ -8583,23 +8820,23 @@ var __webpack_exports__ = {};
   !*** ./src/index.ts ***!
   \**********************/
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _gl__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./gl */ "./src/gl.ts");
-/* harmony import */ var _scene_camera_camera__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./scene/camera/camera */ "./src/scene/camera/camera.ts");
-/* harmony import */ var _scene_camera_orbitalCamera__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./scene/camera/orbitalCamera */ "./src/scene/camera/orbitalCamera.ts");
-/* harmony import */ var _scene_scene__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./scene/scene */ "./src/scene/scene.ts");
-/* harmony import */ var dat_gui__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! dat.gui */ "./node_modules/dat.gui/build/dat.gui.module.js");
+/* harmony import */ var dat_gui__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! dat.gui */ "./node_modules/dat.gui/build/dat.gui.module.js");
+/* harmony import */ var _gl__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./gl */ "./src/gl.ts");
+/* harmony import */ var _scene_camera_firstPersonCamera__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./scene/camera/firstPersonCamera */ "./src/scene/camera/firstPersonCamera.ts");
+/* harmony import */ var _scene_camera_orbitalCamera__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./scene/camera/orbitalCamera */ "./src/scene/camera/orbitalCamera.ts");
+/* harmony import */ var _scene_scene__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./scene/scene */ "./src/scene/scene.ts");
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils */ "./src/utils.ts");
 /* eslint no-console:0 consistent-return:0 */
-
-
-
-
 // @ts-ignore
 
 
+
+
+
+
 let scene;
-const mouseCamera = new _scene_camera_camera__WEBPACK_IMPORTED_MODULE_1__.MouseCamera();
-const orbitalCamera = new _scene_camera_orbitalCamera__WEBPACK_IMPORTED_MODULE_2__.OrbitalCamera();
+const fpCamera = new _scene_camera_firstPersonCamera__WEBPACK_IMPORTED_MODULE_2__.FirstPersonCamera();
+const orbitalCamera = new _scene_camera_orbitalCamera__WEBPACK_IMPORTED_MODULE_3__.OrbitalCamera();
 const config = new _utils__WEBPACK_IMPORTED_MODULE_5__.Config();
 async function main() {
     // Get A WebGL context
@@ -8607,7 +8844,7 @@ async function main() {
     if (!canvas) {
         throw new Error(`Canvas not found at {path}`);
     }
-    const context = new _gl__WEBPACK_IMPORTED_MODULE_0__.GlContext(canvas);
+    const context = new _gl__WEBPACK_IMPORTED_MODULE_1__.GlContext(canvas);
     // Get the strings for our GLSL shaders
     const vertexShaderFile = await fetch("./src/vertex-base.glsl");
     const vertexShaderSource = await vertexShaderFile.text();
@@ -8623,12 +8860,14 @@ async function main() {
     // Tell it to use our program (pair of shaders)
     program.use();
     // Camera init
-    mouseCamera.registerCallbacks(canvas);
+    fpCamera.registerCallbacks(canvas);
     orbitalCamera.registerCallbacks(canvas);
     // Menu
     initMenu();
     // Scene init
-    scene = new _scene_scene__WEBPACK_IMPORTED_MODULE_3__["default"](context, program, orbitalCamera, config);
+    scene = new _scene_scene__WEBPACK_IMPORTED_MODULE_4__["default"](context, program, orbitalCamera, config);
+    window.addEventListener("keydown", (e) => { scene.keypressListener(e); });
+    cameraChanged(config.cameraType.toString());
     // Render loop init
     tick();
 }
@@ -8642,7 +8881,7 @@ function tick() {
     scene.render();
 }
 function initMenu() {
-    const gui = new dat_gui__WEBPACK_IMPORTED_MODULE_4__.GUI();
+    const gui = new dat_gui__WEBPACK_IMPORTED_MODULE_0__.GUI();
     const castilloFolder = gui.addFolder("Castillo");
     castilloFolder.add(config, "castleFloors", 1, 5, 1).name("Pisos").onChange(configChanged);
     castilloFolder.add(config, "castleLength", 1, 3).name("Largo").onChange(configChanged);
@@ -8650,17 +8889,27 @@ function initMenu() {
     const murallaFolder = gui.addFolder("Muralla");
     murallaFolder.add(config, "nWalls", 4, 8, 1).name("Cantidad de muros").onChange(configChanged);
     murallaFolder.add(config, "wallHeight", 1, 2).name("Alto").onChange(configChanged);
+    murallaFolder.add(config, "gateAngle", 0, 90, 1).name("Angulo de la puerta").onChange(configChanged);
     const camaraFolder = gui.addFolder("Cámara");
-    camaraFolder.add(config, "cameraType", { "Primera persona": 0, "Orbital": 1 })
+    camaraFolder.add(config, "cameraType", {
+        "Primera persona": 0,
+        "Orbital general": 1,
+        "Orbital catapulta": 2,
+    })
         .name("Tipo de cámara")
         .onChange(cameraChanged);
 }
 function cameraChanged(value) {
     switch (value) {
         case "0":
-            scene.setCamera(mouseCamera);
+            scene.setCamera(fpCamera);
             break;
         case "1":
+            orbitalCamera.setCenter([0, 0, 0]);
+            scene.setCamera(orbitalCamera);
+            break;
+        case "2":
+            orbitalCamera.setCenter(scene.catapultPosition);
             scene.setCamera(orbitalCamera);
             break;
     }
