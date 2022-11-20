@@ -21,8 +21,6 @@ export default class SceneObject implements Renderable {
     public updateModelMatrix(parentMatrix: mat4) {
         mat4.multiply(this.modelMatrix, parentMatrix, this.baseModelMatrix);
         mat3.normalFromMat4(this.normalMatrix, this.modelMatrix);
-        //mat3.invert(this.normalMatrix, this.normalMatrix);
-        //mat4.transpose(this.normalMatrix, this.normalMatrix);
     }
 
     public render(): void {

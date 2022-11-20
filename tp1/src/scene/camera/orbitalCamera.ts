@@ -6,8 +6,6 @@ import * as vec3 from "gl-matrix/esm/vec3";
 import * as vec4 from "gl-matrix/esm/vec4";
 import {Camera} from "./firstPersonCamera";
 
-const kCameraSpeedDiv = 200;
-
 export class OrbitalCamera implements Camera {
     private readonly cameraSpeed: number = 100;
     private mouseDown: boolean = false;
@@ -15,9 +13,11 @@ export class OrbitalCamera implements Camera {
     private up: vec3;
     private xRotation: number = 0;
     private zRotation: number = 0;
+    private center: vec3;
 
     constructor() {
         this.basePosition = vec3.fromValues(0, 10, -5);
+        this.center = vec3.fromValues(0, 0, 0);
         this.up = vec3.fromValues(0, 0, 1);
     }
 
@@ -57,10 +57,12 @@ export class OrbitalCamera implements Camera {
         mat4.translate(matrix, matrix, this.basePosition);
         mat4.rotateX(matrix, matrix, this.xRotation);
         mat4.rotateZ(matrix, matrix, this.zRotation);
+        mat4.translate(matrix, matrix, this.center);
         return matrix;
     }
 
-    public update() {
-        //this.step += 1;
+    public setCenter(center: number[]) {
+        this.center = vec3.fromValues(...center);
+        vec3.scale(this.center, this.center, -1);
     }
 }

@@ -1,3 +1,5 @@
+// @ts-ignore
+import * as vec4 from "gl-matrix/esm/vec4";
 import {CompositePath} from "../../curves/path";
 import {GlContext, GlProgram} from "../../gl";
 import RevolutionSurface from "../../shapes/revolutionSurface";
@@ -16,6 +18,7 @@ export default class Land extends CompositeObject {
         const center = new RevolutionSurface(glContext, glProgram, shape, Math.PI * 2, 20);
         center.build();
         const centerObj = new SceneObject(glContext, glProgram, center);
+        centerObj.baseColor = vec4.fromValues(0.4, 0.8, 0.3, 1);
         this.addChild(centerObj);
     }
 
@@ -29,7 +32,8 @@ export default class Land extends CompositeObject {
         ]);
         const land = new RevolutionSurface(glContext, glProgram, shape, Math.PI * 2, 9);
         land.build();
-        const centerObj = new SceneObject(glContext, glProgram, land);
-        this.addChild(centerObj);
+        const landObj = new SceneObject(glContext, glProgram, land);
+        landObj.baseColor = vec4.fromValues(0.4, 0.8, 0.4, 1);
+        this.addChild(landObj);
     }
 }

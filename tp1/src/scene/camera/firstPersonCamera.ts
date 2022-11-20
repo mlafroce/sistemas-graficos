@@ -7,7 +7,6 @@ import * as vec4 from "gl-matrix/esm/vec4";
 
 export interface Camera {
     getMatrix(): mat4;
-    update(): mat4;
 }
 
 export class FirstPersonCamera implements Camera {
@@ -105,7 +104,4 @@ export class FirstPersonCamera implements Camera {
         mat4.lookAt(matrix, this.position, eyeTarget, [0, 0, 1]);
         return matrix;
     }
-
-    // tslint:disable-next-line:no-empty
-    public update() {}
 }

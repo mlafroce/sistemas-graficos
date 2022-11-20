@@ -45,7 +45,9 @@ async function main() {
   // Menu
   initMenu();
   // Scene init
-  scene = new Scene(context, program, fpCamera, config);
+  scene = new Scene(context, program, orbitalCamera, config);
+  window.addEventListener("keydown", (e) => { scene!.keypressListener(e); });
+  cameraChanged(config.cameraType.toString());
   // Render loop init
   tick();
 }
@@ -70,8 +72,13 @@ function initMenu() {
   const murallaFolder = gui.addFolder("Muralla");
   murallaFolder.add(config, "nWalls", 4, 8, 1).name("Cantidad de muros").onChange(configChanged);
   murallaFolder.add(config, "wallHeight", 1, 2).name("Alto").onChange(configChanged);
+  murallaFolder.add(config, "gateAngle", 0, 90, 1).name("Angulo de la puerta").onChange(configChanged);
   const camaraFolder = gui.addFolder("Cámara");
-  camaraFolder.add(config, "cameraType", {"Primera persona": 0, "Orbital": 1})
+  camaraFolder.add(config, "cameraType", {
+    "Primera persona": 0,
+    "Orbital general": 1,
+    "Orbital catapulta": 2,
+  })
       .name("Tipo de cámara")
       .onChange(cameraChanged);
 }
@@ -82,6 +89,11 @@ function cameraChanged(value: string) {
       scene!.setCamera(fpCamera);
       break;
     case "1":
+      orbitalCamera.setCenter([0, 0, 0]);
+      scene!.setCamera(orbitalCamera);
+      break;
+    case "2":
+      orbitalCamera.setCenter(scene!.catapultPosition);
       scene!.setCamera(orbitalCamera);
       break;
   }

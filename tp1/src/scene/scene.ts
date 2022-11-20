@@ -11,7 +11,6 @@ import {Camera} from "./camera/firstPersonCamera";
 import Castle from "./objects/castle";
 import Catapult from "./objects/catapult";
 import FortressWall from "./objects/fortressWall";
-import Wall from "./objects/fortressWall";
 import Land from "./objects/land";
 import SceneObject from "./sceneObject";
 
@@ -20,6 +19,8 @@ export default class Scene {
     private readonly program: GlProgram;
     private readonly config: Config;
     private camera: Camera;
+    public readonly catapultPosition = [12, 0, 0.25];
+    private catapult: Catapult | undefined;
 
     private renderableList: SceneObject[] = new Array();
 
@@ -67,11 +68,11 @@ export default class Scene {
         gl.uniformMatrix4fv(modelMatrixLoc, false, modelMatrix);
         gl.uniform4fv(baseColor, [0.7, 0.7, 0.7, 1]);
 
+        this.catapult!.updateRockModel();
+
         for (const object of this.renderableList) {
             object.updateModelMatrix(modelMatrix);
         }
-
-        this.camera.update();
     }
 
     public render() {
@@ -84,6 +85,12 @@ export default class Scene {
         this.camera = camera;
     }
 
+    public keypressListener(e: KeyboardEvent) {
+        if (e.key === " ") {
+            this.catapult!.launch();
+        }
+    }
+
     private buildRenderables() {
         const land = new Land(this.glContext, this.program);
         const landMatrix = mat4.create();
@@ -92,17 +99,17 @@ export default class Scene {
         land.setBaseModelMatrix(landMatrix);
         this.renderableList.push(land);
 
-        const catapult = new Catapult(this.glContext, this.program);
+        this.catapult = new Catapult(this.glContext, this.program);
         const catapultMatrix = mat4.create();
-        mat4.fromTranslation(catapultMatrix, [10, 0, 0]);
+        mat4.fromTranslation(catapultMatrix, this.catapultPosition);
         mat4.scale(catapultMatrix, catapultMatrix, [0.2, 0.2, 0.2]);
-        catapult.baseModelMatrix = catapultMatrix;
-        this.renderableList.push(catapult);
+        this.catapult.baseModelMatrix = catapultMatrix;
+        this.renderableList.push(this.catapult);
 
         const castle = new Castle(this.glContext, this.program, this.config);
         this.renderableList.push(castle);
 
-        const fortressWall = new Wall(this.glContext, this.program, this.config);
+        const fortressWall = new FortressWall(this.glContext, this.program, this.config);
         this.renderableList.push(fortressWall);
     }
 }

@@ -3,6 +3,7 @@ import * as mat4 from "gl-matrix/esm/mat4";
 import {GlContext, GlProgram} from "../../gl";
 import {Config} from "../../utils";
 import {CompositeObject} from "../compositeObject";
+import FortressDoor from "./fortressDoor";
 import Wall from "./wall";
 import WallTower from "./wallTower";
 
@@ -35,7 +36,7 @@ export default class FortressWall extends CompositeObject {
             const mMatrix = mat4.create();
             mat4.fromZRotation(mMatrix, angleStep * i + baseAngle);
             mat4.translate(mMatrix, mMatrix, [kWallRadius + kWallWidth / 2 , kWallWidth / 2, 0]);
-            const wallAngle = - (Math.PI - angleStep) / 2;
+            const wallAngle = -(Math.PI - angleStep) / 2;
             mat4.rotateZ(mMatrix, mMatrix, wallAngle);
             mat4.scale(mMatrix, mMatrix, [wallLength, kWallWidth, config.wallHeight / 2]);
             mat4.rotateZ(mMatrix, mMatrix, Math.PI / 2);
@@ -43,6 +44,19 @@ export default class FortressWall extends CompositeObject {
             wall.baseModelMatrix = mMatrix;
             this.addChild(wall);
         }
+        // Entrance door
+        const door = new FortressDoor(glContext, glProgram, config, kWallWidth);
+        const doorMatrix = mat4.create();
+        mat4.fromZRotation(doorMatrix, -baseAngle);
+        const wallLength = this.getWallLength(angleStep, kWallRadius);
+        mat4.translate(doorMatrix, doorMatrix, [kWallRadius, 0, 0]);
+        const wallAngle = -(Math.PI - angleStep) / 2;
+        mat4.rotateZ(doorMatrix, doorMatrix, wallAngle);
+        mat4.scale(doorMatrix, doorMatrix, [wallLength / 3, 1, config.wallHeight / 2]);
+        mat4.rotateZ(doorMatrix, doorMatrix, Math.PI / 2);
+        mat4.rotateX(doorMatrix, doorMatrix, -Math.PI / 2);
+        door.setBaseModelMatrix(doorMatrix);
+        this.addChild(door);
     }
 
     private getWallLength(angle: number, radius: number) {
