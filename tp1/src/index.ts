@@ -1,10 +1,11 @@
 /* eslint no-console:0 consistent-return:0 */
 // @ts-ignore
 import * as dat from "dat.gui";
-import {GlContext} from "./gl";
+import {GlContext, GlProgram} from "./gl";
 import {FirstPersonCamera} from "./scene/camera/firstPersonCamera";
 import {OrbitalCamera} from "./scene/camera/orbitalCamera";
 import Scene from "./scene/scene";
+import ShaderManager from "./scene/shaderManager";
 import TextureManager from "./scene/textureManager";
 import {Config} from "./utils";
 
@@ -23,23 +24,12 @@ async function main() {
   const context = new GlContext(canvas);
 
   // Get the strings for our GLSL shaders
-  const vertexShaderFile = await fetch("./src/vertex-base.glsl");
-  const vertexShaderSource = await vertexShaderFile.text();
-  const fragmentShaderFile = await fetch("./src/fragment-base.glsl");
-  const fragmentShaderSource = await fragmentShaderFile.text();
-
-  // create GLSL shaders, upload the GLSL source, compile the shaders
-  const vertexShader = context.createVertexShader(vertexShaderSource);
-  const fragmentShader = context.createFragmentShader(fragmentShaderSource);
-
-  // Link the two shaders into a program
-  const program = context.createProgram(vertexShader, fragmentShader);
+  await initProgram("base", "./shaders/vertex-base.glsl", "./shaders/fragment-base.glsl", context);
+  await initProgram("grass", "./shaders/vertex-base.glsl", "./shaders/fragment-grass.glsl", context);
 
   context.resizeCanvasToDisplaySize();
   context.clear();
 
-  // Tell it to use our program (pair of shaders)
-  program.use();
   // Camera init
   fpCamera.registerCallbacks(canvas);
   orbitalCamera.registerCallbacks(canvas);
@@ -48,7 +38,7 @@ async function main() {
   // Menu
   initMenu();
   // Scene init
-  scene = new Scene(context, program, orbitalCamera, config);
+  scene = new Scene(context, orbitalCamera, config);
   window.addEventListener("keydown", (e) => { scene!.keypressListener(e); });
   cameraChanged(config.cameraType.toString());
   // Render loop init
@@ -102,6 +92,22 @@ function cameraChanged(value: string) {
 function configChanged() {
   scene!.rebuildScene();
   scene!.render();
+}
+
+// TODO: support other configurations
+async function initProgram(name: string, vertexPath: string, fragPath: string, context: GlContext): Promise<GlProgram> {
+  const vertexShaderFile = await fetch(vertexPath);
+  const vertexShaderSource = await vertexShaderFile.text();
+  const fragShaderFile = await fetch(fragPath);
+  const fragShaderSource = await fragShaderFile.text();
+  // create GLSL shaders, upload the GLSL source, compile the shaders
+  const vertexShader = context.createVertexShader(vertexShaderSource);
+  const fragmentShader = context.createFragmentShader(fragShaderSource);
+  // Link the two shaders into a program
+  const program = context.createProgram(vertexShader, fragmentShader);
+
+  ShaderManager.setProgram(name, program);
+  return program;
 }
 
 window.onload = main;

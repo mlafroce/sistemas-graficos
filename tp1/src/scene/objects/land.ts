@@ -14,7 +14,7 @@ export default class Land extends CompositeObject {
     }
 
     private buildCenter(glContext: GlContext, glProgram: GlProgram) {
-        const shape = CompositePath.fromPoints([[0, 0.25, 0], [0.34, 0.25, 0], [0.35, 0.25, 0], [0.40, 0, 0]]);
+        const shape = CompositePath.fromPoints([[0, 0.25, 0], [0.29, 0.25, 0], [0.3, 0.25, 0], [0.40, 0, 0]]);
         const center = new RevolutionSurface(glContext, glProgram, shape, Math.PI * 2, 20);
         center.build();
         const centerObj = new SceneObject(glContext, glProgram, center);

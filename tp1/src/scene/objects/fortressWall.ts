@@ -29,6 +29,7 @@ export default class FortressWall extends CompositeObject {
             mat4.scale(mMatrix, mMatrix, [kTowerWidth, kTowerWidth, kTowerHeight]);
             mat4.rotateZ(mMatrix, mMatrix, -angleStep * i + baseAngle);
             tower.baseModelMatrix = mMatrix;
+            tower.textureMatrix = mat2.fromValues(1, 0, 0, 1);
             this.addChild(tower);
         }
         // Walls

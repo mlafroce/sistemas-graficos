@@ -79,11 +79,13 @@ export class GlContext {
 
 export class GlProgram {
     public readonly program: WebGLProgram;
+    public onActivate: (glProgram: GlProgram) => void;
     private readonly gl: WebGLRenderingContext;
 
     constructor(gl: WebGLRenderingContext) {
         this.gl = gl;
         this.program = gl.createProgram()!;
+        this.onActivate = () => { return; };
     }
 
     public attachShader(shader: WebGLShader): GlProgram {
@@ -106,6 +108,11 @@ export class GlProgram {
 
     public getAttribLocation(name: string): number {
         return this.gl.getAttribLocation(this.program, name);
+    }
+
+    public activate() {
+        this.use();
+        this.onActivate(this);
     }
 }
 

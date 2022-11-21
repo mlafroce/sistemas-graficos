@@ -11,7 +11,7 @@ module.exports = {
         new CopyWebpackPlugin({
             patterns: [
                 { from: 'textures/*.png' },
-                { from: 'src/*.glsl' }
+                { from: 'src/shaders/', to: 'shaders/' }
             ]
         })
     ],

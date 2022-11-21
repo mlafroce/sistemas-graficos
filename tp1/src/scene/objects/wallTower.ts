@@ -1,5 +1,5 @@
 // @ts-ignore
-import * as vec2 from "gl-matrix/esm/vec2";
+import * as mat2 from "gl-matrix/esm/mat2";
 import {CubicBezier} from "../../curves/bezier";
 import {CompositePath} from "../../curves/path";
 import {GlContext, GlProgram} from "../../gl";
@@ -18,7 +18,7 @@ export default class WallTower extends CompositeObject {
     constructor(glContext: GlContext, glProgram: GlProgram, config: Config) {
         super(glContext, glProgram);
         const body = this.buildBody(glContext, glProgram, config);
-        body.textureMatrix = vec2.fromValues(1, 0, 0, 1);
+        body.textureMatrix = mat2.fromValues(1, 0, 0, 1);
         this.addChild(body);
     }
 

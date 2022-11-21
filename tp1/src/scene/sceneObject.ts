@@ -28,6 +28,7 @@ export default class SceneObject implements Renderable {
     }
 
     public render(): void {
+        this.glProgram.activate();
         if (this.renderable) {
             const modelMatrixLoc = this.glProgram.getUniformLocation("modelMatrix");
             this.glContext.gl.uniformMatrix4fv(modelMatrixLoc, false, this.modelMatrix);
