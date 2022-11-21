@@ -2613,6 +2613,477 @@ if (!Math.hypot) Math.hypot = function () {
 
 /***/ }),
 
+/***/ "./node_modules/gl-matrix/esm/mat2.js":
+/*!********************************************!*\
+  !*** ./node_modules/gl-matrix/esm/mat2.js ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "LDU": () => (/* binding */ LDU),
+/* harmony export */   "add": () => (/* binding */ add),
+/* harmony export */   "adjoint": () => (/* binding */ adjoint),
+/* harmony export */   "clone": () => (/* binding */ clone),
+/* harmony export */   "copy": () => (/* binding */ copy),
+/* harmony export */   "create": () => (/* binding */ create),
+/* harmony export */   "determinant": () => (/* binding */ determinant),
+/* harmony export */   "equals": () => (/* binding */ equals),
+/* harmony export */   "exactEquals": () => (/* binding */ exactEquals),
+/* harmony export */   "frob": () => (/* binding */ frob),
+/* harmony export */   "fromRotation": () => (/* binding */ fromRotation),
+/* harmony export */   "fromScaling": () => (/* binding */ fromScaling),
+/* harmony export */   "fromValues": () => (/* binding */ fromValues),
+/* harmony export */   "identity": () => (/* binding */ identity),
+/* harmony export */   "invert": () => (/* binding */ invert),
+/* harmony export */   "mul": () => (/* binding */ mul),
+/* harmony export */   "multiply": () => (/* binding */ multiply),
+/* harmony export */   "multiplyScalar": () => (/* binding */ multiplyScalar),
+/* harmony export */   "multiplyScalarAndAdd": () => (/* binding */ multiplyScalarAndAdd),
+/* harmony export */   "rotate": () => (/* binding */ rotate),
+/* harmony export */   "scale": () => (/* binding */ scale),
+/* harmony export */   "set": () => (/* binding */ set),
+/* harmony export */   "str": () => (/* binding */ str),
+/* harmony export */   "sub": () => (/* binding */ sub),
+/* harmony export */   "subtract": () => (/* binding */ subtract),
+/* harmony export */   "transpose": () => (/* binding */ transpose)
+/* harmony export */ });
+/* harmony import */ var _common_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./common.js */ "./node_modules/gl-matrix/esm/common.js");
+
+/**
+ * 2x2 Matrix
+ * @module mat2
+ */
+
+/**
+ * Creates a new identity mat2
+ *
+ * @returns {mat2} a new 2x2 matrix
+ */
+
+function create() {
+  var out = new _common_js__WEBPACK_IMPORTED_MODULE_0__.ARRAY_TYPE(4);
+
+  if (_common_js__WEBPACK_IMPORTED_MODULE_0__.ARRAY_TYPE != Float32Array) {
+    out[1] = 0;
+    out[2] = 0;
+  }
+
+  out[0] = 1;
+  out[3] = 1;
+  return out;
+}
+/**
+ * Creates a new mat2 initialized with values from an existing matrix
+ *
+ * @param {ReadonlyMat2} a matrix to clone
+ * @returns {mat2} a new 2x2 matrix
+ */
+
+function clone(a) {
+  var out = new _common_js__WEBPACK_IMPORTED_MODULE_0__.ARRAY_TYPE(4);
+  out[0] = a[0];
+  out[1] = a[1];
+  out[2] = a[2];
+  out[3] = a[3];
+  return out;
+}
+/**
+ * Copy the values from one mat2 to another
+ *
+ * @param {mat2} out the receiving matrix
+ * @param {ReadonlyMat2} a the source matrix
+ * @returns {mat2} out
+ */
+
+function copy(out, a) {
+  out[0] = a[0];
+  out[1] = a[1];
+  out[2] = a[2];
+  out[3] = a[3];
+  return out;
+}
+/**
+ * Set a mat2 to the identity matrix
+ *
+ * @param {mat2} out the receiving matrix
+ * @returns {mat2} out
+ */
+
+function identity(out) {
+  out[0] = 1;
+  out[1] = 0;
+  out[2] = 0;
+  out[3] = 1;
+  return out;
+}
+/**
+ * Create a new mat2 with the given values
+ *
+ * @param {Number} m00 Component in column 0, row 0 position (index 0)
+ * @param {Number} m01 Component in column 0, row 1 position (index 1)
+ * @param {Number} m10 Component in column 1, row 0 position (index 2)
+ * @param {Number} m11 Component in column 1, row 1 position (index 3)
+ * @returns {mat2} out A new 2x2 matrix
+ */
+
+function fromValues(m00, m01, m10, m11) {
+  var out = new _common_js__WEBPACK_IMPORTED_MODULE_0__.ARRAY_TYPE(4);
+  out[0] = m00;
+  out[1] = m01;
+  out[2] = m10;
+  out[3] = m11;
+  return out;
+}
+/**
+ * Set the components of a mat2 to the given values
+ *
+ * @param {mat2} out the receiving matrix
+ * @param {Number} m00 Component in column 0, row 0 position (index 0)
+ * @param {Number} m01 Component in column 0, row 1 position (index 1)
+ * @param {Number} m10 Component in column 1, row 0 position (index 2)
+ * @param {Number} m11 Component in column 1, row 1 position (index 3)
+ * @returns {mat2} out
+ */
+
+function set(out, m00, m01, m10, m11) {
+  out[0] = m00;
+  out[1] = m01;
+  out[2] = m10;
+  out[3] = m11;
+  return out;
+}
+/**
+ * Transpose the values of a mat2
+ *
+ * @param {mat2} out the receiving matrix
+ * @param {ReadonlyMat2} a the source matrix
+ * @returns {mat2} out
+ */
+
+function transpose(out, a) {
+  // If we are transposing ourselves we can skip a few steps but have to cache
+  // some values
+  if (out === a) {
+    var a1 = a[1];
+    out[1] = a[2];
+    out[2] = a1;
+  } else {
+    out[0] = a[0];
+    out[1] = a[2];
+    out[2] = a[1];
+    out[3] = a[3];
+  }
+
+  return out;
+}
+/**
+ * Inverts a mat2
+ *
+ * @param {mat2} out the receiving matrix
+ * @param {ReadonlyMat2} a the source matrix
+ * @returns {mat2} out
+ */
+
+function invert(out, a) {
+  var a0 = a[0],
+      a1 = a[1],
+      a2 = a[2],
+      a3 = a[3]; // Calculate the determinant
+
+  var det = a0 * a3 - a2 * a1;
+
+  if (!det) {
+    return null;
+  }
+
+  det = 1.0 / det;
+  out[0] = a3 * det;
+  out[1] = -a1 * det;
+  out[2] = -a2 * det;
+  out[3] = a0 * det;
+  return out;
+}
+/**
+ * Calculates the adjugate of a mat2
+ *
+ * @param {mat2} out the receiving matrix
+ * @param {ReadonlyMat2} a the source matrix
+ * @returns {mat2} out
+ */
+
+function adjoint(out, a) {
+  // Caching this value is nessecary if out == a
+  var a0 = a[0];
+  out[0] = a[3];
+  out[1] = -a[1];
+  out[2] = -a[2];
+  out[3] = a0;
+  return out;
+}
+/**
+ * Calculates the determinant of a mat2
+ *
+ * @param {ReadonlyMat2} a the source matrix
+ * @returns {Number} determinant of a
+ */
+
+function determinant(a) {
+  return a[0] * a[3] - a[2] * a[1];
+}
+/**
+ * Multiplies two mat2's
+ *
+ * @param {mat2} out the receiving matrix
+ * @param {ReadonlyMat2} a the first operand
+ * @param {ReadonlyMat2} b the second operand
+ * @returns {mat2} out
+ */
+
+function multiply(out, a, b) {
+  var a0 = a[0],
+      a1 = a[1],
+      a2 = a[2],
+      a3 = a[3];
+  var b0 = b[0],
+      b1 = b[1],
+      b2 = b[2],
+      b3 = b[3];
+  out[0] = a0 * b0 + a2 * b1;
+  out[1] = a1 * b0 + a3 * b1;
+  out[2] = a0 * b2 + a2 * b3;
+  out[3] = a1 * b2 + a3 * b3;
+  return out;
+}
+/**
+ * Rotates a mat2 by the given angle
+ *
+ * @param {mat2} out the receiving matrix
+ * @param {ReadonlyMat2} a the matrix to rotate
+ * @param {Number} rad the angle to rotate the matrix by
+ * @returns {mat2} out
+ */
+
+function rotate(out, a, rad) {
+  var a0 = a[0],
+      a1 = a[1],
+      a2 = a[2],
+      a3 = a[3];
+  var s = Math.sin(rad);
+  var c = Math.cos(rad);
+  out[0] = a0 * c + a2 * s;
+  out[1] = a1 * c + a3 * s;
+  out[2] = a0 * -s + a2 * c;
+  out[3] = a1 * -s + a3 * c;
+  return out;
+}
+/**
+ * Scales the mat2 by the dimensions in the given vec2
+ *
+ * @param {mat2} out the receiving matrix
+ * @param {ReadonlyMat2} a the matrix to rotate
+ * @param {ReadonlyVec2} v the vec2 to scale the matrix by
+ * @returns {mat2} out
+ **/
+
+function scale(out, a, v) {
+  var a0 = a[0],
+      a1 = a[1],
+      a2 = a[2],
+      a3 = a[3];
+  var v0 = v[0],
+      v1 = v[1];
+  out[0] = a0 * v0;
+  out[1] = a1 * v0;
+  out[2] = a2 * v1;
+  out[3] = a3 * v1;
+  return out;
+}
+/**
+ * Creates a matrix from a given angle
+ * This is equivalent to (but much faster than):
+ *
+ *     mat2.identity(dest);
+ *     mat2.rotate(dest, dest, rad);
+ *
+ * @param {mat2} out mat2 receiving operation result
+ * @param {Number} rad the angle to rotate the matrix by
+ * @returns {mat2} out
+ */
+
+function fromRotation(out, rad) {
+  var s = Math.sin(rad);
+  var c = Math.cos(rad);
+  out[0] = c;
+  out[1] = s;
+  out[2] = -s;
+  out[3] = c;
+  return out;
+}
+/**
+ * Creates a matrix from a vector scaling
+ * This is equivalent to (but much faster than):
+ *
+ *     mat2.identity(dest);
+ *     mat2.scale(dest, dest, vec);
+ *
+ * @param {mat2} out mat2 receiving operation result
+ * @param {ReadonlyVec2} v Scaling vector
+ * @returns {mat2} out
+ */
+
+function fromScaling(out, v) {
+  out[0] = v[0];
+  out[1] = 0;
+  out[2] = 0;
+  out[3] = v[1];
+  return out;
+}
+/**
+ * Returns a string representation of a mat2
+ *
+ * @param {ReadonlyMat2} a matrix to represent as a string
+ * @returns {String} string representation of the matrix
+ */
+
+function str(a) {
+  return "mat2(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ")";
+}
+/**
+ * Returns Frobenius norm of a mat2
+ *
+ * @param {ReadonlyMat2} a the matrix to calculate Frobenius norm of
+ * @returns {Number} Frobenius norm
+ */
+
+function frob(a) {
+  return Math.hypot(a[0], a[1], a[2], a[3]);
+}
+/**
+ * Returns L, D and U matrices (Lower triangular, Diagonal and Upper triangular) by factorizing the input matrix
+ * @param {ReadonlyMat2} L the lower triangular matrix
+ * @param {ReadonlyMat2} D the diagonal matrix
+ * @param {ReadonlyMat2} U the upper triangular matrix
+ * @param {ReadonlyMat2} a the input matrix to factorize
+ */
+
+function LDU(L, D, U, a) {
+  L[2] = a[2] / a[0];
+  U[0] = a[0];
+  U[1] = a[1];
+  U[3] = a[3] - L[2] * U[1];
+  return [L, D, U];
+}
+/**
+ * Adds two mat2's
+ *
+ * @param {mat2} out the receiving matrix
+ * @param {ReadonlyMat2} a the first operand
+ * @param {ReadonlyMat2} b the second operand
+ * @returns {mat2} out
+ */
+
+function add(out, a, b) {
+  out[0] = a[0] + b[0];
+  out[1] = a[1] + b[1];
+  out[2] = a[2] + b[2];
+  out[3] = a[3] + b[3];
+  return out;
+}
+/**
+ * Subtracts matrix b from matrix a
+ *
+ * @param {mat2} out the receiving matrix
+ * @param {ReadonlyMat2} a the first operand
+ * @param {ReadonlyMat2} b the second operand
+ * @returns {mat2} out
+ */
+
+function subtract(out, a, b) {
+  out[0] = a[0] - b[0];
+  out[1] = a[1] - b[1];
+  out[2] = a[2] - b[2];
+  out[3] = a[3] - b[3];
+  return out;
+}
+/**
+ * Returns whether or not the matrices have exactly the same elements in the same position (when compared with ===)
+ *
+ * @param {ReadonlyMat2} a The first matrix.
+ * @param {ReadonlyMat2} b The second matrix.
+ * @returns {Boolean} True if the matrices are equal, false otherwise.
+ */
+
+function exactEquals(a, b) {
+  return a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3];
+}
+/**
+ * Returns whether or not the matrices have approximately the same elements in the same position.
+ *
+ * @param {ReadonlyMat2} a The first matrix.
+ * @param {ReadonlyMat2} b The second matrix.
+ * @returns {Boolean} True if the matrices are equal, false otherwise.
+ */
+
+function equals(a, b) {
+  var a0 = a[0],
+      a1 = a[1],
+      a2 = a[2],
+      a3 = a[3];
+  var b0 = b[0],
+      b1 = b[1],
+      b2 = b[2],
+      b3 = b[3];
+  return Math.abs(a0 - b0) <= _common_js__WEBPACK_IMPORTED_MODULE_0__.EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) && Math.abs(a1 - b1) <= _common_js__WEBPACK_IMPORTED_MODULE_0__.EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) && Math.abs(a2 - b2) <= _common_js__WEBPACK_IMPORTED_MODULE_0__.EPSILON * Math.max(1.0, Math.abs(a2), Math.abs(b2)) && Math.abs(a3 - b3) <= _common_js__WEBPACK_IMPORTED_MODULE_0__.EPSILON * Math.max(1.0, Math.abs(a3), Math.abs(b3));
+}
+/**
+ * Multiply each element of the matrix by a scalar.
+ *
+ * @param {mat2} out the receiving matrix
+ * @param {ReadonlyMat2} a the matrix to scale
+ * @param {Number} b amount to scale the matrix's elements by
+ * @returns {mat2} out
+ */
+
+function multiplyScalar(out, a, b) {
+  out[0] = a[0] * b;
+  out[1] = a[1] * b;
+  out[2] = a[2] * b;
+  out[3] = a[3] * b;
+  return out;
+}
+/**
+ * Adds two mat2's after multiplying each element of the second operand by a scalar value.
+ *
+ * @param {mat2} out the receiving vector
+ * @param {ReadonlyMat2} a the first operand
+ * @param {ReadonlyMat2} b the second operand
+ * @param {Number} scale the amount to scale b's elements by before adding
+ * @returns {mat2} out
+ */
+
+function multiplyScalarAndAdd(out, a, b, scale) {
+  out[0] = a[0] + b[0] * scale;
+  out[1] = a[1] + b[1] * scale;
+  out[2] = a[2] + b[2] * scale;
+  out[3] = a[3] + b[3] * scale;
+  return out;
+}
+/**
+ * Alias for {@link mat2.multiply}
+ * @function
+ */
+
+var mul = multiply;
+/**
+ * Alias for {@link mat2.subtract}
+ * @function
+ */
+
+var sub = subtract;
+
+/***/ }),
+
 /***/ "./node_modules/gl-matrix/esm/mat3.js":
 /*!********************************************!*\
   !*** ./node_modules/gl-matrix/esm/mat3.js ***!
@@ -5310,6 +5781,688 @@ var sub = subtract;
 
 /***/ }),
 
+/***/ "./node_modules/gl-matrix/esm/vec2.js":
+/*!********************************************!*\
+  !*** ./node_modules/gl-matrix/esm/vec2.js ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "add": () => (/* binding */ add),
+/* harmony export */   "angle": () => (/* binding */ angle),
+/* harmony export */   "ceil": () => (/* binding */ ceil),
+/* harmony export */   "clone": () => (/* binding */ clone),
+/* harmony export */   "copy": () => (/* binding */ copy),
+/* harmony export */   "create": () => (/* binding */ create),
+/* harmony export */   "cross": () => (/* binding */ cross),
+/* harmony export */   "dist": () => (/* binding */ dist),
+/* harmony export */   "distance": () => (/* binding */ distance),
+/* harmony export */   "div": () => (/* binding */ div),
+/* harmony export */   "divide": () => (/* binding */ divide),
+/* harmony export */   "dot": () => (/* binding */ dot),
+/* harmony export */   "equals": () => (/* binding */ equals),
+/* harmony export */   "exactEquals": () => (/* binding */ exactEquals),
+/* harmony export */   "floor": () => (/* binding */ floor),
+/* harmony export */   "forEach": () => (/* binding */ forEach),
+/* harmony export */   "fromValues": () => (/* binding */ fromValues),
+/* harmony export */   "inverse": () => (/* binding */ inverse),
+/* harmony export */   "len": () => (/* binding */ len),
+/* harmony export */   "length": () => (/* binding */ length),
+/* harmony export */   "lerp": () => (/* binding */ lerp),
+/* harmony export */   "max": () => (/* binding */ max),
+/* harmony export */   "min": () => (/* binding */ min),
+/* harmony export */   "mul": () => (/* binding */ mul),
+/* harmony export */   "multiply": () => (/* binding */ multiply),
+/* harmony export */   "negate": () => (/* binding */ negate),
+/* harmony export */   "normalize": () => (/* binding */ normalize),
+/* harmony export */   "random": () => (/* binding */ random),
+/* harmony export */   "rotate": () => (/* binding */ rotate),
+/* harmony export */   "round": () => (/* binding */ round),
+/* harmony export */   "scale": () => (/* binding */ scale),
+/* harmony export */   "scaleAndAdd": () => (/* binding */ scaleAndAdd),
+/* harmony export */   "set": () => (/* binding */ set),
+/* harmony export */   "sqrDist": () => (/* binding */ sqrDist),
+/* harmony export */   "sqrLen": () => (/* binding */ sqrLen),
+/* harmony export */   "squaredDistance": () => (/* binding */ squaredDistance),
+/* harmony export */   "squaredLength": () => (/* binding */ squaredLength),
+/* harmony export */   "str": () => (/* binding */ str),
+/* harmony export */   "sub": () => (/* binding */ sub),
+/* harmony export */   "subtract": () => (/* binding */ subtract),
+/* harmony export */   "transformMat2": () => (/* binding */ transformMat2),
+/* harmony export */   "transformMat2d": () => (/* binding */ transformMat2d),
+/* harmony export */   "transformMat3": () => (/* binding */ transformMat3),
+/* harmony export */   "transformMat4": () => (/* binding */ transformMat4),
+/* harmony export */   "zero": () => (/* binding */ zero)
+/* harmony export */ });
+/* harmony import */ var _common_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./common.js */ "./node_modules/gl-matrix/esm/common.js");
+
+/**
+ * 2 Dimensional Vector
+ * @module vec2
+ */
+
+/**
+ * Creates a new, empty vec2
+ *
+ * @returns {vec2} a new 2D vector
+ */
+
+function create() {
+  var out = new _common_js__WEBPACK_IMPORTED_MODULE_0__.ARRAY_TYPE(2);
+
+  if (_common_js__WEBPACK_IMPORTED_MODULE_0__.ARRAY_TYPE != Float32Array) {
+    out[0] = 0;
+    out[1] = 0;
+  }
+
+  return out;
+}
+/**
+ * Creates a new vec2 initialized with values from an existing vector
+ *
+ * @param {ReadonlyVec2} a vector to clone
+ * @returns {vec2} a new 2D vector
+ */
+
+function clone(a) {
+  var out = new _common_js__WEBPACK_IMPORTED_MODULE_0__.ARRAY_TYPE(2);
+  out[0] = a[0];
+  out[1] = a[1];
+  return out;
+}
+/**
+ * Creates a new vec2 initialized with the given values
+ *
+ * @param {Number} x X component
+ * @param {Number} y Y component
+ * @returns {vec2} a new 2D vector
+ */
+
+function fromValues(x, y) {
+  var out = new _common_js__WEBPACK_IMPORTED_MODULE_0__.ARRAY_TYPE(2);
+  out[0] = x;
+  out[1] = y;
+  return out;
+}
+/**
+ * Copy the values from one vec2 to another
+ *
+ * @param {vec2} out the receiving vector
+ * @param {ReadonlyVec2} a the source vector
+ * @returns {vec2} out
+ */
+
+function copy(out, a) {
+  out[0] = a[0];
+  out[1] = a[1];
+  return out;
+}
+/**
+ * Set the components of a vec2 to the given values
+ *
+ * @param {vec2} out the receiving vector
+ * @param {Number} x X component
+ * @param {Number} y Y component
+ * @returns {vec2} out
+ */
+
+function set(out, x, y) {
+  out[0] = x;
+  out[1] = y;
+  return out;
+}
+/**
+ * Adds two vec2's
+ *
+ * @param {vec2} out the receiving vector
+ * @param {ReadonlyVec2} a the first operand
+ * @param {ReadonlyVec2} b the second operand
+ * @returns {vec2} out
+ */
+
+function add(out, a, b) {
+  out[0] = a[0] + b[0];
+  out[1] = a[1] + b[1];
+  return out;
+}
+/**
+ * Subtracts vector b from vector a
+ *
+ * @param {vec2} out the receiving vector
+ * @param {ReadonlyVec2} a the first operand
+ * @param {ReadonlyVec2} b the second operand
+ * @returns {vec2} out
+ */
+
+function subtract(out, a, b) {
+  out[0] = a[0] - b[0];
+  out[1] = a[1] - b[1];
+  return out;
+}
+/**
+ * Multiplies two vec2's
+ *
+ * @param {vec2} out the receiving vector
+ * @param {ReadonlyVec2} a the first operand
+ * @param {ReadonlyVec2} b the second operand
+ * @returns {vec2} out
+ */
+
+function multiply(out, a, b) {
+  out[0] = a[0] * b[0];
+  out[1] = a[1] * b[1];
+  return out;
+}
+/**
+ * Divides two vec2's
+ *
+ * @param {vec2} out the receiving vector
+ * @param {ReadonlyVec2} a the first operand
+ * @param {ReadonlyVec2} b the second operand
+ * @returns {vec2} out
+ */
+
+function divide(out, a, b) {
+  out[0] = a[0] / b[0];
+  out[1] = a[1] / b[1];
+  return out;
+}
+/**
+ * Math.ceil the components of a vec2
+ *
+ * @param {vec2} out the receiving vector
+ * @param {ReadonlyVec2} a vector to ceil
+ * @returns {vec2} out
+ */
+
+function ceil(out, a) {
+  out[0] = Math.ceil(a[0]);
+  out[1] = Math.ceil(a[1]);
+  return out;
+}
+/**
+ * Math.floor the components of a vec2
+ *
+ * @param {vec2} out the receiving vector
+ * @param {ReadonlyVec2} a vector to floor
+ * @returns {vec2} out
+ */
+
+function floor(out, a) {
+  out[0] = Math.floor(a[0]);
+  out[1] = Math.floor(a[1]);
+  return out;
+}
+/**
+ * Returns the minimum of two vec2's
+ *
+ * @param {vec2} out the receiving vector
+ * @param {ReadonlyVec2} a the first operand
+ * @param {ReadonlyVec2} b the second operand
+ * @returns {vec2} out
+ */
+
+function min(out, a, b) {
+  out[0] = Math.min(a[0], b[0]);
+  out[1] = Math.min(a[1], b[1]);
+  return out;
+}
+/**
+ * Returns the maximum of two vec2's
+ *
+ * @param {vec2} out the receiving vector
+ * @param {ReadonlyVec2} a the first operand
+ * @param {ReadonlyVec2} b the second operand
+ * @returns {vec2} out
+ */
+
+function max(out, a, b) {
+  out[0] = Math.max(a[0], b[0]);
+  out[1] = Math.max(a[1], b[1]);
+  return out;
+}
+/**
+ * Math.round the components of a vec2
+ *
+ * @param {vec2} out the receiving vector
+ * @param {ReadonlyVec2} a vector to round
+ * @returns {vec2} out
+ */
+
+function round(out, a) {
+  out[0] = Math.round(a[0]);
+  out[1] = Math.round(a[1]);
+  return out;
+}
+/**
+ * Scales a vec2 by a scalar number
+ *
+ * @param {vec2} out the receiving vector
+ * @param {ReadonlyVec2} a the vector to scale
+ * @param {Number} b amount to scale the vector by
+ * @returns {vec2} out
+ */
+
+function scale(out, a, b) {
+  out[0] = a[0] * b;
+  out[1] = a[1] * b;
+  return out;
+}
+/**
+ * Adds two vec2's after scaling the second operand by a scalar value
+ *
+ * @param {vec2} out the receiving vector
+ * @param {ReadonlyVec2} a the first operand
+ * @param {ReadonlyVec2} b the second operand
+ * @param {Number} scale the amount to scale b by before adding
+ * @returns {vec2} out
+ */
+
+function scaleAndAdd(out, a, b, scale) {
+  out[0] = a[0] + b[0] * scale;
+  out[1] = a[1] + b[1] * scale;
+  return out;
+}
+/**
+ * Calculates the euclidian distance between two vec2's
+ *
+ * @param {ReadonlyVec2} a the first operand
+ * @param {ReadonlyVec2} b the second operand
+ * @returns {Number} distance between a and b
+ */
+
+function distance(a, b) {
+  var x = b[0] - a[0],
+      y = b[1] - a[1];
+  return Math.hypot(x, y);
+}
+/**
+ * Calculates the squared euclidian distance between two vec2's
+ *
+ * @param {ReadonlyVec2} a the first operand
+ * @param {ReadonlyVec2} b the second operand
+ * @returns {Number} squared distance between a and b
+ */
+
+function squaredDistance(a, b) {
+  var x = b[0] - a[0],
+      y = b[1] - a[1];
+  return x * x + y * y;
+}
+/**
+ * Calculates the length of a vec2
+ *
+ * @param {ReadonlyVec2} a vector to calculate length of
+ * @returns {Number} length of a
+ */
+
+function length(a) {
+  var x = a[0],
+      y = a[1];
+  return Math.hypot(x, y);
+}
+/**
+ * Calculates the squared length of a vec2
+ *
+ * @param {ReadonlyVec2} a vector to calculate squared length of
+ * @returns {Number} squared length of a
+ */
+
+function squaredLength(a) {
+  var x = a[0],
+      y = a[1];
+  return x * x + y * y;
+}
+/**
+ * Negates the components of a vec2
+ *
+ * @param {vec2} out the receiving vector
+ * @param {ReadonlyVec2} a vector to negate
+ * @returns {vec2} out
+ */
+
+function negate(out, a) {
+  out[0] = -a[0];
+  out[1] = -a[1];
+  return out;
+}
+/**
+ * Returns the inverse of the components of a vec2
+ *
+ * @param {vec2} out the receiving vector
+ * @param {ReadonlyVec2} a vector to invert
+ * @returns {vec2} out
+ */
+
+function inverse(out, a) {
+  out[0] = 1.0 / a[0];
+  out[1] = 1.0 / a[1];
+  return out;
+}
+/**
+ * Normalize a vec2
+ *
+ * @param {vec2} out the receiving vector
+ * @param {ReadonlyVec2} a vector to normalize
+ * @returns {vec2} out
+ */
+
+function normalize(out, a) {
+  var x = a[0],
+      y = a[1];
+  var len = x * x + y * y;
+
+  if (len > 0) {
+    //TODO: evaluate use of glm_invsqrt here?
+    len = 1 / Math.sqrt(len);
+  }
+
+  out[0] = a[0] * len;
+  out[1] = a[1] * len;
+  return out;
+}
+/**
+ * Calculates the dot product of two vec2's
+ *
+ * @param {ReadonlyVec2} a the first operand
+ * @param {ReadonlyVec2} b the second operand
+ * @returns {Number} dot product of a and b
+ */
+
+function dot(a, b) {
+  return a[0] * b[0] + a[1] * b[1];
+}
+/**
+ * Computes the cross product of two vec2's
+ * Note that the cross product must by definition produce a 3D vector
+ *
+ * @param {vec3} out the receiving vector
+ * @param {ReadonlyVec2} a the first operand
+ * @param {ReadonlyVec2} b the second operand
+ * @returns {vec3} out
+ */
+
+function cross(out, a, b) {
+  var z = a[0] * b[1] - a[1] * b[0];
+  out[0] = out[1] = 0;
+  out[2] = z;
+  return out;
+}
+/**
+ * Performs a linear interpolation between two vec2's
+ *
+ * @param {vec2} out the receiving vector
+ * @param {ReadonlyVec2} a the first operand
+ * @param {ReadonlyVec2} b the second operand
+ * @param {Number} t interpolation amount, in the range [0-1], between the two inputs
+ * @returns {vec2} out
+ */
+
+function lerp(out, a, b, t) {
+  var ax = a[0],
+      ay = a[1];
+  out[0] = ax + t * (b[0] - ax);
+  out[1] = ay + t * (b[1] - ay);
+  return out;
+}
+/**
+ * Generates a random vector with the given scale
+ *
+ * @param {vec2} out the receiving vector
+ * @param {Number} [scale] Length of the resulting vector. If ommitted, a unit vector will be returned
+ * @returns {vec2} out
+ */
+
+function random(out, scale) {
+  scale = scale || 1.0;
+  var r = _common_js__WEBPACK_IMPORTED_MODULE_0__.RANDOM() * 2.0 * Math.PI;
+  out[0] = Math.cos(r) * scale;
+  out[1] = Math.sin(r) * scale;
+  return out;
+}
+/**
+ * Transforms the vec2 with a mat2
+ *
+ * @param {vec2} out the receiving vector
+ * @param {ReadonlyVec2} a the vector to transform
+ * @param {ReadonlyMat2} m matrix to transform with
+ * @returns {vec2} out
+ */
+
+function transformMat2(out, a, m) {
+  var x = a[0],
+      y = a[1];
+  out[0] = m[0] * x + m[2] * y;
+  out[1] = m[1] * x + m[3] * y;
+  return out;
+}
+/**
+ * Transforms the vec2 with a mat2d
+ *
+ * @param {vec2} out the receiving vector
+ * @param {ReadonlyVec2} a the vector to transform
+ * @param {ReadonlyMat2d} m matrix to transform with
+ * @returns {vec2} out
+ */
+
+function transformMat2d(out, a, m) {
+  var x = a[0],
+      y = a[1];
+  out[0] = m[0] * x + m[2] * y + m[4];
+  out[1] = m[1] * x + m[3] * y + m[5];
+  return out;
+}
+/**
+ * Transforms the vec2 with a mat3
+ * 3rd vector component is implicitly '1'
+ *
+ * @param {vec2} out the receiving vector
+ * @param {ReadonlyVec2} a the vector to transform
+ * @param {ReadonlyMat3} m matrix to transform with
+ * @returns {vec2} out
+ */
+
+function transformMat3(out, a, m) {
+  var x = a[0],
+      y = a[1];
+  out[0] = m[0] * x + m[3] * y + m[6];
+  out[1] = m[1] * x + m[4] * y + m[7];
+  return out;
+}
+/**
+ * Transforms the vec2 with a mat4
+ * 3rd vector component is implicitly '0'
+ * 4th vector component is implicitly '1'
+ *
+ * @param {vec2} out the receiving vector
+ * @param {ReadonlyVec2} a the vector to transform
+ * @param {ReadonlyMat4} m matrix to transform with
+ * @returns {vec2} out
+ */
+
+function transformMat4(out, a, m) {
+  var x = a[0];
+  var y = a[1];
+  out[0] = m[0] * x + m[4] * y + m[12];
+  out[1] = m[1] * x + m[5] * y + m[13];
+  return out;
+}
+/**
+ * Rotate a 2D vector
+ * @param {vec2} out The receiving vec2
+ * @param {ReadonlyVec2} a The vec2 point to rotate
+ * @param {ReadonlyVec2} b The origin of the rotation
+ * @param {Number} rad The angle of rotation in radians
+ * @returns {vec2} out
+ */
+
+function rotate(out, a, b, rad) {
+  //Translate point to the origin
+  var p0 = a[0] - b[0],
+      p1 = a[1] - b[1],
+      sinC = Math.sin(rad),
+      cosC = Math.cos(rad); //perform rotation and translate to correct position
+
+  out[0] = p0 * cosC - p1 * sinC + b[0];
+  out[1] = p0 * sinC + p1 * cosC + b[1];
+  return out;
+}
+/**
+ * Get the angle between two 2D vectors
+ * @param {ReadonlyVec2} a The first operand
+ * @param {ReadonlyVec2} b The second operand
+ * @returns {Number} The angle in radians
+ */
+
+function angle(a, b) {
+  var x1 = a[0],
+      y1 = a[1],
+      x2 = b[0],
+      y2 = b[1],
+      // mag is the product of the magnitudes of a and b
+  mag = Math.sqrt(x1 * x1 + y1 * y1) * Math.sqrt(x2 * x2 + y2 * y2),
+      // mag &&.. short circuits if mag == 0
+  cosine = mag && (x1 * x2 + y1 * y2) / mag; // Math.min(Math.max(cosine, -1), 1) clamps the cosine between -1 and 1
+
+  return Math.acos(Math.min(Math.max(cosine, -1), 1));
+}
+/**
+ * Set the components of a vec2 to zero
+ *
+ * @param {vec2} out the receiving vector
+ * @returns {vec2} out
+ */
+
+function zero(out) {
+  out[0] = 0.0;
+  out[1] = 0.0;
+  return out;
+}
+/**
+ * Returns a string representation of a vector
+ *
+ * @param {ReadonlyVec2} a vector to represent as a string
+ * @returns {String} string representation of the vector
+ */
+
+function str(a) {
+  return "vec2(" + a[0] + ", " + a[1] + ")";
+}
+/**
+ * Returns whether or not the vectors exactly have the same elements in the same position (when compared with ===)
+ *
+ * @param {ReadonlyVec2} a The first vector.
+ * @param {ReadonlyVec2} b The second vector.
+ * @returns {Boolean} True if the vectors are equal, false otherwise.
+ */
+
+function exactEquals(a, b) {
+  return a[0] === b[0] && a[1] === b[1];
+}
+/**
+ * Returns whether or not the vectors have approximately the same elements in the same position.
+ *
+ * @param {ReadonlyVec2} a The first vector.
+ * @param {ReadonlyVec2} b The second vector.
+ * @returns {Boolean} True if the vectors are equal, false otherwise.
+ */
+
+function equals(a, b) {
+  var a0 = a[0],
+      a1 = a[1];
+  var b0 = b[0],
+      b1 = b[1];
+  return Math.abs(a0 - b0) <= _common_js__WEBPACK_IMPORTED_MODULE_0__.EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) && Math.abs(a1 - b1) <= _common_js__WEBPACK_IMPORTED_MODULE_0__.EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1));
+}
+/**
+ * Alias for {@link vec2.length}
+ * @function
+ */
+
+var len = length;
+/**
+ * Alias for {@link vec2.subtract}
+ * @function
+ */
+
+var sub = subtract;
+/**
+ * Alias for {@link vec2.multiply}
+ * @function
+ */
+
+var mul = multiply;
+/**
+ * Alias for {@link vec2.divide}
+ * @function
+ */
+
+var div = divide;
+/**
+ * Alias for {@link vec2.distance}
+ * @function
+ */
+
+var dist = distance;
+/**
+ * Alias for {@link vec2.squaredDistance}
+ * @function
+ */
+
+var sqrDist = squaredDistance;
+/**
+ * Alias for {@link vec2.squaredLength}
+ * @function
+ */
+
+var sqrLen = squaredLength;
+/**
+ * Perform some operation over an array of vec2s.
+ *
+ * @param {Array} a the array of vectors to iterate over
+ * @param {Number} stride Number of elements between the start of each vec2. If 0 assumes tightly packed
+ * @param {Number} offset Number of elements to skip at the beginning of the array
+ * @param {Number} count Number of vec2s to iterate over. If 0 iterates over entire array
+ * @param {Function} fn Function to call for each vector in the array
+ * @param {Object} [arg] additional argument to pass to fn
+ * @returns {Array} a
+ * @function
+ */
+
+var forEach = function () {
+  var vec = create();
+  return function (a, stride, offset, count, fn, arg) {
+    var i, l;
+
+    if (!stride) {
+      stride = 2;
+    }
+
+    if (!offset) {
+      offset = 0;
+    }
+
+    if (count) {
+      l = Math.min(count * stride + offset, a.length);
+    } else {
+      l = a.length;
+    }
+
+    for (i = offset; i < l; i += stride) {
+      vec[0] = a[i];
+      vec[1] = a[i + 1];
+      fn(vec, vec, arg);
+      a[i] = vec[0];
+      a[i + 1] = vec[1];
+    }
+
+    return a;
+  };
+}();
+
+/***/ }),
+
 /***/ "./node_modules/gl-matrix/esm/vec3.js":
 /*!********************************************!*\
   !*** ./node_modules/gl-matrix/esm/vec3.js ***!
@@ -6925,6 +8078,15 @@ class CubicBezier {
         this.normals = [];
         this.binormals = [];
     }
+    getLength() {
+        let length = 0;
+        for (let i = 1; i < this.points.length; i++) {
+            const delta = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.create();
+            gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.sub(delta, this.points[i], this.points[i - 1]);
+            length += gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.length(delta);
+        }
+        return length;
+    }
     static from3dPoints(controlPoints, curvePoints) {
         const curve = new CubicBezier();
         curve.buildCubicBezier(controlPoints, curvePoints);
@@ -7074,6 +8236,18 @@ class CompositePath {
         this.normals.push(...path.normals);
         this.binormals.push(...path.binormals);
     }
+    static getPathLength(path) {
+        let length = 0;
+        for (let i = 1; i < path.length; i++) {
+            const delta = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.create();
+            gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.sub(delta, path[i], path[i - 1]);
+            length += gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.length(delta);
+        }
+        return length;
+    }
+    getLength() {
+        return CompositePath.getPathLength(this.points);
+    }
     /**
      * Create a 3d path from an array of points
      * @param path points to follow. If z component is 0, a binormal [0, 0, 1] is chosen
@@ -7197,6 +8371,7 @@ class GlProgram {
     constructor(gl) {
         this.gl = gl;
         this.program = gl.createProgram();
+        this.onActivate = () => { return; };
     }
     attachShader(shader) {
         this.gl.attachShader(this.program, shader);
@@ -7214,6 +8389,10 @@ class GlProgram {
     }
     getAttribLocation(name) {
         return this.gl.getAttribLocation(this.program, name);
+    }
+    activate() {
+        this.use();
+        this.onActivate(this);
     }
 }
 class GlBuffer {
@@ -7864,6 +9043,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ FortressWall)
 /* harmony export */ });
+/* harmony import */ var gl_matrix_esm_mat2__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! gl-matrix/esm/mat2 */ "./node_modules/gl-matrix/esm/mat2.js");
 /* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
 /* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
 /* harmony import */ var _fortressDoor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./fortressDoor */ "./src/scene/objects/fortressDoor.ts");
@@ -7871,12 +9051,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wallTower__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./wallTower */ "./src/scene/objects/wallTower.ts");
 // @ts-ignore
 
+// @ts-ignore
+
 
 
 
 
 const kWallRadius = 5;
-const kWallWidth = 0.2;
+const kWallWidth = 0.25;
 const kTowerWidth = 0.8;
 const kTowerHeight = 0.2;
 class FortressWall extends _compositeObject__WEBPACK_IMPORTED_MODULE_0__.CompositeObject {
@@ -7894,6 +9076,7 @@ class FortressWall extends _compositeObject__WEBPACK_IMPORTED_MODULE_0__.Composi
             gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.scale(mMatrix, mMatrix, [kTowerWidth, kTowerWidth, kTowerHeight]);
             gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.rotateZ(mMatrix, mMatrix, -angleStep * i + baseAngle);
             tower.baseModelMatrix = mMatrix;
+            tower.textureMatrix = gl_matrix_esm_mat2__WEBPACK_IMPORTED_MODULE_5__.fromValues(1, 0, 0, 1);
             this.addChild(tower);
         }
         // Walls
@@ -7909,6 +9092,8 @@ class FortressWall extends _compositeObject__WEBPACK_IMPORTED_MODULE_0__.Composi
             gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.rotateZ(mMatrix, mMatrix, Math.PI / 2);
             gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.rotateX(mMatrix, mMatrix, -Math.PI / 2);
             wall.baseModelMatrix = mMatrix;
+            // Stretch Y coord and rotate 90 degrees
+            wall.applyTextureMatrix(gl_matrix_esm_mat2__WEBPACK_IMPORTED_MODULE_5__.fromValues(0, 1, wallLength, 0));
             this.addChild(wall);
         }
         // Entrance door
@@ -7962,7 +9147,7 @@ class Land extends _compositeObject__WEBPACK_IMPORTED_MODULE_2__.CompositeObject
         this.buildLand(glContext, glProgram);
     }
     buildCenter(glContext, glProgram) {
-        const shape = _curves_path__WEBPACK_IMPORTED_MODULE_0__.CompositePath.fromPoints([[0, 0.25, 0], [0.34, 0.25, 0], [0.35, 0.25, 0], [0.40, 0, 0]]);
+        const shape = _curves_path__WEBPACK_IMPORTED_MODULE_0__.CompositePath.fromPoints([[0, 0.25, 0], [0.29, 0.25, 0], [0.3, 0.25, 0], [0.40, 0, 0]]);
         const center = new _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_1__["default"](glContext, glProgram, shape, Math.PI * 2, 20);
         center.build();
         const centerObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_3__["default"](glContext, glProgram, center);
@@ -7999,15 +9184,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ Wall)
 /* harmony export */ });
 /* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
-/* harmony import */ var gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! gl-matrix/esm/vec4 */ "./node_modules/gl-matrix/esm/vec4.js");
 /* harmony import */ var _curves_bezier__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../curves/bezier */ "./src/curves/bezier.ts");
 /* harmony import */ var _curves_path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../curves/path */ "./src/curves/path.ts");
 /* harmony import */ var _shapes_sweepSurface__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../shapes/sweepSurface */ "./src/shapes/sweepSurface.ts");
 /* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
 /* harmony import */ var _sceneObject__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../sceneObject */ "./src/scene/sceneObject.ts");
+/* harmony import */ var _textureManager__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../textureManager */ "./src/scene/textureManager.ts");
 // @ts-ignore
 
-// @ts-ignore
 
 
 
@@ -8020,38 +9204,44 @@ class Wall extends _compositeObject__WEBPACK_IMPORTED_MODULE_3__.CompositeObject
         super(glContext, glProgram);
         this.buildWall(glContext, glProgram);
         this.buildTop(glContext, glProgram);
-        this.baseColor = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_5__.fromValues(0.4, 0.4, 0.4, 1);
+    }
+    applyTextureMatrix(matrix) {
+        this.outerWallObj.textureMatrix = matrix;
+        this.innerWallObj.textureMatrix = matrix;
+        this.topObj.textureMatrix = matrix;
     }
     buildTop(glContext, glProgram) {
         // TODO: Improve with a linear path
-        const path = _curves_bezier__WEBPACK_IMPORTED_MODULE_0__.CubicBezier.from3dPoints([0, 0, 0, 0, 0, 0.33, 0, 0, 0.66, 0, 0, 1], 8);
+        const path = _curves_bezier__WEBPACK_IMPORTED_MODULE_0__.CubicBezier.from3dPoints([0, 0, 0, 0, 0, 0.33, 0, 0, 0.66, 0, 0, 1], 4);
         const shape = _curves_path__WEBPACK_IMPORTED_MODULE_1__.CompositePath.fromPoints([
             [0, 0, 0], [0, 1, 0], [0.25, 1, 0], [0.25, 0.5, 0],
             [0.75, 0.5, 0], [0.75, 1, 0], [1, 1, 0], [1, 0, 0]
         ]);
         const top = new _shapes_sweepSurface__WEBPACK_IMPORTED_MODULE_2__.SweepSurface(glContext, glProgram, shape, path);
         top.build();
-        const obj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, top);
+        top.textureList.push(_textureManager__WEBPACK_IMPORTED_MODULE_5__["default"].getTexture("rock"));
+        this.topObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, top);
         const objMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.create();
         gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.fromTranslation(objMatrix, [-1, -1, 0]);
         gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.scale(objMatrix, objMatrix, [1, wallTopHeight, 1]);
-        obj.baseModelMatrix = objMatrix;
-        this.addChild(obj);
+        this.topObj.baseModelMatrix = objMatrix;
+        this.addChild(this.topObj);
     }
     buildWall(glContext, glProgram) {
         // TODO: use Extrude or similar
         const path = _curves_bezier__WEBPACK_IMPORTED_MODULE_0__.CubicBezier.from3dPoints([0, 0, 0, 0, 0, 0.33, 0, 0, 0.66, 0, 0, 1], 4);
-        const shape = _curves_bezier__WEBPACK_IMPORTED_MODULE_0__.CubicBezier.from2dPoints([[0, 1], [0, 0.6], [1, 0.4], [1, 0]], 5);
+        const shape = _curves_bezier__WEBPACK_IMPORTED_MODULE_0__.CubicBezier.from2dPoints([[0, 1], [0, 0.6], [1, 0.4], [1, 0]], 8);
         const wall = new _shapes_sweepSurface__WEBPACK_IMPORTED_MODULE_2__.SweepSurface(glContext, glProgram, shape, path);
         wall.build();
-        const wallObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, wall);
-        const wallObj2 = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, wall);
+        wall.textureList.push(_textureManager__WEBPACK_IMPORTED_MODULE_5__["default"].getTexture("rock"));
+        this.innerWallObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, wall);
+        this.outerWallObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, wall);
         const wall2Matrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.create();
         gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.fromYRotation(wall2Matrix, Math.PI);
         gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.translate(wall2Matrix, wall2Matrix, [1, 0, -1]);
-        wallObj2.baseModelMatrix = wall2Matrix;
-        this.addChild(wallObj);
-        this.addChild(wallObj2);
+        this.innerWallObj.baseModelMatrix = wall2Matrix;
+        this.addChild(this.innerWallObj);
+        this.addChild(this.outerWallObj);
     }
 }
 
@@ -8068,11 +9258,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ WallTower)
 /* harmony export */ });
+/* harmony import */ var gl_matrix_esm_mat2__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! gl-matrix/esm/mat2 */ "./node_modules/gl-matrix/esm/mat2.js");
 /* harmony import */ var _curves_bezier__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../curves/bezier */ "./src/curves/bezier.ts");
 /* harmony import */ var _curves_path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../curves/path */ "./src/curves/path.ts");
 /* harmony import */ var _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../shapes/revolutionSurface */ "./src/shapes/revolutionSurface.ts");
 /* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
 /* harmony import */ var _sceneObject__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../sceneObject */ "./src/scene/sceneObject.ts");
+/* harmony import */ var _textureManager__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../textureManager */ "./src/scene/textureManager.ts");
+// @ts-ignore
+
+
 
 
 
@@ -8085,7 +9280,9 @@ const kTowerHeight = 5;
 class WallTower extends _compositeObject__WEBPACK_IMPORTED_MODULE_3__.CompositeObject {
     constructor(glContext, glProgram, config) {
         super(glContext, glProgram);
-        this.buildBody(glContext, glProgram, config);
+        const body = this.buildBody(glContext, glProgram, config);
+        body.textureMatrix = gl_matrix_esm_mat2__WEBPACK_IMPORTED_MODULE_6__.fromValues(1, 0, 0, 1);
+        this.addChild(body);
     }
     buildBody(glContext, glProgram, config) {
         const path = new _curves_path__WEBPACK_IMPORTED_MODULE_1__.CompositePath();
@@ -8105,8 +9302,41 @@ class WallTower extends _compositeObject__WEBPACK_IMPORTED_MODULE_3__.CompositeO
         path.addPath(pathCurve);
         const body = new _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_2__["default"](glContext, glProgram, path, Math.PI * 2, 10);
         body.build();
-        const bodyObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, body);
-        this.addChild(bodyObj);
+        body.textureList.push(_textureManager__WEBPACK_IMPORTED_MODULE_5__["default"].getTexture("rock"));
+        return new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, body);
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/scene/objects/water.ts":
+/*!************************************!*\
+  !*** ./src/scene/objects/water.ts ***!
+  \************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Water)
+/* harmony export */ });
+/* harmony import */ var _curves_bezier__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../curves/bezier */ "./src/curves/bezier.ts");
+/* harmony import */ var _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../shapes/revolutionSurface */ "./src/shapes/revolutionSurface.ts");
+/* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
+/* harmony import */ var _sceneObject__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../sceneObject */ "./src/scene/sceneObject.ts");
+
+
+
+
+class Water extends _compositeObject__WEBPACK_IMPORTED_MODULE_2__.CompositeObject {
+    constructor(glContext, glProgram) {
+        super(glContext, glProgram);
+        const shape = _curves_bezier__WEBPACK_IMPORTED_MODULE_0__.CubicBezier.from2dPoints([[0.10, 0], [0.4, 0], [0.7, 0], [1, 0]], 8);
+        const water = new _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_1__["default"](glContext, glProgram, shape, Math.PI * 2, 9);
+        water.build();
+        const waterObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_3__["default"](glContext, glProgram, water);
+        waterObj.baseColor = [0.2, 0.2, 0.8, 1];
+        this.addChild(waterObj);
     }
 }
 
@@ -8123,26 +9353,30 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Scene)
 /* harmony export */ });
-/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
 /* harmony import */ var _objects_castle__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./objects/castle */ "./src/scene/objects/castle.ts");
 /* harmony import */ var _objects_catapult__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./objects/catapult */ "./src/scene/objects/catapult.ts");
 /* harmony import */ var _objects_fortressWall__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./objects/fortressWall */ "./src/scene/objects/fortressWall.ts");
 /* harmony import */ var _objects_land__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./objects/land */ "./src/scene/objects/land.ts");
+/* harmony import */ var _objects_water__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./objects/water */ "./src/scene/objects/water.ts");
+/* harmony import */ var _shaderManager__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./shaderManager */ "./src/scene/shaderManager.ts");
 // @ts-ignore
 
 
 
 
 
+
+
 class Scene {
-    constructor(gl, program, camera, config) {
+    constructor(gl, camera, config) {
         this.catapultPosition = [12, 0, 0.25];
         this.renderableList = new Array();
         this.glContext = gl;
-        this.program = program;
         this.camera = camera;
         this.config = config;
         this.buildRenderables();
+        this.setupBaseProgram();
     }
     rebuildScene() {
         this.renderableList.length = 0;
@@ -8150,31 +9384,11 @@ class Scene {
         this.updateModel();
     }
     updateModel() {
-        const gl = this.glContext.gl;
-        // Enable attributes
-        const posVertexAttr = this.program.getAttribLocation("a_position");
-        gl.enableVertexAttribArray(posVertexAttr);
-        const normalFragAttr = this.program.getAttribLocation("aNormal");
-        gl.enableVertexAttribArray(normalFragAttr);
-        const cameraMatrix = this.camera.getMatrix();
-        const projMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.identity(projMatrix);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.perspective(projMatrix, 45, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
-        const modelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.identity(modelMatrix);
-        // Set uniforms
-        const modelMatrixLoc = this.program.getUniformLocation("modelMatrix");
-        const cameraMatrixLoc = this.program.getUniformLocation("cameraMatrix");
-        const projMatrixLoc = this.program.getUniformLocation("projMatrix");
-        // Gray for non configured objects
-        const baseColor = this.program.getUniformLocation("modelColor");
-        gl.uniformMatrix4fv(cameraMatrixLoc, false, cameraMatrix);
-        gl.uniformMatrix4fv(projMatrixLoc, false, projMatrix);
-        gl.uniformMatrix4fv(modelMatrixLoc, false, modelMatrix);
-        gl.uniform4fv(baseColor, [0.7, 0.7, 0.7, 1]);
         this.catapult.updateRockModel();
+        const rootModelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.identity(rootModelMatrix);
         for (const object of this.renderableList) {
-            object.updateModelMatrix(modelMatrix);
+            object.updateModelMatrix(rootModelMatrix);
         }
     }
     render() {
@@ -8191,22 +9405,57 @@ class Scene {
         }
     }
     buildRenderables() {
-        const land = new _objects_land__WEBPACK_IMPORTED_MODULE_3__["default"](this.glContext, this.program);
-        const landMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromScaling(landMatrix, [20, 20, 2]);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.translate(landMatrix, landMatrix, [0, 0, -0.25]);
+        const baseProgram = _shaderManager__WEBPACK_IMPORTED_MODULE_5__["default"].getProgram("base");
+        const grassProgram = _shaderManager__WEBPACK_IMPORTED_MODULE_5__["default"].getProgram("grass");
+        const land = new _objects_land__WEBPACK_IMPORTED_MODULE_3__["default"](this.glContext, grassProgram);
+        const landMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.fromScaling(landMatrix, [20, 20, 2]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.translate(landMatrix, landMatrix, [0, 0, -0.25]);
         land.setBaseModelMatrix(landMatrix);
         this.renderableList.push(land);
-        this.catapult = new _objects_catapult__WEBPACK_IMPORTED_MODULE_1__["default"](this.glContext, this.program);
-        const catapultMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromTranslation(catapultMatrix, this.catapultPosition);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.scale(catapultMatrix, catapultMatrix, [0.2, 0.2, 0.2]);
+        this.catapult = new _objects_catapult__WEBPACK_IMPORTED_MODULE_1__["default"](this.glContext, baseProgram);
+        const catapultMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.fromTranslation(catapultMatrix, this.catapultPosition);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.scale(catapultMatrix, catapultMatrix, [0.2, 0.2, 0.2]);
         this.catapult.baseModelMatrix = catapultMatrix;
         this.renderableList.push(this.catapult);
-        const castle = new _objects_castle__WEBPACK_IMPORTED_MODULE_0__["default"](this.glContext, this.program, this.config);
+        const castle = new _objects_castle__WEBPACK_IMPORTED_MODULE_0__["default"](this.glContext, baseProgram, this.config);
         this.renderableList.push(castle);
-        const fortressWall = new _objects_fortressWall__WEBPACK_IMPORTED_MODULE_2__["default"](this.glContext, this.program, this.config);
+        const fortressWall = new _objects_fortressWall__WEBPACK_IMPORTED_MODULE_2__["default"](this.glContext, baseProgram, this.config);
         this.renderableList.push(fortressWall);
+        const water = new _objects_water__WEBPACK_IMPORTED_MODULE_4__["default"](this.glContext, baseProgram);
+        const objMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.fromScaling(objMatrix, [12, 12, 1]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.translate(objMatrix, objMatrix, [0, 0, -0.25]);
+        water.baseModelMatrix = objMatrix;
+        this.renderableList.push(water);
+    }
+    setupBaseProgram() {
+        const baseProgram = _shaderManager__WEBPACK_IMPORTED_MODULE_5__["default"].getProgram("base");
+        const gl = this.glContext.gl;
+        baseProgram.onActivate = (glProgram) => {
+            // Enable attributes
+            const posVertexAttr = glProgram.getAttribLocation("a_position");
+            gl.enableVertexAttribArray(posVertexAttr);
+            const normalFragAttr = glProgram.getAttribLocation("aNormal");
+            gl.enableVertexAttribArray(normalFragAttr);
+            const textureUVFragAttr = glProgram.getAttribLocation("aTextureUV");
+            gl.enableVertexAttribArray(textureUVFragAttr);
+            // Set uniforms
+            const cameraMatrixLoc = glProgram.getUniformLocation("cameraMatrix");
+            const projMatrixLoc = glProgram.getUniformLocation("projMatrix");
+            // Gray for non configured objects
+            const baseColor = glProgram.getUniformLocation("modelColor");
+            const cameraMatrix = this.camera.getMatrix();
+            const projMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.create();
+            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.identity(projMatrix);
+            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.perspective(projMatrix, 45, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
+            gl.uniformMatrix4fv(cameraMatrixLoc, false, cameraMatrix);
+            gl.uniformMatrix4fv(projMatrixLoc, false, projMatrix);
+            gl.uniform4fv(baseColor, [0.7, 0.7, 0.7, 1]);
+        };
+        const grassProgram = _shaderManager__WEBPACK_IMPORTED_MODULE_5__["default"].getProgram("grass");
+        grassProgram.onActivate = baseProgram.onActivate;
     }
 }
 
@@ -8223,9 +9472,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ SceneObject)
 /* harmony export */ });
+/* harmony import */ var gl_matrix_esm_mat2__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! gl-matrix/esm/mat2 */ "./node_modules/gl-matrix/esm/mat2.js");
 /* harmony import */ var gl_matrix_esm_mat3__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! gl-matrix/esm/mat3 */ "./node_modules/gl-matrix/esm/mat3.js");
 /* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
 /* harmony import */ var gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! gl-matrix/esm/vec4 */ "./node_modules/gl-matrix/esm/vec4.js");
+// @ts-ignore
+
 // @ts-ignore
 
 // @ts-ignore
@@ -8240,22 +9492,122 @@ class SceneObject {
         this.normalMatrix = gl_matrix_esm_mat3__WEBPACK_IMPORTED_MODULE_1__.create();
         this.modelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_2__.create();
         this.baseModelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_2__.create();
+        this.textureMatrix = gl_matrix_esm_mat2__WEBPACK_IMPORTED_MODULE_3__.create();
         this.renderable = renderable;
+        gl_matrix_esm_mat2__WEBPACK_IMPORTED_MODULE_3__.identity(this.textureMatrix);
     }
     updateModelMatrix(parentMatrix) {
         gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_2__.multiply(this.modelMatrix, parentMatrix, this.baseModelMatrix);
         gl_matrix_esm_mat3__WEBPACK_IMPORTED_MODULE_1__.normalFromMat4(this.normalMatrix, this.modelMatrix);
     }
     render() {
+        this.glProgram.activate();
         if (this.renderable) {
             const modelMatrixLoc = this.glProgram.getUniformLocation("modelMatrix");
             this.glContext.gl.uniformMatrix4fv(modelMatrixLoc, false, this.modelMatrix);
             const normalMatrixLoc = this.glProgram.getUniformLocation("normalMatrix");
             this.glContext.gl.uniformMatrix3fv(normalMatrixLoc, false, this.normalMatrix);
-            const baseColor = this.glProgram.getUniformLocation("modelColor");
-            this.glContext.gl.uniform4fv(baseColor, this.baseColor);
+            const baseColorLoc = this.glProgram.getUniformLocation("modelColor");
+            this.glContext.gl.uniform4fv(baseColorLoc, this.baseColor);
+            const textureMatrixLoc = this.glProgram.getUniformLocation("textureMatrix");
+            this.glContext.gl.uniformMatrix2fv(textureMatrixLoc, false, this.textureMatrix);
             this.renderable.render();
         }
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/scene/shaderManager.ts":
+/*!************************************!*\
+  !*** ./src/scene/shaderManager.ts ***!
+  \************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ ShaderManager)
+/* harmony export */ });
+class ShaderManager {
+    constructor() { }
+    static setProgram(name, glProgram) {
+        this.textureMap.set(name, glProgram);
+    }
+    static getProgram(name) {
+        return this.textureMap.get(name);
+    }
+}
+ShaderManager.textureMap = new Map();
+
+
+/***/ }),
+
+/***/ "./src/scene/texture.ts":
+/*!******************************!*\
+  !*** ./src/scene/texture.ts ***!
+  \******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Texture)
+/* harmony export */ });
+class Texture {
+    constructor(glContext, path) {
+        const gl = glContext.gl;
+        this.glTexture = gl.createTexture();
+        this.image = new Image();
+        this.image.src = path;
+        this.image.onload = () => {
+            // Based on https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Using_textures_in_WebGL
+            gl.bindTexture(gl.TEXTURE_2D, this.glTexture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, this.image);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+            if (isPowerOf2(this.image.width) && isPowerOf2(this.image.height)) {
+                // w & h are power of 2 -> Generate mipmaps
+                gl.generateMipmap(gl.TEXTURE_2D);
+            }
+            else {
+                // w & h are NOT power of 2 -> wrap edges
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+            }
+        };
+    }
+}
+function isPowerOf2(value) {
+    // tslint:disable-next-line:no-bitwise
+    return (value & (value - 1)) === 0;
+}
+
+
+/***/ }),
+
+/***/ "./src/scene/textureManager.ts":
+/*!*************************************!*\
+  !*** ./src/scene/textureManager.ts ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ TextureManager)
+/* harmony export */ });
+/* harmony import */ var _texture__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./texture */ "./src/scene/texture.ts");
+
+class TextureManager {
+    constructor() { }
+    static init(glContext) {
+        this.textureMap = new Map();
+        this.glContext = glContext;
+        //const texture = new Texture(glContext, "textures/stone-wall.png");
+        const texture = new _texture__WEBPACK_IMPORTED_MODULE_0__["default"](glContext, "textures/uv-test.png");
+        this.textureMap.set("rock", texture);
+    }
+    static getTexture(name) {
+        return this.textureMap.get(name);
     }
 }
 
@@ -8459,9 +9811,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ RevolutionSurface)
 /* harmony export */ });
 /* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var gl_matrix_esm_vec2__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! gl-matrix/esm/vec2 */ "./node_modules/gl-matrix/esm/vec2.js");
 /* harmony import */ var gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! gl-matrix/esm/vec3 */ "./node_modules/gl-matrix/esm/vec3.js");
 /* harmony import */ var gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! gl-matrix/esm/vec4 */ "./node_modules/gl-matrix/esm/vec4.js");
 /* harmony import */ var _surface__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./surface */ "./src/shapes/surface.ts");
+// @ts-ignore
+
 // @ts-ignore
 
 // @ts-ignore
@@ -8483,20 +9838,25 @@ class RevolutionSurface extends _surface__WEBPACK_IMPORTED_MODULE_0__.Surface {
         super(glContext, glProgram, rows - 1, shape.points.length - 1);
         this.points = [];
         this.normals = [];
+        this.textureCoords = [];
         const angleStep = angle / (rows - 1);
         // Since we only rotate around Z axis, we can fix normal matrix
+        const shapeLen = shape.getLength();
+        let curPointColLen = 0;
         for (let i = 0; i < rows; ++i) {
             const curAngle = angleStep * i;
             const pathMat = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.create();
             gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.fromZRotation(pathMat, curAngle);
             // Our shape lives in XY plane, lets move it to XZ
             gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.rotateX(pathMat, pathMat, Math.PI / 2);
+            const rowPoints = [];
             for (const shapePoint of shape.points) {
                 const extPoint = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_2__.fromValues(...shapePoint, 1);
                 const point4d = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_2__.create();
                 gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_2__.transformMat4(point4d, extPoint, pathMat);
                 const point3d = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.fromValues(...point4d);
                 this.points.push(point3d);
+                rowPoints.push(point3d);
             }
             for (const shapeNormal of shape.normals) {
                 const normal = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_2__.fromValues(...shapeNormal, 0);
@@ -8505,23 +9865,39 @@ class RevolutionSurface extends _surface__WEBPACK_IMPORTED_MODULE_0__.Surface {
                 gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.normalize(normalv3, normalv3);
                 this.normals.push(normalv3);
             }
+            let curPointRowLen = 0;
+            for (let j = 0; j < shape.points.length; j++) {
+                if (j === 0) {
+                    // First point of i-th row, if not first row, lets see how far did we get
+                    if (i !== 0) {
+                        curPointColLen += angleStep;
+                    }
+                    const texCoord = gl_matrix_esm_vec2__WEBPACK_IMPORTED_MODULE_4__.fromValues(0, curPointColLen / angle);
+                    this.textureCoords.push(texCoord);
+                }
+                else {
+                    const delta = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.create();
+                    gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.sub(delta, shape.points[j], shape.points[j - 1]);
+                    curPointRowLen += gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.length(delta);
+                    const texCoord = gl_matrix_esm_vec2__WEBPACK_IMPORTED_MODULE_4__.fromValues(curPointRowLen / shapeLen, curPointColLen / angle);
+                    this.textureCoords.push(texCoord);
+                }
+            }
         }
     }
-    getTextureCoords(u, v) {
-        return [];
+    getTextureCoords(x, y) {
+        const texIdx = this.getIndexFromXY(x, y);
+        return this.textureCoords[texIdx];
     }
-    getPosition(u, v) {
-        const pointIdx = this.getIndexFromXY(u, v);
+    getPosition(x, y) {
+        const pointIdx = this.getIndexFromXY(x, y);
         const point = this.points[pointIdx];
         return [...point];
     }
-    getNormal(u, v) {
-        const normalIdx = this.getIndexFromXY(u, v);
+    getNormal(x, y) {
+        const normalIdx = this.getIndexFromXY(x, y);
         const normal = this.normals[normalIdx];
         return [...normal];
-    }
-    getUV(x, y) {
-        return [x, y];
     }
 }
 
@@ -8587,6 +9963,7 @@ class Surface {
         this.normalize = false; // don't normalize the data
         this.stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
         this.offset = 0; // start at the beginning of the buffer
+        this.textureList = [];
         this.glContext = glContext;
         this.glProgram = glProgram;
         const gl = this.glContext.gl;
@@ -8613,6 +9990,12 @@ class Surface {
         this.positionBuffer.bindBuffer();
         const positionAttributeLocation = this.glProgram.getAttribLocation("a_position");
         gl.vertexAttribPointer(positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
+        // texture coords
+        this.uvBuffer.bindBuffer();
+        const textureUVAttribLoc = this.glProgram.getAttribLocation("aTextureUV");
+        gl.vertexAttribPointer(textureUVAttribLoc, 2, this.type, this.normalize, this.stride, this.offset);
+        const nTextures = this.glProgram.getUniformLocation("nTextures");
+        gl.uniform1f(nTextures, this.textureList.length);
         this.indexBuffer.bindBuffer();
         gl.drawElements(gl.TRIANGLE_STRIP, this.indexesSize, gl.UNSIGNED_SHORT, 0);
         gl.drawElements(gl.LINE_STRIP, this.indexesSize, gl.UNSIGNED_SHORT, 0);
@@ -8623,16 +10006,15 @@ class Surface {
         const uvArray = [];
         for (let i = 0; i <= filas; i++) {
             for (let j = 0; j <= columnas; j++) {
-                const uv = this.getUV(j, i);
-                const pos = this.getPosition(uv[0], uv[1]);
+                const pos = this.getPosition(j, i);
                 positionArray.push(pos[0]);
                 positionArray.push(pos[1]);
                 positionArray.push(pos[2]);
-                const nrm = this.getNormal(uv[0], uv[1]);
+                const nrm = this.getNormal(j, i);
                 normalArray.push(nrm[0]);
                 normalArray.push(nrm[1]);
                 normalArray.push(nrm[2]);
-                const uvs = this.getTextureCoords(uv[0], uv[1]);
+                const uvs = this.getTextureCoords(j, i);
                 uvArray.push(uvs[0]);
                 uvArray.push(uvs[1]);
             }
@@ -8657,9 +10039,6 @@ class Surface {
         this.indexesSize = indexArray.length;
         this.indexBuffer.bufferData(new Uint16Array(indexArray), this.glContext.gl.STATIC_DRAW);
     }
-    getUV(x, y) {
-        return [x / this.columnas, y / this.filas];
-    }
     getIndexFromXY(x, y) {
         return x + y * (this.columnas + 1);
     }
@@ -8678,52 +10057,80 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "SweepSurface": () => (/* binding */ SweepSurface)
 /* harmony export */ });
-/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
-/* harmony import */ var gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! gl-matrix/esm/vec3 */ "./node_modules/gl-matrix/esm/vec3.js");
-/* harmony import */ var gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! gl-matrix/esm/vec4 */ "./node_modules/gl-matrix/esm/vec4.js");
-/* harmony import */ var _surface__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./surface */ "./src/shapes/surface.ts");
+/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var gl_matrix_esm_vec2__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! gl-matrix/esm/vec2 */ "./node_modules/gl-matrix/esm/vec2.js");
+/* harmony import */ var gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! gl-matrix/esm/vec3 */ "./node_modules/gl-matrix/esm/vec3.js");
+/* harmony import */ var gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! gl-matrix/esm/vec4 */ "./node_modules/gl-matrix/esm/vec4.js");
+/* harmony import */ var _curves_path__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../curves/path */ "./src/curves/path.ts");
+/* harmony import */ var _surface__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./surface */ "./src/shapes/surface.ts");
 // @ts-ignore
 
 // @ts-ignore
 
 // @ts-ignore
 
+// @ts-ignore
 
-class SweepSurface extends _surface__WEBPACK_IMPORTED_MODULE_0__.Surface {
+
+
+class SweepSurface extends _surface__WEBPACK_IMPORTED_MODULE_1__.Surface {
     constructor(glContext, glProgram, shape, path) {
         const rows = path.points.length;
         super(glContext, glProgram, rows - 1, shape.points.length - 1);
-        this.points = new Array();
-        this.normals = new Array();
+        this.points = [];
+        this.normals = [];
+        this.textureCoords = [];
+        const shapeLen = shape.getLength();
+        let curPointColLen = 0;
         for (let i = 0; i < rows; ++i) {
-            const pathMat = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.fromValues(...path.normals[i], 0, ...path.binormals[i], 0, ...path.tangents[i], 0, ...path.points[i], 1);
+            const pathMat = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_2__.fromValues(...path.normals[i], 0, ...path.binormals[i], 0, ...path.tangents[i], 0, ...path.points[i], 1);
+            const rowPoints = [];
             for (const shapePoint of shape.points) {
-                const point = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_2__.create();
-                gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_2__.transformMat4(point, shapePoint, pathMat);
+                const point = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.create();
+                gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.transformMat4(point, shapePoint, pathMat);
                 this.points.push(point);
+                rowPoints.push(point);
             }
             for (const shapeNormal of shape.normals) {
-                const normal = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_3__.fromValues(...shapeNormal, 0);
-                gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_3__.transformMat4(normal, normal, pathMat);
-                const normalv3 = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_2__.fromValues(...normal);
-                gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_2__.normalize(normalv3, normalv3);
+                const normal = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_4__.fromValues(...shapeNormal, 0);
+                gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_4__.transformMat4(normal, normal, pathMat);
+                const normalv3 = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.fromValues(...normal);
+                gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.normalize(normalv3, normalv3);
                 this.normals.push(normalv3);
+            }
+            const rowLength = _curves_path__WEBPACK_IMPORTED_MODULE_0__.CompositePath.getPathLength(rowPoints);
+            let curPointRowLen = 0;
+            for (let j = 0; j < shape.points.length; j++) {
+                const delta = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.create();
+                if (j === 0) {
+                    // First point of i-th row, if not first row, lets see how far did we get
+                    if (i !== 0) {
+                        gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.sub(delta, path.points[i], path.points[i - 1]);
+                        curPointColLen += gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.length(delta) / shapeLen;
+                    }
+                    const texCoord = gl_matrix_esm_vec2__WEBPACK_IMPORTED_MODULE_5__.fromValues(0, curPointColLen / shapeLen);
+                    this.textureCoords.push(texCoord);
+                }
+                else {
+                    gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.sub(delta, shape.points[j], shape.points[j - 1]);
+                    curPointRowLen += gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_3__.length(delta);
+                    const texCoord = gl_matrix_esm_vec2__WEBPACK_IMPORTED_MODULE_5__.fromValues(curPointRowLen / rowLength, curPointColLen / shapeLen);
+                    this.textureCoords.push(texCoord);
+                }
             }
         }
     }
-    getTextureCoords(u, v) {
-        return [];
+    getTextureCoords(x, y) {
+        const texIdx = this.getIndexFromXY(x, y);
+        return this.textureCoords[texIdx];
     }
-    getNormal(u, v) {
-        const normalIdx = this.getIndexFromXY(u, v);
+    getNormal(x, y) {
+        const normalIdx = this.getIndexFromXY(x, y);
         const normal = this.normals[normalIdx];
         return [...normal];
     }
-    getUV(x, y) {
-        return [x, y];
-    }
-    getPosition(u, v) {
-        const pointIdx = this.getIndexFromXY(u, v);
+    getPosition(x, y) {
+        const pointIdx = this.getIndexFromXY(x, y);
         const point = this.points[pointIdx];
         return [...point];
     }
@@ -8749,7 +10156,7 @@ class Config {
         this.castleWidth = 2;
         this.nWalls = 4;
         this.wallHeight = 1.5;
-        this.cameraType = 2;
+        this.cameraType = 1;
         this.gateAngle = 0;
     }
 }
@@ -8825,9 +10232,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _scene_camera_firstPersonCamera__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./scene/camera/firstPersonCamera */ "./src/scene/camera/firstPersonCamera.ts");
 /* harmony import */ var _scene_camera_orbitalCamera__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./scene/camera/orbitalCamera */ "./src/scene/camera/orbitalCamera.ts");
 /* harmony import */ var _scene_scene__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./scene/scene */ "./src/scene/scene.ts");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils */ "./src/utils.ts");
+/* harmony import */ var _scene_shaderManager__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./scene/shaderManager */ "./src/scene/shaderManager.ts");
+/* harmony import */ var _scene_textureManager__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./scene/textureManager */ "./src/scene/textureManager.ts");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils */ "./src/utils.ts");
 /* eslint no-console:0 consistent-return:0 */
 // @ts-ignore
+
+
 
 
 
@@ -8837,7 +10248,7 @@ __webpack_require__.r(__webpack_exports__);
 let scene;
 const fpCamera = new _scene_camera_firstPersonCamera__WEBPACK_IMPORTED_MODULE_2__.FirstPersonCamera();
 const orbitalCamera = new _scene_camera_orbitalCamera__WEBPACK_IMPORTED_MODULE_3__.OrbitalCamera();
-const config = new _utils__WEBPACK_IMPORTED_MODULE_5__.Config();
+const config = new _utils__WEBPACK_IMPORTED_MODULE_7__.Config();
 async function main() {
     // Get A WebGL context
     const canvas = document.querySelector("#glCanvas");
@@ -8846,26 +10257,19 @@ async function main() {
     }
     const context = new _gl__WEBPACK_IMPORTED_MODULE_1__.GlContext(canvas);
     // Get the strings for our GLSL shaders
-    const vertexShaderFile = await fetch("./src/vertex-base.glsl");
-    const vertexShaderSource = await vertexShaderFile.text();
-    const fragmentShaderFile = await fetch("./src/fragment-base.glsl");
-    const fragmentShaderSource = await fragmentShaderFile.text();
-    // create GLSL shaders, upload the GLSL source, compile the shaders
-    const vertexShader = context.createVertexShader(vertexShaderSource);
-    const fragmentShader = context.createFragmentShader(fragmentShaderSource);
-    // Link the two shaders into a program
-    const program = context.createProgram(vertexShader, fragmentShader);
+    await initProgram("base", "./shaders/vertex-base.glsl", "./shaders/fragment-base.glsl", context);
+    await initProgram("grass", "./shaders/vertex-base.glsl", "./shaders/fragment-grass.glsl", context);
     context.resizeCanvasToDisplaySize();
     context.clear();
-    // Tell it to use our program (pair of shaders)
-    program.use();
     // Camera init
     fpCamera.registerCallbacks(canvas);
     orbitalCamera.registerCallbacks(canvas);
+    // Texture manager init
+    _scene_textureManager__WEBPACK_IMPORTED_MODULE_6__["default"].init(context);
     // Menu
     initMenu();
     // Scene init
-    scene = new _scene_scene__WEBPACK_IMPORTED_MODULE_4__["default"](context, program, orbitalCamera, config);
+    scene = new _scene_scene__WEBPACK_IMPORTED_MODULE_4__["default"](context, orbitalCamera, config);
     window.addEventListener("keydown", (e) => { scene.keypressListener(e); });
     cameraChanged(config.cameraType.toString());
     // Render loop init
@@ -8873,9 +10277,6 @@ async function main() {
 }
 const fpsInterval = 5000;
 function tick() {
-    /*setTimeout(() => {
-      requestAnimationFrame(tick);
-    }, fpsInterval);*/
     requestAnimationFrame(tick);
     scene.updateModel();
     scene.render();
@@ -8917,6 +10318,20 @@ function cameraChanged(value) {
 function configChanged() {
     scene.rebuildScene();
     scene.render();
+}
+// TODO: support other configurations
+async function initProgram(name, vertexPath, fragPath, context) {
+    const vertexShaderFile = await fetch(vertexPath);
+    const vertexShaderSource = await vertexShaderFile.text();
+    const fragShaderFile = await fetch(fragPath);
+    const fragShaderSource = await fragShaderFile.text();
+    // create GLSL shaders, upload the GLSL source, compile the shaders
+    const vertexShader = context.createVertexShader(vertexShaderSource);
+    const fragmentShader = context.createFragmentShader(fragShaderSource);
+    // Link the two shaders into a program
+    const program = context.createProgram(vertexShader, fragmentShader);
+    _scene_shaderManager__WEBPACK_IMPORTED_MODULE_5__["default"].setProgram(name, program);
+    return program;
 }
 window.onload = main;
 
