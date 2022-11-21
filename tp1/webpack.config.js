@@ -10,6 +10,7 @@ module.exports = {
     plugins: [
         new CopyWebpackPlugin({
             patterns: [
+                { from: 'textures/*.png' },
                 { from: 'src/*.glsl' }
             ]
         })

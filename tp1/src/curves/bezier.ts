@@ -49,6 +49,16 @@ export class CubicBezier implements Path {
         this.binormals = [];
     }
 
+    public getLength(): number {
+        let length = 0;
+        for (let i = 1; i < this.points.length; i++) {
+            const delta = vec3.create();
+            vec3.sub(delta, this.points[i], this.points[i - 1]);
+            length += vec3.length(delta);
+        }
+        return length;
+    }
+
     public static from3dPoints(controlPoints: number[], curvePoints: number): CubicBezier {
         const curve = new CubicBezier();
         curve.buildCubicBezier(controlPoints, curvePoints);

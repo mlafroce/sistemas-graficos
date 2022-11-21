@@ -46,6 +46,8 @@ export default class Scene {
         gl.enableVertexAttribArray(posVertexAttr);
         const normalFragAttr = this.program.getAttribLocation("aNormal");
         gl.enableVertexAttribArray(normalFragAttr);
+        const textureUVFragAttr = this.program.getAttribLocation("aTextureUV");
+        gl.enableVertexAttribArray(textureUVFragAttr);
 
         const cameraMatrix = this.camera.getMatrix();
 

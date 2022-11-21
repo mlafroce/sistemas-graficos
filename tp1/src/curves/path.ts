@@ -6,6 +6,8 @@ export default interface Path {
     tangents: Float32Array[];
     normals: Float32Array[];
     binormals: Float32Array[];
+
+    getLength(): number;
 }
 
 export class CompositePath implements Path {
@@ -19,6 +21,20 @@ export class CompositePath implements Path {
         this.tangents.push(...path.tangents);
         this.normals.push(...path.normals);
         this.binormals.push(...path.binormals);
+    }
+
+    public static getPathLength(path: vec3[]): number {
+        let length = 0;
+        for (let i = 1; i < path.length; i++) {
+            const delta = vec3.create();
+            vec3.sub(delta, path[i], path[i - 1]);
+            length += vec3.length(delta);
+        }
+        return length;
+    }
+
+    public getLength(): number {
+        return CompositePath.getPathLength(this.points);
     }
 
     /**

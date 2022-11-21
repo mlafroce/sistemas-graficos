@@ -5,6 +5,7 @@ import {GlContext} from "./gl";
 import {FirstPersonCamera} from "./scene/camera/firstPersonCamera";
 import {OrbitalCamera} from "./scene/camera/orbitalCamera";
 import Scene from "./scene/scene";
+import TextureManager from "./scene/textureManager";
 import {Config} from "./utils";
 
 let scene: Scene | undefined;
@@ -42,6 +43,8 @@ async function main() {
   // Camera init
   fpCamera.registerCallbacks(canvas);
   orbitalCamera.registerCallbacks(canvas);
+  // Texture manager init
+  TextureManager.init(context);
   // Menu
   initMenu();
   // Scene init
@@ -55,9 +58,6 @@ async function main() {
 const fpsInterval = 5000;
 
 function tick() {
-  /*setTimeout(() => {
-    requestAnimationFrame(tick);
-  }, fpsInterval);*/
   requestAnimationFrame(tick);
   scene!.updateModel();
   scene!.render();

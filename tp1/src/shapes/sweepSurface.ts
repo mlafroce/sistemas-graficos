@@ -3,23 +3,29 @@ import * as mat3 from "gl-matrix/esm/mat4";
 // @ts-ignore
 import * as mat4 from "gl-matrix/esm/mat4";
 // @ts-ignore
+import * as vec2 from "gl-matrix/esm/vec2";
+// @ts-ignore
 import * as vec3 from "gl-matrix/esm/vec3";
 // @ts-ignore
 import * as vec4 from "gl-matrix/esm/vec4";
 import {CubicBezier} from "../curves/bezier";
-import Path from "../curves/path";
+import Path, {CompositePath} from "../curves/path";
 import {GlContext, GlProgram} from "../gl";
 import {Surface} from "./surface";
 
 export class SweepSurface extends Surface {
     private readonly points: vec3[];
     private readonly normals: vec3[];
+    private readonly textureCoords: vec2[];
 
     constructor(glContext: GlContext, glProgram: GlProgram, shape: Path, path: CubicBezier) {
         const rows = path.points.length;
         super(glContext, glProgram, rows - 1, shape.points.length - 1);
-        this.points = new Array();
-        this.normals = new Array();
+        this.points = [];
+        this.normals = [];
+        this.textureCoords = [];
+        const shapeLen = shape.getLength();
+        let curPointColLen = 0;
         for (let i = 0; i < rows; ++i) {
             const pathMat = mat4.fromValues(
                 ... path.normals[i], 0,
@@ -27,10 +33,12 @@ export class SweepSurface extends Surface {
                 ... path.tangents[i], 0,
                 ... path.points[i], 1);
 
+            const rowPoints = [];
             for (const shapePoint of shape.points) {
                 const point = vec3.create();
                 vec3.transformMat4(point, shapePoint, pathMat);
                 this.points.push(point);
+                rowPoints.push(point);
             }
 
             for (const shapeNormal of shape.normals) {
@@ -40,25 +48,42 @@ export class SweepSurface extends Surface {
                 vec3.normalize(normalv3, normalv3);
                 this.normals.push(normalv3);
             }
+
+            const rowLength = CompositePath.getPathLength(rowPoints);
+            let curPointRowLen = 0;
+            for (let j = 0; j < shape.points.length; j++) {
+                const delta = vec3.create();
+                if (j === 0) {
+                    // First point of i-th row, if not first row, lets see how far did we get
+                    if (i !== 0) {
+                        vec3.sub(delta, path.points[i], path.points[i - 1]);
+                        curPointColLen += vec3.length(delta) / shapeLen;
+                    }
+                    const texCoord = vec2.fromValues(0, curPointColLen / shapeLen);
+                    this.textureCoords.push(texCoord);
+                } else {
+                    vec3.sub(delta, shape.points[j], shape.points[j - 1]);
+                    curPointRowLen += vec3.length(delta);
+                    const texCoord = vec2.fromValues(curPointRowLen / rowLength, curPointColLen / shapeLen);
+                    this.textureCoords.push(texCoord);
+                }
+            }
         }
     }
 
-    public getTextureCoords(u: number, v: number): number[] {
-        return [];
+    public getTextureCoords(x: number, y: number): number[] {
+        const texIdx = this.getIndexFromXY(x, y);
+        return this.textureCoords[texIdx];
     }
 
-    protected getNormal(u: number, v: number): number[] {
-        const normalIdx = this.getIndexFromXY(u, v);
+    protected getNormal(x: number, y: number): number[] {
+        const normalIdx = this.getIndexFromXY(x, y);
         const normal = this.normals[normalIdx];
         return [... normal];
     }
 
-    protected getUV(x: number, y: number): number[] {
-        return [x, y];
-    }
-
-    protected getPosition(u: number, v: number): number[] {
-        const pointIdx = this.getIndexFromXY(u, v);
+    protected getPosition(x: number, y: number): number[] {
+        const pointIdx = this.getIndexFromXY(x, y);
         const point = this.points[pointIdx];
         return [... point];
     }

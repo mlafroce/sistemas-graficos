@@ -2,6 +2,7 @@
 import * as mat4 from "gl-matrix/esm/mat4";
 import {GlBuffer, GlContext, GlProgram} from "../gl";
 import Renderable from "../scene/renderable";
+import Texture from "../scene/texture";
 
 export abstract class Surface implements Renderable {
     private readonly size = 3;          // 3components per iteration
@@ -12,6 +13,7 @@ export abstract class Surface implements Renderable {
 
     public readonly glContext: GlContext;
     public readonly glProgram: GlProgram;
+    public textureList: Texture[] = [];
     private positionBuffer: GlBuffer;
     private normalBuffer: GlBuffer;
     private uvBuffer: GlBuffer;
@@ -59,6 +61,15 @@ export abstract class Surface implements Renderable {
         gl.vertexAttribPointer(
             positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
 
+        // texture coords
+        this.uvBuffer.bindBuffer();
+        const textureUVAttribLoc = this.glProgram.getAttribLocation("aTextureUV");
+        gl.vertexAttribPointer(
+            textureUVAttribLoc, 2, this.type, this.normalize, this.stride, this.offset);
+
+        const nTextures = this.glProgram.getUniformLocation("nTextures");
+        gl.uniform1f(nTextures, this.textureList.length);
+
         this.indexBuffer.bindBuffer();
         gl.drawElements(gl.TRIANGLE_STRIP, this.indexesSize, gl.UNSIGNED_SHORT, 0);
         gl.drawElements(gl.LINE_STRIP, this.indexesSize, gl.UNSIGNED_SHORT, 0);
@@ -70,20 +81,19 @@ export abstract class Surface implements Renderable {
         const uvArray = [];
         for (let i = 0; i <= filas; i++) {
             for (let j = 0; j <= columnas; j++) {
-                const uv = this.getUV(j, i);
-                const pos = this.getPosition(uv[0], uv[1]);
+                const pos = this.getPosition(j, i);
 
                 positionArray.push(pos[0]);
                 positionArray.push(pos[1]);
                 positionArray.push(pos[2]);
 
-                const nrm = this.getNormal(uv[0], uv[1]);
+                const nrm = this.getNormal(j, i);
 
                 normalArray.push(nrm[0]);
                 normalArray.push(nrm[1]);
                 normalArray.push(nrm[2]);
 
-                const uvs = this.getTextureCoords(uv[0], uv[1]);
+                const uvs = this.getTextureCoords(j, i);
 
                 uvArray.push(uvs[0]);
                 uvArray.push(uvs[1]);
@@ -110,10 +120,6 @@ export abstract class Surface implements Renderable {
         }
         this.indexesSize = indexArray.length;
         this.indexBuffer.bufferData(new Uint16Array(indexArray), this.glContext.gl.STATIC_DRAW);
-    }
-
-    protected getUV(x: number, y: number): number[] {
-        return [x / this.columnas, y / this.filas];
     }
 
     protected getIndexFromXY(x: number, y: number) {

@@ -1,4 +1,6 @@
 // @ts-ignore
+import * as mat2 from "gl-matrix/esm/mat2";
+// @ts-ignore
 import * as mat4 from "gl-matrix/esm/mat4";
 import {GlContext, GlProgram} from "../../gl";
 import {Config} from "../../utils";
@@ -8,7 +10,7 @@ import Wall from "./wall";
 import WallTower from "./wallTower";
 
 const kWallRadius = 5;
-const kWallWidth = 0.2;
+const kWallWidth = 0.25;
 const kTowerWidth = 0.8;
 const kTowerHeight = 0.2;
 
@@ -42,6 +44,10 @@ export default class FortressWall extends CompositeObject {
             mat4.rotateZ(mMatrix, mMatrix, Math.PI / 2);
             mat4.rotateX(mMatrix, mMatrix, -Math.PI / 2);
             wall.baseModelMatrix = mMatrix;
+
+            // Stretch Y coord and rotate 90 degrees
+            wall.applyTextureMatrix(mat2.fromValues(0, 1, wallLength, 0));
+
             this.addChild(wall);
         }
         // Entrance door
