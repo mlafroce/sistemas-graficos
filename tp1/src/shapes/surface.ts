@@ -57,7 +57,7 @@ export abstract class Surface implements Renderable {
 
         // pos attribute
         this.positionBuffer.bindBuffer();
-        const positionAttributeLocation = this.glProgram.getAttribLocation("a_position");
+        const positionAttributeLocation = this.glProgram.getAttribLocation("aPosition");
         gl.vertexAttribPointer(
             positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
 
@@ -68,7 +68,11 @@ export abstract class Surface implements Renderable {
             textureUVAttribLoc, 2, this.type, this.normalize, this.stride, this.offset);
 
         const nTextures = this.glProgram.getUniformLocation("nTextures");
-        gl.uniform1f(nTextures, this.textureList.length);
+        gl.uniform1i(nTextures, this.textureList.length);
+        const texture = this.textureList[0];
+        if (texture) {
+            texture.activate();
+        }
 
         this.indexBuffer.bindBuffer();
         gl.drawElements(gl.TRIANGLE_STRIP, this.indexesSize, gl.UNSIGNED_SHORT, 0);

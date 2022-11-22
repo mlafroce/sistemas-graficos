@@ -9,25 +9,25 @@ export default class Sphere extends Surface {
         this.radio = radio;
     }
 
-    protected getPosition(u: number, v: number): number[] {
-        const centerU = u - 0.5;
-        const centerV = v - 0.5;
-        const x = this.radio * Math.cos(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
-        const y = this.radio * Math.sin(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
+    protected getPosition(x: number, y: number): number[] {
+        const centerU = x / this.columnas - 0.5;
+        const centerV = y / this.filas - 0.5;
+        const x1 = this.radio * Math.cos(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
+        const y1 = this.radio * Math.sin(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
         const z = this.radio * Math.sin(Math.PI * centerV);
-        return [x, y, z];
+        return [x1, y1, z];
     }
 
-    public getNormal(u: number, v: number): number[] {
-        const centerU = u - 0.5;
-        const centerV = v - 0.5;
-        const x = Math.cos(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
-        const y = Math.sin(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
+    public getNormal(x: number, y: number): number[] {
+        const centerU = x / this.columnas - 0.5;
+        const centerV = y / this.filas - 0.5;
+        const x1 = Math.cos(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
+        const y1 = Math.sin(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
         const z = Math.sin(Math.PI * centerV);
-        return [x, y, z];
+        return [x1, y1, z];
     }
 
-    public getTextureCoords(u: number, v: number): number[] {
-        return [u, v];
+    public getTextureCoords(x: number, y: number): number[] {
+        return [x / this.columnas, y / this.filas];
     }
 }

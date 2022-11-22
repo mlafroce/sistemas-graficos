@@ -48,7 +48,7 @@ class Square implements Renderable {
 
         // pos attribute
         this.positionBuffer.bindBuffer();
-        const positionAttributeLocation = this.glProgram.getAttribLocation("a_position");
+        const positionAttributeLocation = this.glProgram.getAttribLocation("aPosition");
         gl.vertexAttribPointer(
             positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
 

@@ -40,7 +40,7 @@ export default class Cylinder implements Renderable {
     public render() {
         const gl = this.glContext.gl;
         this.buffer.bindBuffer();
-        const positionAttributeLocation = this.glProgram.getAttribLocation("a_position");
+        const positionAttributeLocation = this.glProgram.getAttribLocation("aPosition");
 
         gl.vertexAttribPointer(
             positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);

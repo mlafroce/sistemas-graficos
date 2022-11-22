@@ -1,5 +1,3 @@
-import {CubicBezier} from "../curves/bezier";
-import Polygon from "../curves/polygon";
 import {GlContext, GlProgram} from "../gl";
 
 // @ts-ignore
@@ -104,7 +102,7 @@ export default class Scene {
         const gl = this.glContext.gl;
         baseProgram.onActivate = (glProgram: GlProgram) => {
             // Enable attributes
-            const posVertexAttr = glProgram.getAttribLocation("a_position");
+            const posVertexAttr = glProgram.getAttribLocation("aPosition");
             gl.enableVertexAttribArray(posVertexAttr);
             const normalFragAttr = glProgram.getAttribLocation("aNormal");
             gl.enableVertexAttribArray(normalFragAttr);
@@ -129,6 +127,14 @@ export default class Scene {
         };
 
         const grassProgram = ShaderManager.getProgram("grass");
-        grassProgram.onActivate = baseProgram.onActivate;
+        grassProgram.onActivate = (glProgram: GlProgram) => {
+            baseProgram.onActivate(glProgram);
+            const grassSampler = glProgram.getUniformLocation("grassSampler");
+            gl.uniform1i(grassSampler, 0);
+            const soilSampler = glProgram.getUniformLocation("soilSampler");
+            gl.uniform1i(soilSampler, 1);
+            const noiseSampler = glProgram.getUniformLocation("noiseSampler");
+            gl.uniform1i(noiseSampler, 2);
+        };
     }
 }
