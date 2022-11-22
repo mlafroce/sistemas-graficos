@@ -8413,6 +8413,76 @@ class GlBuffer {
 
 /***/ }),
 
+/***/ "./src/noise/perlin2d.ts":
+/*!*******************************!*\
+  !*** ./src/noise/perlin2d.ts ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Perlin2d)
+/* harmony export */ });
+/* harmony import */ var gl_matrix_esm_vec2__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! gl-matrix/esm/vec2 */ "./node_modules/gl-matrix/esm/vec2.js");
+// @ts-ignore
+
+class Perlin2d {
+    static randomSample(xLen, xSamples) {
+        const step = xLen / (xSamples - 1);
+        const gradVector = [];
+        for (let sx = 0; sx < xSamples; sx++) {
+            for (let sy = 0; sy < xSamples; sy++) {
+                const r = Math.random() * Math.PI;
+                const v = gl_matrix_esm_vec2__WEBPACK_IMPORTED_MODULE_0__.fromValues(Math.cos(r), Math.sin(r));
+                gradVector.push(v);
+            }
+        }
+        const samples = [];
+        for (let sx = 0; sx < xSamples; sx++) {
+            for (let sy = 0; sy < xSamples; sy++) {
+                const point = [step * sx, step * sy];
+                const r = this.randomPoint(point, gradVector, xSamples) * 256 + 128;
+                samples.push(r);
+            }
+        }
+        return samples;
+    }
+    static randomPoint(p, gradVector, matrixWidth) {
+        /* Lattice points */
+        const p0 = gl_matrix_esm_vec2__WEBPACK_IMPORTED_MODULE_0__.fromValues(Math.floor(p[0]), Math.floor(p[1]));
+        const p1 = gl_matrix_esm_vec2__WEBPACK_IMPORTED_MODULE_0__.fromValues(Math.floor(p[0]) + 1, Math.floor(p[1]));
+        const p2 = gl_matrix_esm_vec2__WEBPACK_IMPORTED_MODULE_0__.fromValues(Math.floor(p[0]), Math.floor(p[1] + 1));
+        const p3 = gl_matrix_esm_vec2__WEBPACK_IMPORTED_MODULE_0__.fromValues(Math.floor(p[0]) + 1, Math.floor(p[1] + 1));
+        /* Look up gradients at lattice points. */
+        const g0 = this.grad(p0[0], p0[1], gradVector, matrixWidth);
+        const g1 = this.grad(p1[0], p1[1], gradVector, matrixWidth);
+        const g2 = this.grad(p2[0], p2[1], gradVector, matrixWidth);
+        const g3 = this.grad(p3[0], p3[1], gradVector, matrixWidth);
+        const t0 = p[0] - p0[0];
+        const t1 = p[1] - p0[1];
+        const fadeT0 = this.fade(t0);
+        const fadeT1 = this.fade(t1);
+        /* Calculate dot products and interpolate.*/
+        const tmp = gl_matrix_esm_vec2__WEBPACK_IMPORTED_MODULE_0__.create();
+        const p0p1 = gl_matrix_esm_vec2__WEBPACK_IMPORTED_MODULE_0__.dot(g0, gl_matrix_esm_vec2__WEBPACK_IMPORTED_MODULE_0__.sub(tmp, p, p0)) * (1.0 - fadeT0) +
+            gl_matrix_esm_vec2__WEBPACK_IMPORTED_MODULE_0__.dot(g1, gl_matrix_esm_vec2__WEBPACK_IMPORTED_MODULE_0__.sub(tmp, p, p1)) * fadeT0;
+        const p2p3 = gl_matrix_esm_vec2__WEBPACK_IMPORTED_MODULE_0__.dot(g2, gl_matrix_esm_vec2__WEBPACK_IMPORTED_MODULE_0__.sub(tmp, p, p2)) * (1.0 - fadeT0) +
+            gl_matrix_esm_vec2__WEBPACK_IMPORTED_MODULE_0__.dot(g3, gl_matrix_esm_vec2__WEBPACK_IMPORTED_MODULE_0__.sub(tmp, p, p3)) * fadeT0;
+        /* Calculate final result */
+        return p0p1 * (1.0 - fadeT1) + p2p3 * fadeT1;
+    }
+    static grad(x, y, gradVector, matrixWidth) {
+        const idx = x + y * matrixWidth;
+        return gradVector[idx];
+    }
+    static fade(t) {
+        return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
+    }
+}
+
+
+/***/ }),
+
 /***/ "./src/scene/camera/firstPersonCamera.ts":
 /*!***********************************************!*\
   !*** ./src/scene/camera/firstPersonCamera.ts ***!
@@ -9129,29 +9199,38 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Land)
 /* harmony export */ });
-/* harmony import */ var gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! gl-matrix/esm/vec4 */ "./node_modules/gl-matrix/esm/vec4.js");
+/* harmony import */ var gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! gl-matrix/esm/vec4 */ "./node_modules/gl-matrix/esm/vec4.js");
 /* harmony import */ var _curves_path__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../curves/path */ "./src/curves/path.ts");
-/* harmony import */ var _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../shapes/revolutionSurface */ "./src/shapes/revolutionSurface.ts");
-/* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
-/* harmony import */ var _sceneObject__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../sceneObject */ "./src/scene/sceneObject.ts");
+/* harmony import */ var _noise_perlin2d__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../noise/perlin2d */ "./src/noise/perlin2d.ts");
+/* harmony import */ var _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../shapes/revolutionSurface */ "./src/shapes/revolutionSurface.ts");
+/* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
+/* harmony import */ var _sceneObject__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../sceneObject */ "./src/scene/sceneObject.ts");
+/* harmony import */ var _texture__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../texture */ "./src/scene/texture.ts");
+/* harmony import */ var _textureManager__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../textureManager */ "./src/scene/textureManager.ts");
 // @ts-ignore
 
 
 
 
 
-class Land extends _compositeObject__WEBPACK_IMPORTED_MODULE_2__.CompositeObject {
+
+
+
+class Land extends _compositeObject__WEBPACK_IMPORTED_MODULE_3__.CompositeObject {
     constructor(glContext, glProgram) {
         super(glContext, glProgram);
+        const gl = glContext.gl;
         this.buildCenter(glContext, glProgram);
         this.buildLand(glContext, glProgram);
+        const noise = _noise_perlin2d__WEBPACK_IMPORTED_MODULE_1__["default"].randomSample(10, 64);
+        this.noiseTexture = _texture__WEBPACK_IMPORTED_MODULE_5__["default"].luminanceFromPixelArray(glContext, noise, 64, 64);
     }
     buildCenter(glContext, glProgram) {
         const shape = _curves_path__WEBPACK_IMPORTED_MODULE_0__.CompositePath.fromPoints([[0, 0.25, 0], [0.29, 0.25, 0], [0.3, 0.25, 0], [0.40, 0, 0]]);
-        const center = new _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_1__["default"](glContext, glProgram, shape, Math.PI * 2, 20);
+        const center = new _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_2__["default"](glContext, glProgram, shape, Math.PI * 2, 20);
         center.build();
-        const centerObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_3__["default"](glContext, glProgram, center);
-        centerObj.baseColor = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_4__.fromValues(0.4, 0.8, 0.3, 1);
+        const centerObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, center);
+        centerObj.baseColor = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_7__.fromValues(0.4, 0.8, 0.3, 1);
         this.addChild(centerObj);
     }
     buildLand(glContext, glProgram) {
@@ -9162,11 +9241,21 @@ class Land extends _compositeObject__WEBPACK_IMPORTED_MODULE_2__.CompositeObject
             [0.99, 0.25, 0],
             [1, 0.25, 0],
         ]);
-        const land = new _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_1__["default"](glContext, glProgram, shape, Math.PI * 2, 9);
+        const land = new _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_2__["default"](glContext, glProgram, shape, Math.PI * 2, 9);
         land.build();
-        const landObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_3__["default"](glContext, glProgram, land);
-        landObj.baseColor = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_4__.fromValues(0.4, 0.8, 0.4, 1);
+        const landObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, land);
+        landObj.baseColor = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_7__.fromValues(0.4, 0.8, 0.4, 1);
         this.addChild(landObj);
+    }
+    render() {
+        const gl = this.glContext.gl;
+        this.glProgram.activate();
+        const grassTex = _textureManager__WEBPACK_IMPORTED_MODULE_6__["default"].getTexture("grass01");
+        grassTex.activate();
+        const soilTex = _textureManager__WEBPACK_IMPORTED_MODULE_6__["default"].getTexture("soil");
+        soilTex.activate(gl.TEXTURE1);
+        this.noiseTexture.activate(gl.TEXTURE2);
+        super.render();
     }
 }
 
@@ -9219,7 +9308,7 @@ class Wall extends _compositeObject__WEBPACK_IMPORTED_MODULE_3__.CompositeObject
         ]);
         const top = new _shapes_sweepSurface__WEBPACK_IMPORTED_MODULE_2__.SweepSurface(glContext, glProgram, shape, path);
         top.build();
-        top.textureList.push(_textureManager__WEBPACK_IMPORTED_MODULE_5__["default"].getTexture("rock"));
+        top.textureList.push(_textureManager__WEBPACK_IMPORTED_MODULE_5__["default"].getTexture("uvTest"));
         this.topObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, top);
         const objMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.create();
         gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.fromTranslation(objMatrix, [-1, -1, 0]);
@@ -9435,7 +9524,7 @@ class Scene {
         const gl = this.glContext.gl;
         baseProgram.onActivate = (glProgram) => {
             // Enable attributes
-            const posVertexAttr = glProgram.getAttribLocation("a_position");
+            const posVertexAttr = glProgram.getAttribLocation("aPosition");
             gl.enableVertexAttribArray(posVertexAttr);
             const normalFragAttr = glProgram.getAttribLocation("aNormal");
             gl.enableVertexAttribArray(normalFragAttr);
@@ -9455,7 +9544,15 @@ class Scene {
             gl.uniform4fv(baseColor, [0.7, 0.7, 0.7, 1]);
         };
         const grassProgram = _shaderManager__WEBPACK_IMPORTED_MODULE_5__["default"].getProgram("grass");
-        grassProgram.onActivate = baseProgram.onActivate;
+        grassProgram.onActivate = (glProgram) => {
+            baseProgram.onActivate(glProgram);
+            const grassSampler = glProgram.getUniformLocation("grassSampler");
+            gl.uniform1i(grassSampler, 0);
+            const soilSampler = glProgram.getUniformLocation("soilSampler");
+            gl.uniform1i(soilSampler, 1);
+            const noiseSampler = glProgram.getUniformLocation("noiseSampler");
+            gl.uniform1i(noiseSampler, 2);
+        };
     }
 }
 
@@ -9554,7 +9651,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ Texture)
 /* harmony export */ });
 class Texture {
-    constructor(glContext, path) {
+    constructor(glContext, path = "") {
+        this.glContext = glContext;
         const gl = glContext.gl;
         this.glTexture = gl.createTexture();
         this.image = new Image();
@@ -9575,6 +9673,29 @@ class Texture {
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
             }
         };
+    }
+    static luminanceFromPixelArray(glContext, dataArray, width, height) {
+        const gl = glContext.gl;
+        const dataTypedArray = new Uint8Array(dataArray);
+        const glTexture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, glTexture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, width, height, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE, dataTypedArray);
+        gl.generateMipmap(gl.TEXTURE_2D);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+        const texture = new Texture(glContext);
+        texture.glTexture = glTexture;
+        return texture;
+    }
+    activate(id) {
+        const gl = this.glContext.gl;
+        if (!id) {
+            gl.activeTexture(gl.TEXTURE0);
+        }
+        else {
+            gl.activeTexture(id);
+        }
+        gl.bindTexture(gl.TEXTURE_2D, this.glTexture);
     }
 }
 function isPowerOf2(value) {
@@ -9602,9 +9723,10 @@ class TextureManager {
     static init(glContext) {
         this.textureMap = new Map();
         this.glContext = glContext;
-        //const texture = new Texture(glContext, "textures/stone-wall.png");
-        const texture = new _texture__WEBPACK_IMPORTED_MODULE_0__["default"](glContext, "textures/uv-test.png");
-        this.textureMap.set("rock", texture);
+        this.textureMap.set("rock", new _texture__WEBPACK_IMPORTED_MODULE_0__["default"](glContext, "textures/stone-wall.png"));
+        this.textureMap.set("grass01", new _texture__WEBPACK_IMPORTED_MODULE_0__["default"](glContext, "textures/grass-01.png"));
+        this.textureMap.set("soil", new _texture__WEBPACK_IMPORTED_MODULE_0__["default"](glContext, "textures/soil.png"));
+        this.textureMap.set("uvTest", new _texture__WEBPACK_IMPORTED_MODULE_0__["default"](glContext, "textures/uv-test.png"));
     }
     static getTexture(name) {
         return this.textureMap.get(name);
@@ -9657,7 +9779,7 @@ class Square {
         gl.vertexAttribPointer(normalFragAttr, this.size, this.type, this.normalize, this.stride, this.offset);
         // pos attribute
         this.positionBuffer.bindBuffer();
-        const positionAttributeLocation = this.glProgram.getAttribLocation("a_position");
+        const positionAttributeLocation = this.glProgram.getAttribLocation("aPosition");
         gl.vertexAttribPointer(positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
         this.indexBuffer.bindBuffer();
         gl.drawElements(gl.TRIANGLE_STRIP, this.indexes.length, gl.UNSIGNED_SHORT, 0);
@@ -9752,7 +9874,7 @@ class Cylinder {
     render() {
         const gl = this.glContext.gl;
         this.buffer.bindBuffer();
-        const positionAttributeLocation = this.glProgram.getAttribLocation("a_position");
+        const positionAttributeLocation = this.glProgram.getAttribLocation("aPosition");
         gl.vertexAttribPointer(positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
         this.faceIndexBuffer.bindBuffer();
         gl.drawElements(gl.TRIANGLE_FAN, this.circlePoints + 1, gl.UNSIGNED_SHORT, 0);
@@ -9921,24 +10043,24 @@ class Sphere extends _surface__WEBPACK_IMPORTED_MODULE_0__.Surface {
         super(glContext, glProgram, filas, columnas);
         this.radio = radio;
     }
-    getPosition(u, v) {
-        const centerU = u - 0.5;
-        const centerV = v - 0.5;
-        const x = this.radio * Math.cos(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
-        const y = this.radio * Math.sin(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
+    getPosition(x, y) {
+        const centerU = x / this.columnas - 0.5;
+        const centerV = y / this.filas - 0.5;
+        const x1 = this.radio * Math.cos(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
+        const y1 = this.radio * Math.sin(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
         const z = this.radio * Math.sin(Math.PI * centerV);
-        return [x, y, z];
+        return [x1, y1, z];
     }
-    getNormal(u, v) {
-        const centerU = u - 0.5;
-        const centerV = v - 0.5;
-        const x = Math.cos(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
-        const y = Math.sin(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
+    getNormal(x, y) {
+        const centerU = x / this.columnas - 0.5;
+        const centerV = y / this.filas - 0.5;
+        const x1 = Math.cos(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
+        const y1 = Math.sin(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
         const z = Math.sin(Math.PI * centerV);
-        return [x, y, z];
+        return [x1, y1, z];
     }
-    getTextureCoords(u, v) {
-        return [u, v];
+    getTextureCoords(x, y) {
+        return [x / this.columnas, y / this.filas];
     }
 }
 
@@ -9988,14 +10110,18 @@ class Surface {
         gl.vertexAttribPointer(normalFragAttr, this.size, this.type, this.normalize, this.stride, this.offset);
         // pos attribute
         this.positionBuffer.bindBuffer();
-        const positionAttributeLocation = this.glProgram.getAttribLocation("a_position");
+        const positionAttributeLocation = this.glProgram.getAttribLocation("aPosition");
         gl.vertexAttribPointer(positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
         // texture coords
         this.uvBuffer.bindBuffer();
         const textureUVAttribLoc = this.glProgram.getAttribLocation("aTextureUV");
         gl.vertexAttribPointer(textureUVAttribLoc, 2, this.type, this.normalize, this.stride, this.offset);
         const nTextures = this.glProgram.getUniformLocation("nTextures");
-        gl.uniform1f(nTextures, this.textureList.length);
+        gl.uniform1i(nTextures, this.textureList.length);
+        const texture = this.textureList[0];
+        if (texture) {
+            texture.activate();
+        }
         this.indexBuffer.bindBuffer();
         gl.drawElements(gl.TRIANGLE_STRIP, this.indexesSize, gl.UNSIGNED_SHORT, 0);
         gl.drawElements(gl.LINE_STRIP, this.indexesSize, gl.UNSIGNED_SHORT, 0);
