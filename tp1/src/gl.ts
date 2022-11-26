@@ -4,10 +4,13 @@ export class GlContext {
 
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
-        this.gl = this.canvas.getContext("webgl")!;
+        this.gl = this.canvas.getContext("webgl", { premultipliedAlpha: false })!;
         if (!this.gl) {
             throw new Error("No webgl context available");
         }
+        this.gl.enable(this.gl.DEPTH_TEST);
+        this.gl.enable(this.gl.BLEND);
+        this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
     }
 
     public createVertexShader(source: string): WebGLShader {
@@ -71,9 +74,8 @@ export class GlContext {
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
 
         // Clear the canvas
-        this.gl.clearColor(0, 0, 0, 0);
+        this.gl.clearColor(0, 0, 0, 1);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-        this.gl.enable(this.gl.DEPTH_TEST);
     }
 }
 

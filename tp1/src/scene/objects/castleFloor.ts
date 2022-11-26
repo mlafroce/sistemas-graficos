@@ -11,12 +11,22 @@ import SceneObject from "../sceneObject";
 export default class CastleFloor extends CompositeObject {
     constructor(glContext: GlContext, glProgram: GlProgram, config: Config) {
         super(glContext, glProgram);
-        this.buildBody(glContext, glProgram, config);
+        this.buildBody(config);
     }
 
-    private buildBody(glContext: GlContext, glProgram: GlProgram, config: Config) {
-        const base = new Cube(glContext, glProgram);
-        const baseObj = new SceneObject(glContext, glProgram, base);
+    public onConfigChanged(config: Config) {
+        super.onConfigChanged(config);
+        this.childList.length = 0;
+        this.build(config);
+    }
+
+    private build(config: Config) {
+        this.buildBody(config);
+    }
+
+    private buildBody(config: Config) {
+        const base = new Cube(this.glContext, this.glProgram);
+        const baseObj = new SceneObject(this.glContext, this.glProgram, base);
         const mMatrix = mat4.create();
         mat4.fromScaling(mMatrix, [config.castleWidth, config.castleLength, 1]);
         mat4.translate(mMatrix, mMatrix, [-0.5, -0.5, 0]);

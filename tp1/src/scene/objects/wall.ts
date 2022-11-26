@@ -33,7 +33,7 @@ export default class Wall extends CompositeObject {
 
     private buildTop(glContext: GlContext, glProgram: GlProgram) {
         // TODO: Improve with a linear path
-        const path = CubicBezier.from3dPoints([0, 0, 0, 0, 0, 0.33, 0, 0, 0.66, 0, 0, 1], 4);
+        const path = CubicBezier.from3dPoints([0, 0, 0, 0, 0, 0.33, 0, 0, 0.66, 0, 0, 1], 2);
         const shape = CompositePath.fromPoints([
             [0, 0, 0], [0, 1, 0], [0.25, 1, 0], [0.25, 0.5, 0],
             [0.75, 0.5, 0], [0.75, 1, 0], [1, 1, 0], [1, 0, 0]]);

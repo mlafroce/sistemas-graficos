@@ -24,7 +24,7 @@ export class SweepSurface extends Surface {
         this.points = [];
         this.normals = [];
         this.textureCoords = [];
-        const shapeLen = shape.getLength();
+        const pathLen = path.getLength();
         let curPointColLen = 0;
         for (let i = 0; i < rows; ++i) {
             const pathMat = mat4.fromValues(
@@ -50,21 +50,20 @@ export class SweepSurface extends Surface {
             }
 
             const rowLength = CompositePath.getPathLength(rowPoints);
+            const delta = vec3.create();
+            if (i !== 0) {
+                vec3.sub(delta, path.points[i], path.points[i - 1]);
+                curPointColLen += vec3.length(delta) / pathLen;
+            }
             let curPointRowLen = 0;
             for (let j = 0; j < shape.points.length; j++) {
-                const delta = vec3.create();
                 if (j === 0) {
-                    // First point of i-th row, if not first row, lets see how far did we get
-                    if (i !== 0) {
-                        vec3.sub(delta, path.points[i], path.points[i - 1]);
-                        curPointColLen += vec3.length(delta) / shapeLen;
-                    }
-                    const texCoord = vec2.fromValues(0, curPointColLen / shapeLen);
+                    const texCoord = vec2.fromValues(0, curPointColLen / pathLen);
                     this.textureCoords.push(texCoord);
                 } else {
                     vec3.sub(delta, shape.points[j], shape.points[j - 1]);
                     curPointRowLen += vec3.length(delta);
-                    const texCoord = vec2.fromValues(curPointRowLen / rowLength, curPointColLen / shapeLen);
+                    const texCoord = vec2.fromValues(curPointRowLen / rowLength, curPointColLen / pathLen);
                     this.textureCoords.push(texCoord);
                 }
             }

@@ -11,9 +11,18 @@ import CastleTower from "./castleTower";
 export default class Castle extends CompositeObject {
     constructor(glContext: GlContext, glProgram: GlProgram, config: Config) {
         super(glContext, glProgram);
+        this.build(config);
+    }
 
+    public onConfigChanged(config: Config) {
+        super.onConfigChanged(config);
+        this.childList.length = 0;
+        this.build(config);
+    }
+
+    private build(config: Config) {
         for (let i = 0; i < config.castleFloors; i++) {
-            const castleBody = new CastleFloor(glContext, glProgram, config);
+            const castleBody = new CastleFloor(this.glContext, this.glProgram, config);
             const bodyMat = mat4.create();
             const position = [0, 0, i];
             mat4.fromTranslation(bodyMat, position);
@@ -30,7 +39,7 @@ export default class Castle extends CompositeObject {
         ];
 
         for (const position of towerPositions) {
-            const tower = new CastleTower(glContext, glProgram, config);
+            const tower = new CastleTower(this.glContext, this.glProgram, config);
             const towerMat = mat4.create();
             mat4.fromTranslation(towerMat, position);
             mat4.scale(towerMat, towerMat, [0.25, 0.25, 1]);

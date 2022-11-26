@@ -7,6 +7,7 @@ import * as mat4 from "gl-matrix/esm/mat4";
 // @ts-ignore
 import * as vec4 from "gl-matrix/esm/vec4";
 import {GlContext, GlProgram} from "../gl";
+import {Config} from "../utils";
 import Renderable from "./renderable";
 
 export default class SceneObject implements Renderable {
@@ -25,6 +26,9 @@ export default class SceneObject implements Renderable {
     public updateModelMatrix(parentMatrix: mat4) {
         mat4.multiply(this.modelMatrix, parentMatrix, this.baseModelMatrix);
         mat3.normalFromMat4(this.normalMatrix, this.modelMatrix);
+    }
+
+    public onConfigChanged(config: Config) {
     }
 
     public render(): void {

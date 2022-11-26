@@ -16,8 +16,8 @@ const kBaseSize = [10, 4, 1];
 const kRockSize = [0.08, 0.08, 0.08];
 const kFrameSideSize = [1, 0.5, 4];
 const kArmSize = [10, 1, 0.25];
-const kGravity = -0.98;
-const kVInit = 4;
+const kGravity = -0.5;
+const kVInit = 1.5;
 
 export default class Catapult extends CompositeObject {
     private animationTime: number = 0;
@@ -25,6 +25,8 @@ export default class Catapult extends CompositeObject {
     private arm: SceneObject;
     private rock: SceneObject;
     private weight: CompositeObject;
+    private rockZ = 4;
+    private rockX = 0;
 
     constructor(glContext: GlContext, glProgram: GlProgram) {
         super(glContext, glProgram);
@@ -41,25 +43,25 @@ export default class Catapult extends CompositeObject {
     }
 
     public launch() {
+        this.rockZ = 4;
+        this.rockX = 0;
         this.animationTime = 0;
         this.idle = false;
     }
 
     public updateRockModel() {
-        let rockZ = 4;
-        let rockX = 0;
         if (!this.idle) {
             const deltaZ = this.animationTime * this.animationTime * kGravity / 2 + kVInit * this.animationTime;
-            rockZ += deltaZ;
-            rockX += this.animationTime * kVInit / 2;
-            if (rockZ < 0.25) {
-                rockZ = 0.25;
+            this.rockZ += deltaZ;
+            this.rockX += this.animationTime * kVInit / 3;
+            if (this.rockZ < 0.25) {
+                this.rockZ = 0.25;
                 this.idle = true;
             }
             this.animationTime += 0.2;
         }
         const rockMatrix = mat4.create();
-        mat4.fromTranslation(rockMatrix, [10 - rockX, 2, rockZ]);
+        mat4.fromTranslation(rockMatrix, [10 - this.rockX, 2, this.rockZ]);
         mat4.scale(rockMatrix, rockMatrix, kRockSize);
         this.rock.baseModelMatrix = rockMatrix;
     }

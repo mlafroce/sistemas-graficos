@@ -26,6 +26,7 @@ async function main() {
   // Get the strings for our GLSL shaders
   await initProgram("base", "./shaders/vertex-base.glsl", "./shaders/fragment-base.glsl", context);
   await initProgram("grass", "./shaders/vertex-base.glsl", "./shaders/fragment-grass.glsl", context);
+  await initProgram("fire", "./shaders/vertex-fire.glsl", "./shaders/fragment-fire.glsl", context);
 
   context.resizeCanvasToDisplaySize();
   context.clear();
@@ -90,7 +91,7 @@ function cameraChanged(value: string) {
 }
 
 function configChanged() {
-  scene!.rebuildScene();
+  scene!.onConfigChanged();
   scene!.render();
 }
 

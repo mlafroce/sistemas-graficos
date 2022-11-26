@@ -16,7 +16,7 @@ export default class Water extends CompositeObject {
         water.build();
         const waterObj = new SceneObject(glContext, glProgram, water);
 
-        waterObj.baseColor = [0.2, 0.2, 0.8, 1];
+        waterObj.baseColor = [0.2, 0.2, 0.8, 0.6];
         this.addChild(waterObj);
     }
 }

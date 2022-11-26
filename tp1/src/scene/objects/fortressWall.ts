@@ -17,12 +17,22 @@ const kTowerHeight = 0.2;
 export default class FortressWall extends CompositeObject {
     constructor(glContext: GlContext, glProgram: GlProgram, config: Config) {
         super(glContext, glProgram);
+        this.build(config);
+    }
+
+    public onConfigChanged(config: Config) {
+        super.onConfigChanged(config);
+        this.childList.length = 0;
+        this.build(config);
+    }
+
+    private build(config: Config) {
         const fortressTowers = config.nWalls;
         const angleStep = Math.PI * 2 / fortressTowers;
         const baseAngle = angleStep / 2;
         // Towers
         for (let i = 0; i < fortressTowers; i++) {
-            const tower = new WallTower(glContext, glProgram, config);
+            const tower = new WallTower(this.glContext, this.glProgram, config);
             const mMatrix = mat4.create();
             mat4.fromZRotation(mMatrix, angleStep * i + baseAngle);
             mat4.translate(mMatrix, mMatrix, [kWallRadius, 0, 0]);
@@ -34,7 +44,7 @@ export default class FortressWall extends CompositeObject {
         }
         // Walls
         for (let i = 0; i < fortressTowers - 1; i++) {
-            const wall = new Wall(glContext, glProgram);
+            const wall = new Wall(this.glContext, this.glProgram);
             const wallLength = this.getWallLength(angleStep, kWallRadius);
             const mMatrix = mat4.create();
             mat4.fromZRotation(mMatrix, angleStep * i + baseAngle);
@@ -52,7 +62,7 @@ export default class FortressWall extends CompositeObject {
             this.addChild(wall);
         }
         // Entrance door
-        const door = new FortressDoor(glContext, glProgram, config, kWallWidth);
+        const door = new FortressDoor(this.glContext, this.glProgram, config, kWallWidth);
         const doorMatrix = mat4.create();
         mat4.fromZRotation(doorMatrix, -baseAngle);
         const wallLength = this.getWallLength(angleStep, kWallRadius);

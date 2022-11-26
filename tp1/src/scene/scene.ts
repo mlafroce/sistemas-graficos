@@ -1,18 +1,23 @@
+import {CubicBezier} from "../curves/bezier";
+import {CompositePath} from "../curves/path";
 import {GlContext, GlProgram} from "../gl";
 
 // @ts-ignore
 import * as mat4 from "gl-matrix/esm/mat4";
 // @ts-ignore
 import * as vec3 from "gl-matrix/esm/vec3";
+import {SweepSurface} from "../shapes/sweepSurface";
 import {Config} from "../utils";
 import {Camera} from "./camera/firstPersonCamera";
 import Castle from "./objects/castle";
 import Catapult from "./objects/catapult";
+import Fire from "./objects/fire";
 import FortressWall from "./objects/fortressWall";
 import Land from "./objects/land";
 import Water from "./objects/water";
 import SceneObject from "./sceneObject";
 import ShaderManager from "./shaderManager";
+import TextureManager from "./textureManager";
 
 export default class Scene {
     private readonly glContext: GlContext;
@@ -31,14 +36,15 @@ export default class Scene {
         this.setupBaseProgram();
     }
 
-    public rebuildScene() {
-        this.renderableList.length = 0;
-        this.buildRenderables();
+    public onConfigChanged() {
+        for (const object of this.renderableList) {
+            object.onConfigChanged(this.config);
+        }
         this.updateModel();
     }
 
     public updateModel() {
-        this.catapult!.updateRockModel();
+        //this.catapult!.updateRockModel();
 
         const rootModelMatrix = mat4.create();
         mat4.identity(rootModelMatrix);
@@ -67,6 +73,7 @@ export default class Scene {
     private buildRenderables() {
         const baseProgram = ShaderManager.getProgram("base");
         const grassProgram = ShaderManager.getProgram("grass");
+        const fireProgram = ShaderManager.getProgram("fire");
 
         const land = new Land(this.glContext, grassProgram);
         const landMatrix = mat4.create();
@@ -78,7 +85,7 @@ export default class Scene {
         this.catapult = new Catapult(this.glContext, baseProgram);
         const catapultMatrix = mat4.create();
         mat4.fromTranslation(catapultMatrix, this.catapultPosition);
-        mat4.scale(catapultMatrix, catapultMatrix, [0.2, 0.2, 0.2]);
+        mat4.scale(catapultMatrix, catapultMatrix, [0.1, 0.1, 0.1]);
         this.catapult.baseModelMatrix = catapultMatrix;
         this.renderableList.push(this.catapult);
 
@@ -93,8 +100,14 @@ export default class Scene {
         mat4.fromScaling(objMatrix, [12, 12, 1]);
         mat4.translate(objMatrix, objMatrix, [0, 0, -0.25]);
         water.baseModelMatrix = objMatrix;
-
         this.renderableList.push(water);
+
+        const fire = new Fire(this.glContext, fireProgram);
+        const fireObj = new SceneObject(this.glContext, fireProgram, fire);
+        const fireMatrix = mat4.create();
+        mat4.fromTranslation(fireMatrix, [0, -3, 0.5]);
+        fireObj.baseModelMatrix = fireMatrix;
+//        this.renderableList.push(fireObj);
     }
 
     private setupBaseProgram() {
@@ -135,6 +148,23 @@ export default class Scene {
             gl.uniform1i(soilSampler, 1);
             const noiseSampler = glProgram.getUniformLocation("noiseSampler");
             gl.uniform1i(noiseSampler, 2);
+        };
+
+        const fireProgram = ShaderManager.getProgram("fire");
+        fireProgram.onActivate = (glProgram: GlProgram) => {
+            const posVertexAttr = glProgram.getAttribLocation("aPosition");
+            gl.enableVertexAttribArray(posVertexAttr);
+            // Set uniforms
+            const cameraMatrixLoc = glProgram.getUniformLocation("cameraMatrix");
+            const projMatrixLoc = glProgram.getUniformLocation("projMatrix");
+
+            const cameraMatrix = this.camera.getMatrix();
+            const projMatrix = mat4.create();
+            mat4.identity(projMatrix);
+            mat4.perspective(projMatrix, 45, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
+
+            gl.uniformMatrix4fv(cameraMatrixLoc, false, cameraMatrix);
+            gl.uniformMatrix4fv(projMatrixLoc, false, projMatrix);
         };
     }
 }
