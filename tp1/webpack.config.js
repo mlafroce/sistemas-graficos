@@ -11,6 +11,7 @@ module.exports = {
         new CopyWebpackPlugin({
             patterns: [
                 { from: 'textures/*.png' },
+                { from: 'index.html' },
                 { from: 'src/shaders/', to: 'shaders/' }
             ]
         })

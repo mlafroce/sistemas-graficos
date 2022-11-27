@@ -3,6 +3,7 @@ precision mediump float;
 uniform sampler2D grassSampler;
 uniform sampler2D soilSampler;
 uniform sampler2D noiseSampler;
+uniform bool viewNormals;
 
 varying vec3 vPosition;
 varying vec3 vNormal;
@@ -18,5 +19,10 @@ void main() {
     float noiseValue2 = texture2D(noiseSampler, vPosition.yx * 0.25).x;
     float stepValue = smoothstep(0.25, 0.4, noiseValue1 + noiseValue2 * 0.25);
 
-    gl_FragColor = vec4(mix(soilColor, grassColor, stepValue), 1);
+    // TODO: use normals shader
+    if (viewNormals) {
+        gl_FragColor = vec4(vNormal * 0.5 + vec3(0.5, 0.5, 0.5), 1);
+    } else {
+        gl_FragColor = vec4(mix(soilColor, grassColor, stepValue), 1);
+    }
 }

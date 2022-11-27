@@ -25,6 +25,7 @@ async function main() {
 
   // Get the strings for our GLSL shaders
   await initProgram("base", "./shaders/vertex-base.glsl", "./shaders/fragment-base.glsl", context);
+  await initProgram("normals", "./shaders/vertex-base.glsl", "./shaders/fragment-normal.glsl", context);
   await initProgram("grass", "./shaders/vertex-base.glsl", "./shaders/fragment-grass.glsl", context);
   await initProgram("fire", "./shaders/vertex-fire.glsl", "./shaders/fragment-fire.glsl", context);
 
@@ -64,6 +65,7 @@ function initMenu() {
   murallaFolder.add(config, "nWalls", 4, 8, 1).name("Cantidad de muros").onChange(configChanged);
   murallaFolder.add(config, "wallHeight", 1, 2).name("Alto").onChange(configChanged);
   murallaFolder.add(config, "gateAngle", 0, 90, 1).name("Angulo de la puerta").onChange(configChanged);
+  gui.add(config, "catapultAngle", 0, 360, 3).name("Angulo de la catapulta").onChange(configChanged);
   const camaraFolder = gui.addFolder("Cámara");
   camaraFolder.add(config, "cameraType", {
     "Primera persona": 0,
@@ -72,6 +74,7 @@ function initMenu() {
   })
       .name("Tipo de cámara")
       .onChange(cameraChanged);
+  camaraFolder.add(config, "viewNormals").name("Ver normales").onChange(onShaderConfigChanged);
 }
 
 function cameraChanged(value: string) {
@@ -93,6 +96,10 @@ function cameraChanged(value: string) {
 function configChanged() {
   scene!.onConfigChanged();
   scene!.render();
+}
+
+function onShaderConfigChanged() {
+  scene!.onShaderConfigChanged();
 }
 
 // TODO: support other configurations

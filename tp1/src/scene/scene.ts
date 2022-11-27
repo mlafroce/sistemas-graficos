@@ -23,8 +23,12 @@ export default class Scene {
     private readonly glContext: GlContext;
     private readonly config: Config;
     private camera: Camera;
-    public readonly catapultPosition = [12, 0, 0.25];
+    public readonly catapultPosition = [12, 0, 0.2];
     private catapult: Catapult | undefined;
+    private land: Land | undefined;
+    private castle: Castle | undefined;
+    private fortressWall: FortressWall | undefined;
+    private water: Water | undefined;
 
     private renderableList: SceneObject[] = new Array();
 
@@ -40,11 +44,35 @@ export default class Scene {
         for (const object of this.renderableList) {
             object.onConfigChanged(this.config);
         }
+        this.updateCatapultPosition();
         this.updateModel();
     }
 
+    public onShaderConfigChanged() {
+        // TODO: change shaders instead of using boolean
+        /*
+        if (this.config.viewNormals) {
+            const normalsProgram = ShaderManager.getProgram("normals");
+            this.land!.setProgram(normalsProgram);
+            this.catapult!.setProgram(normalsProgram);
+            this.castle!.setProgram(normalsProgram);
+            this.fortressWall!.setProgram(normalsProgram);
+            this.water!.setProgram(normalsProgram);
+        } else {
+            const baseProgram = ShaderManager.getProgram("base");
+            const grassProgram = ShaderManager.getProgram("grass");
+            this.land!.setProgram(grassProgram);
+            this.catapult!.setProgram(baseProgram);
+            this.castle!.setProgram(baseProgram);
+            this.fortressWall!.setProgram(baseProgram);
+            this.water!.setProgram(baseProgram);
+        }
+         */
+        Config.globalViewNormals = this.config.viewNormals; // FIXME!!
+    }
+
     public updateModel() {
-        //this.catapult!.updateRockModel();
+        this.catapult!.updateRockModel();
 
         const rootModelMatrix = mat4.create();
         mat4.identity(rootModelMatrix);
@@ -75,32 +103,29 @@ export default class Scene {
         const grassProgram = ShaderManager.getProgram("grass");
         const fireProgram = ShaderManager.getProgram("fire");
 
-        const land = new Land(this.glContext, grassProgram);
+        this.land = new Land(this.glContext, grassProgram);
         const landMatrix = mat4.create();
         mat4.fromScaling(landMatrix, [20, 20, 2]);
         mat4.translate(landMatrix, landMatrix, [0, 0, -0.25]);
-        land.setBaseModelMatrix(landMatrix);
-        this.renderableList.push(land);
+        this.land.setBaseModelMatrix(landMatrix);
+        this.renderableList.push(this.land);
 
-        this.catapult = new Catapult(this.glContext, baseProgram);
-        const catapultMatrix = mat4.create();
-        mat4.fromTranslation(catapultMatrix, this.catapultPosition);
-        mat4.scale(catapultMatrix, catapultMatrix, [0.1, 0.1, 0.1]);
-        this.catapult.baseModelMatrix = catapultMatrix;
+        this.catapult = new Catapult(this.glContext, baseProgram, this.config);
+        this.updateCatapultPosition();
         this.renderableList.push(this.catapult);
 
-        const castle = new Castle(this.glContext, baseProgram, this.config);
-        this.renderableList.push(castle);
+        this.castle = new Castle(this.glContext, baseProgram, this.config);
+        this.renderableList.push(this.castle);
 
-        const fortressWall = new FortressWall(this.glContext, baseProgram, this.config);
-        this.renderableList.push(fortressWall);
+        this.fortressWall = new FortressWall(this.glContext, baseProgram, this.config);
+        this.renderableList.push(this.fortressWall);
 
-        const water = new Water(this.glContext, baseProgram);
+        this.water = new Water(this.glContext, baseProgram);
         const objMatrix = mat4.create();
         mat4.fromScaling(objMatrix, [12, 12, 1]);
         mat4.translate(objMatrix, objMatrix, [0, 0, -0.25]);
-        water.baseModelMatrix = objMatrix;
-        this.renderableList.push(water);
+        this.water.baseModelMatrix = objMatrix;
+        this.renderableList.push(this.water);
 
         const fire = new Fire(this.glContext, fireProgram);
         const fireObj = new SceneObject(this.glContext, fireProgram, fire);
@@ -166,5 +191,15 @@ export default class Scene {
             gl.uniformMatrix4fv(cameraMatrixLoc, false, cameraMatrix);
             gl.uniformMatrix4fv(projMatrixLoc, false, projMatrix);
         };
+    }
+
+    // FIXME
+    private updateCatapultPosition() {
+        const mMatrix = mat4.create();
+        mat4.fromTranslation(mMatrix, this.catapultPosition);
+        mat4.scale(mMatrix, mMatrix, [0.1, 0.1, 0.1]);
+        mat4.rotateZ(mMatrix, mMatrix, Math.PI * this.config.catapultAngle / 180);
+        mat4.translate(mMatrix, mMatrix, [-5, -2, 0]);
+        this.catapult!.baseModelMatrix = mMatrix;
     }
 }

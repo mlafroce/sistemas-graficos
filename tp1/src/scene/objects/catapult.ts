@@ -4,6 +4,7 @@ import {GlContext, GlProgram} from "../../gl";
 import Cube from "../../shapes/cube";
 import Cylinder from "../../shapes/cylinder";
 import Sphere from "../../shapes/sphere";
+import {Config} from "../../utils";
 import {CompositeObject} from "../compositeObject";
 import SceneObject from "../sceneObject";
 
@@ -22,24 +23,22 @@ const kVInit = 1.5;
 export default class Catapult extends CompositeObject {
     private animationTime: number = 0;
     private idle: boolean = true;
-    private arm: SceneObject;
-    private rock: SceneObject;
-    private weight: CompositeObject;
+    private arm: SceneObject | undefined;
+    private rock: SceneObject | undefined;
+    private weight: CompositeObject | undefined;
     private rockZ = 4;
     private rockX = 0;
 
-    constructor(glContext: GlContext, glProgram: GlProgram) {
+    constructor(glContext: GlContext, glProgram: GlProgram, config: Config) {
         super(glContext, glProgram);
-        this.buildWheels(glContext, glProgram);
-        this.buildBase(glContext, glProgram);
-        this.buildFrame(glContext, glProgram);
-        this.arm = this.buildArm(glContext, glProgram);
-        this.addChild(this.arm);
-        this.weight = this.buildWeight(glContext, glProgram);
-        this.addChild(this.weight);
-        this.rock = this.buildRock(glContext, glProgram);
-        this.addChild(this.rock);
-        this.updateRockModel();
+        this.build(config);
+    }
+
+    public onConfigChanged(config: Config) {
+        super.onConfigChanged(config);
+        this.childList.length = 0;
+        this.build(config);
+
     }
 
     public launch() {
@@ -47,6 +46,19 @@ export default class Catapult extends CompositeObject {
         this.rockX = 0;
         this.animationTime = 0;
         this.idle = false;
+    }
+
+    private build(config: Config) {
+        this.buildWheels(this.glContext, this.glProgram);
+        this.buildBase(this.glContext, this.glProgram);
+        this.buildFrame(this.glContext, this.glProgram);
+        this.arm = this.buildArm(this.glContext, this.glProgram);
+        this.addChild(this.arm);
+        this.weight = this.buildWeight(this.glContext, this.glProgram);
+        this.addChild(this.weight);
+        this.rock = this.buildRock(this.glContext, this.glProgram);
+        this.addChild(this.rock);
+        this.updateRockModel();
     }
 
     public updateRockModel() {
@@ -63,7 +75,7 @@ export default class Catapult extends CompositeObject {
         const rockMatrix = mat4.create();
         mat4.fromTranslation(rockMatrix, [10 - this.rockX, 2, this.rockZ]);
         mat4.scale(rockMatrix, rockMatrix, kRockSize);
-        this.rock.baseModelMatrix = rockMatrix;
+        this.rock!.baseModelMatrix = rockMatrix;
     }
 
     private buildWheels(glContext: GlContext, glProgram: GlProgram) {
@@ -92,6 +104,7 @@ export default class Catapult extends CompositeObject {
         mat4.fromScaling(catapultBaseMatrix, kBaseSize);
         mat4.translate(catapultBaseMatrix, catapultBaseMatrix, [0, 0, -0.25]);
         baseObj.baseModelMatrix = catapultBaseMatrix;
+        baseObj.baseColor = [0.6, 0.3, 0, 1.0];
         this.addChild(baseObj);
     }
 
@@ -144,12 +157,14 @@ class CatapultFrame extends CompositeObject {
         mat4.fromScaling(sideLBaseMatrix, kFrameSideSize);
         mat4.translate(sideLBaseMatrix, sideLBaseMatrix, [2, 1, 0]);
         sideLObj.baseModelMatrix = sideLBaseMatrix;
+        sideLObj.baseColor = [0.6, 0.3, 0, 1.0];
         this.addChild(sideLObj);
 
         const sideRObj = new SceneObject(glContext, glProgram, side);
         const sideRBaseMatrix = mat4.clone(sideLBaseMatrix);
         mat4.translate(sideRBaseMatrix, sideRBaseMatrix, [0, 5, 0]);
         sideRObj.baseModelMatrix = sideRBaseMatrix;
+        sideRObj.baseColor = [0.6, 0.3, 0, 1.0];
         this.addChild(sideRObj);
 
         const axis = new Cylinder(glContext, glProgram, kAxisPoints);
@@ -160,6 +175,7 @@ class CatapultFrame extends CompositeObject {
         mat4.rotateX(axisMatrix, axisMatrix, Math.PI / 2);
         mat4.scale(axisMatrix, axisMatrix, [0.25, 0.25, 4]);
         axisObj.baseModelMatrix = axisMatrix;
+        axisObj.baseColor = [0.4, 0.1, 0, 1.0];
         this.addChild(axisObj);
     }
 }

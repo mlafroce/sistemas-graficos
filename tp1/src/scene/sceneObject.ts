@@ -17,6 +17,7 @@ export default class SceneObject implements Renderable {
     public renderable: Renderable | undefined;
     public baseModelMatrix: mat4 = mat4.create();
     public textureMatrix: mat2 = mat2.create();
+    protected viewNormals: boolean = false;
 
     constructor(public glContext: GlContext, public glProgram: GlProgram, renderable: Renderable | undefined) {
         this.renderable = renderable;
@@ -31,6 +32,11 @@ export default class SceneObject implements Renderable {
     public onConfigChanged(config: Config) {
     }
 
+    public setProgram(glProgram: GlProgram) {
+        this.glProgram = glProgram;
+        this.glProgram.activate();
+    }
+
     public render(): void {
         this.glProgram.activate();
         if (this.renderable) {
@@ -42,6 +48,8 @@ export default class SceneObject implements Renderable {
             this.glContext.gl.uniform4fv(baseColorLoc, this.baseColor);
             const textureMatrixLoc = this.glProgram.getUniformLocation("textureMatrix");
             this.glContext.gl.uniformMatrix2fv(textureMatrixLoc, false, this.textureMatrix);
+            const viewNormalsLoc = this.glProgram.getUniformLocation("viewNormals");
+            this.glContext.gl.uniform1i(viewNormalsLoc, Config.globalViewNormals ? 1 : 0);
             this.renderable.render();
         }
     }

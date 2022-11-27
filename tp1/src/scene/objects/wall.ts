@@ -51,7 +51,7 @@ export default class Wall extends CompositeObject {
     private buildWall(glContext: GlContext, glProgram: GlProgram) {
         // TODO: use Extrude or similar
         const path = CubicBezier.from3dPoints([0, 0, 0, 0, 0, 0.33, 0, 0, 0.66, 0, 0, 1], 4);
-        const shape = CubicBezier.from2dPoints([[0, 1], [0, 0.6], [1, 0.4], [1, 0]], 8);
+        const shape = CubicBezier.from2dPoints([[0, 1], [0, 0.6], [0.5, 0.4], [0.5, 0]], 8);
         const wall = new SweepSurface(glContext, glProgram, shape, path);
         wall.build();
         wall.textureList.push(TextureManager.getTexture("rock"));

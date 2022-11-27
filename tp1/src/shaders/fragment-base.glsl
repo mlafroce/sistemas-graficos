@@ -1,6 +1,7 @@
 // fragment shaders don't have a default precision so we need to pick one
 precision mediump float;
 
+uniform bool viewNormals;    // bool activa normales
 uniform mat2 textureMatrix;  // matriz de corrección de normales
 uniform vec4 modelColor;     // color default
 uniform int nTextures;     // cantidad de texturas disponibles
@@ -34,5 +35,10 @@ void main() {
     } else {
         outputColor = torchLight * modelColor.xyz;
     }
-    gl_FragColor = vec4(outputColor, modelColor.a);
+    // TODO: use normals shader
+    if (viewNormals) {
+        gl_FragColor = vec4(vNormal * 0.5 + vec3(0.5, 0.5, 0.5), modelColor.a);
+    } else {
+        gl_FragColor = vec4(outputColor, modelColor.a);
+    }
 }

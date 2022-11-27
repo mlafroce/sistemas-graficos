@@ -21,11 +21,11 @@ export class FirstPersonCamera implements Camera {
     private readonly keyboardSpeed: number = 0.2;
 
     constructor() {
-        //this.angle[1] = -30 * Math.PI / 180;
         this.angleX = Math.PI / 2;
+        this.angleY = -30 * Math.PI / 180;
         this.position = vec3.create();
         this.position[1] = -5;
-        this.position[2] = 2;
+        this.position[2] = 4;
     }
 
     public wheelListener(e: WheelEvent) {
@@ -62,19 +62,29 @@ export class FirstPersonCamera implements Camera {
     }
 
     public keypressListener(e: KeyboardEvent) {
-        const delta = vec3.create();
+        let angleX = this.angleX;
+        let angleY = this.angleY;
+        if (e.key === "a" || e.key === "d") {
+            angleX += Math.PI / 2;
+            angleY = 0;
+        }
+        const delta = vec3.fromValues(
+            Math.cos(angleX) * Math.cos(angleY),
+            Math.sin(angleX) * Math.cos(angleY),
+            Math.sin(angleY));
+
         switch (e.key) {
             case "w":
-                delta[1] = -this.keyboardSpeed;
+                vec3.scale(delta, delta, this.keyboardSpeed);
                 break;
             case "a":
-                delta[0] = -this.keyboardSpeed;
+                vec3.scale(delta, delta, this.keyboardSpeed);
                 break;
             case "s":
-                delta[1] = this.keyboardSpeed;
+                vec3.scale(delta, delta, -this.keyboardSpeed);
                 break;
             case "d":
-                delta[0] = this.keyboardSpeed;
+                vec3.scale(delta, delta, -this.keyboardSpeed);
                 break;
             default:
                 return;

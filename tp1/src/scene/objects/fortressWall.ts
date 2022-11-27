@@ -10,7 +10,7 @@ import Wall from "./wall";
 import WallTower from "./wallTower";
 
 const kWallRadius = 5;
-const kWallWidth = 0.25;
+const kWallWidth = 0.5;
 const kTowerWidth = 0.8;
 const kTowerHeight = 0.2;
 
@@ -48,7 +48,7 @@ export default class FortressWall extends CompositeObject {
             const wallLength = this.getWallLength(angleStep, kWallRadius);
             const mMatrix = mat4.create();
             mat4.fromZRotation(mMatrix, angleStep * i + baseAngle);
-            mat4.translate(mMatrix, mMatrix, [kWallRadius + kWallWidth / 2 , kWallWidth / 2, 0]);
+            mat4.translate(mMatrix, mMatrix, [kWallRadius + kWallWidth / 4 , kWallWidth / 4, 0]);
             const wallAngle = -(Math.PI - angleStep) / 2;
             mat4.rotateZ(mMatrix, mMatrix, wallAngle);
             mat4.scale(mMatrix, mMatrix, [wallLength, kWallWidth, config.wallHeight / 2]);
