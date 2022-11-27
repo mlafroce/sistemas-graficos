@@ -1,6 +1,7 @@
 // fragment shaders don't have a default precision so we need to pick one
 precision mediump float;
 
+uniform bool viewNormals;    // bool activa normales
 uniform mat2 textureMatrix;  // matriz de corrección de normales
 uniform vec4 modelColor;     // color default
 uniform int nTextures;     // cantidad de texturas disponibles
@@ -23,7 +24,8 @@ vec3 diffuseLight(vec3 torchPos, vec3 torchColor, float distanceFactor) {
 
 void main() {
     vec3 torchPos = vec3(1, -2.0, 1.0);
-    vec3 ambientLightVec = directionalLight(vec3(0.0, -10.0, 10.0), vec3(1, 1, 1));
+    vec3 ambientLightVec = vec3(0.75, 0.75, 0.75);
+    //directionalLight(vec3(0.0, -10.0, 10.0), vec3(1, 1, 1));
     vec3 torchLight = ambientLightVec + diffuseLight(torchPos, vec3(1, 0.95, 0.8), 0.25);
 
     vec3 outputColor;
@@ -33,5 +35,10 @@ void main() {
     } else {
         outputColor = torchLight * modelColor.xyz;
     }
-    gl_FragColor = vec4(outputColor, 1);
+    // TODO: use normals shader
+    if (viewNormals) {
+        gl_FragColor = vec4(vNormal * 0.5 + vec3(0.5, 0.5, 0.5), modelColor.a);
+    } else {
+        gl_FragColor = vec4(outputColor, modelColor.a);
+    }
 }
