@@ -39,7 +39,7 @@ export default class Wall extends CompositeObject {
             [0.75, 0.5, 0], [0.75, 1, 0], [1, 1, 0], [1, 0, 0]]);
         const top = new SweepSurface(glContext, glProgram, shape, path);
         top.build();
-        top.textureList.push(TextureManager.getTexture("uvTest"));
+        top.textureList.push(TextureManager.getTexture("rock-02"));
         this.topObj = new SceneObject(glContext, glProgram, top);
         const objMatrix = mat4.create();
         mat4.fromTranslation(objMatrix, [-1, -1, 0]);

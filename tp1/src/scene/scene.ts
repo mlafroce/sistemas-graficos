@@ -101,6 +101,7 @@ export default class Scene {
     private buildRenderables() {
         const baseProgram = ShaderManager.getProgram("base");
         const grassProgram = ShaderManager.getProgram("grass");
+        const waterProgram = ShaderManager.getProgram("water");
         const fireProgram = ShaderManager.getProgram("fire");
 
         this.land = new Land(this.glContext, grassProgram);
@@ -120,7 +121,7 @@ export default class Scene {
         this.fortressWall = new FortressWall(this.glContext, baseProgram, this.config);
         this.renderableList.push(this.fortressWall);
 
-        this.water = new Water(this.glContext, baseProgram);
+        this.water = new Water(this.glContext, waterProgram);
         const objMatrix = mat4.create();
         mat4.fromScaling(objMatrix, [12, 12, 1]);
         mat4.translate(objMatrix, objMatrix, [0, 0, -0.25]);
@@ -173,6 +174,15 @@ export default class Scene {
             gl.uniform1i(soilSampler, 1);
             const noiseSampler = glProgram.getUniformLocation("noiseSampler");
             gl.uniform1i(noiseSampler, 2);
+        };
+
+        const waterProgram = ShaderManager.getProgram("water");
+        waterProgram.onActivate = (glProgram: GlProgram) => {
+            baseProgram.onActivate(glProgram);
+            const noise1Sampler = glProgram.getUniformLocation("noise1Sampler");
+            gl.uniform1i(noise1Sampler, 0);
+            const noise2Sampler = glProgram.getUniformLocation("noise2Sampler");
+            gl.uniform1i(noise2Sampler, 1);
         };
 
         const fireProgram = ShaderManager.getProgram("fire");

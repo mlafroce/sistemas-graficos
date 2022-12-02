@@ -27,6 +27,7 @@ async function main() {
   await initProgram("base", "./shaders/vertex-base.glsl", "./shaders/fragment-base.glsl", context);
   await initProgram("normals", "./shaders/vertex-base.glsl", "./shaders/fragment-normal.glsl", context);
   await initProgram("grass", "./shaders/vertex-base.glsl", "./shaders/fragment-grass.glsl", context);
+  await initProgram("water", "./shaders/vertex-base.glsl", "./shaders/fragment-water.glsl", context);
   await initProgram("fire", "./shaders/vertex-fire.glsl", "./shaders/fragment-fire.glsl", context);
 
   context.resizeCanvasToDisplaySize();
