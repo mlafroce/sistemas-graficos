@@ -13,6 +13,7 @@ uniform vec3 torchLightColor;
 uniform vec3 eyePos;
 uniform vec3 sunLightPos;
 uniform float shininess;
+uniform float reflectionCoef;
 
 varying vec3 vPosition;
 varying vec3 vNormal;
@@ -39,7 +40,7 @@ vec3 reflectionLight(vec3 torchPos) {
     vec3 eyeVec = normalize(eyePos - vPosition);
     float torchDistance = length(torchPos - vPosition);
     float reflection = max(dot(reflectionNormal, eyeVec), 0.0);
-    float reflectionIntensity = pow(reflection, 10.0);
+    float reflectionIntensity = pow(reflection, shininess) * reflectionCoef;
     return torchLightColor * reflectionIntensity / max(torchDistance, 1.0);
 }
 
@@ -47,7 +48,7 @@ void main() {
     vec3 torchLight = vec3(0,0,0);
     for (int i = 0; i < 2; i++) {
         vec3 torchPos = lightList[i];
-        torchLight += diffuseLight(torchPos, 0.3);
+        torchLight += diffuseLight(torchPos, 0.25);
         torchLight += reflectionLight(torchPos) / 2.0;
     }
     vec3 sunLight = directionalLight();

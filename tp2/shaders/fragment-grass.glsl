@@ -5,32 +5,39 @@ uniform sampler2D soilSampler;
 uniform sampler2D noiseSampler;
 uniform bool viewNormals;
 
+uniform vec3 lightList[2];
+uniform vec3 ambientLightColor;
+uniform vec3 sunLightColor;
+uniform vec3 torchLightColor;
+uniform vec3 sunLightPos;
+
 varying vec3 vPosition;
 varying vec3 vNormal;
 varying vec4 vColor;
 
-const vec3 torchPos = vec3(1, -2.0, 1.0);
-const vec3 ambientLightVec = vec3(0.4, 0.4, 0.4);
-const float torchMaxIntensity = 0.8;
-const vec3 torchLightColor = vec3(1, 0.95, 0.8);
-const vec3 directionalLightColor = vec3(1.0, 1.0, 1.0);
-const vec3 directionalLightSource = vec3(0.0, -100.0, 100.0);
+const float torchMaxIntensity = 0.9;
+const float sunlightIntensity = 0.8;
+const float ambient = 0.8;
 
-vec3 directionalLight(vec3 lightPos, vec3 color) {
-    vec3 lightVec= normalize(lightPos - vPosition);
-    return color * max (dot(vNormal, lightVec), 0.0);
+vec3 directionalLight() {
+    vec3 lightVec = normalize(sunLightPos - vPosition);
+    return sunLightColor * max (dot(vNormal, lightVec), 0.0) * sunlightIntensity;
 }
 
-vec3 diffuseLight(vec3 torchPos, vec3 torchColor, float distanceFactor) {
+vec3 diffuseLight(vec3 torchPos, float distanceFactor) {
     vec3 torchLightVec= torchPos - vPosition;
-    float torchIntensity = max(0.0, torchMaxIntensity - length(torchLightVec) * distanceFactor);
-    return torchColor * max (dot(vNormal, normalize(torchLightVec)), 0.0) * torchIntensity;
+    float torchIntensity = max(0.0, torchMaxIntensity - (length(torchLightVec) * distanceFactor));
+    return torchLightColor * max (dot(vNormal, normalize(torchLightVec)), 0.1) * torchIntensity * torchIntensity;
 }
 
 void main() {
-    vec3 torchLight = diffuseLight(torchPos, torchLightColor, 0.25);
-    vec3 sunLight = directionalLight(directionalLightSource, directionalLightColor);
-    vec3 light = ambientLightVec + torchLight + sunLight;
+    vec3 torchLight = vec3(0,0,0);
+    for (int i = 0; i < 2; i++) {
+        vec3 torchPos = lightList[i];
+        torchLight += diffuseLight(torchPos, 0.25);
+    }
+    vec3 sunLight = directionalLight();
+    vec3 light = ambientLightColor + sunLight + torchLight;
 
     vec2 wrappedTextureCoord = vPosition.xy;
 

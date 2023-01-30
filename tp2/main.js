@@ -8505,17 +8505,16 @@ class FirstPersonCamera {
     constructor() {
         this.cursorX = 0;
         this.cursorY = 0;
-        this.angleX = 0;
-        this.angleY = 0;
         this.mouseDown = false;
         this.cameraSpeed = 100;
         this.touchSpeed = this.cameraSpeed * 5;
         this.keyboardSpeed = 0.2;
-        this.angleX = Math.PI / 2;
-        this.angleY = -30 * Math.PI / 180;
+        this.angleX = 2 * Math.PI / 3;
+        this.angleY = -20 * Math.PI / 180;
         this.position = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.create();
-        this.position[1] = -5;
-        this.position[2] = 2;
+        this.position[0] = 10;
+        this.position[1] = -6;
+        this.position[2] = 3;
     }
     wheelListener(e) {
     }
@@ -9362,7 +9361,8 @@ class FortressDoor extends _compositeObject__WEBPACK_IMPORTED_MODULE_1__.Composi
         door.scaleAxisTextures(2, 0.1, 1);
         const doorObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_2__["default"](glContext, glProgram, door);
         doorObj.textureMatrix = [0, 1, 1, 0];
-        doorObj.shininess = 25;
+        doorObj.shininess = 10;
+        doorObj.reflectionCoef = config.doorReflectiveness;
         door.scaleAxisTextures(0, 1, 0.1);
         const doorMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.create();
         gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.fromTranslation(doorMatrix, [0.45, 0, 0]);
@@ -9602,7 +9602,7 @@ class Sky extends _compositeObject__WEBPACK_IMPORTED_MODULE_1__.CompositeObject 
         const matrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
         gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromScaling(matrix, [6, 6, 6]);
         gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.rotateZ(matrix, matrix, Math.PI * config.sunTheta / 180);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.rotateX(matrix, matrix, -Math.PI * config.sunPhi / 180);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.rotateX(matrix, matrix, Math.PI * config.sunPhi / 180);
         const sunPos = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_5__.fromValues(0, 0, 100);
         gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_5__.transformMat4(sunPos, sunPos, matrix);
         // TODO don't use config as sunlight pos storage
@@ -10146,6 +10146,7 @@ class SceneObject {
         this.glProgram = glProgram;
         this.baseColor = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_1__.fromValues(0.6, 0.6, 0.6, 1);
         this.shininess = 1;
+        this.reflectionCoef = 0.5;
         this.normalMatrix = gl_matrix_esm_mat3__WEBPACK_IMPORTED_MODULE_2__.create();
         this.modelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.create();
         this.baseModelMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_3__.create();
@@ -10176,6 +10177,8 @@ class SceneObject {
             this.glContext.gl.uniform4fv(baseColorLoc, this.baseColor);
             const shininessLoc = this.glProgram.getUniformLocation("shininess");
             this.glContext.gl.uniform1f(shininessLoc, this.shininess);
+            const reflectionCoefLoc = this.glProgram.getUniformLocation("reflectionCoef");
+            this.glContext.gl.uniform1f(reflectionCoefLoc, this.reflectionCoef);
             const textureMatrixLoc = this.glProgram.getUniformLocation("textureMatrix");
             this.glContext.gl.uniformMatrix2fv(textureMatrixLoc, false, this.textureMatrix);
             const viewNormalsLoc = this.glProgram.getUniformLocation("viewNormals");
@@ -10868,6 +10871,7 @@ class Config {
         this.torchColor = 0xAA9988;
         this.ambientColor = 0x333333;
         this.waterShininess = 50;
+        this.doorReflectiveness = 2;
         this.viewNormals = false;
     }
     getAmbientLight() {
@@ -11028,7 +11032,7 @@ function initMenu() {
     murallaFolder.add(config, "nWalls", 4, 8, 1).name("Cantidad de muros").onChange(configChanged);
     murallaFolder.add(config, "wallHeight", 1, 2).name("Alto").onChange(configChanged);
     murallaFolder.add(config, "gateAngle", 0, 90, 1).name("Angulo de la puerta").onChange(configChanged);
-    gui.add(config, "catapultAngle", 0, 360, 3).name("Angulo de la catapulta").onChange(configChanged);
+    gui.add(config, "catapultAngle", 0, 360, 3).name("Angulo catapulta").onChange(configChanged);
     const lightFolder = gui.addFolder("Luces");
     lightFolder.addColor(config, "ambientColor").name("Color ambiente").onChange(configChanged);
     lightFolder.addColor(config, "sunColor").name("Color direccional").onChange(configChanged);
@@ -11036,6 +11040,7 @@ function initMenu() {
     lightFolder.add(config, "sunPhi", 0, 90, 3).name("Angulo sol (phi)").onChange(configChanged);
     lightFolder.add(config, "sunTheta", 0, 360, 3).name("Angulo sol (theta)").onChange(configChanged);
     lightFolder.add(config, "waterShininess", 1, 50, 1).name("'Shininess' agua").onChange(configChanged);
+    lightFolder.add(config, "doorReflectiveness", 0, 4).name("Refl puerta").onChange(configChanged);
     const camaraFolder = gui.addFolder("Cámara");
     camaraFolder.add(config, "cameraType", {
         "Primera persona": 0,
