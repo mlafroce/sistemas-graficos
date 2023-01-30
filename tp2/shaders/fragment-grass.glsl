@@ -35,12 +35,15 @@ void main() {
     vec2 wrappedTextureCoord = vPosition.xy;
 
     vec3 grassColor = texture2D(grassSampler, wrappedTextureCoord * 0.5).xyz;
+    vec3 grassColor2 = texture2D(grassSampler, wrappedTextureCoord * 0.4).xyz;
     vec3 soilColor = texture2D(soilSampler, wrappedTextureCoord * 0.5).xyz;
     float noiseValue1 = texture2D(noiseSampler, wrappedTextureCoord * 0.05).x;
     float noiseValue2 = texture2D(noiseSampler, vPosition.yx * 0.25).x;
-    float stepValue = smoothstep(0.25, 0.4, noiseValue1 + noiseValue2 * 0.25);
+    float grassStepValue = smoothstep(0.0, 0.8, noiseValue1);
+    float soilStepValue = smoothstep(0.05, 0.25, noiseValue1 + noiseValue2 * 0.25);
 
-    vec4 outputColor = vec4(mix(soilColor, grassColor, stepValue) * light, 1);
+    vec3 mixedGrassColor = mix(grassColor, grassColor2, grassStepValue) * light;
+    vec4 outputColor = vec4(mix(soilColor, mixedGrassColor, soilStepValue) * light, 1);
 
     // TODO: use normals shader
     if (viewNormals) {

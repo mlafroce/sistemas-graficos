@@ -8772,10 +8772,20 @@ class LightManager {
         if (lightLoc) {
             context.gl.uniform3fv(lightLoc, this.lightList);
         }
-        const ambientLightLoc = glProgram.getUniformLocation("ambientLightVec");
+        const ambientLightLoc = glProgram.getUniformLocation("ambientLightColor");
         if (ambientLightLoc) {
             const ambientLight = config.getAmbientLight();
             context.gl.uniform3f(ambientLightLoc, ambientLight[0], ambientLight[1], ambientLight[2]);
+        }
+        const sunLightLoc = glProgram.getUniformLocation("sunLightColor");
+        if (sunLightLoc) {
+            const sunLight = config.getSunLight();
+            context.gl.uniform3f(sunLightLoc, sunLight[0], sunLight[1], sunLight[2]);
+        }
+        const torchLightLoc = glProgram.getUniformLocation("torchLightColor");
+        if (torchLightLoc) {
+            const torchLight = config.getTorchLight();
+            context.gl.uniform3f(torchLightLoc, torchLight[0], torchLight[1], torchLight[2]);
         }
     }
 }
@@ -8973,7 +8983,7 @@ class CastleRoof extends _compositeObject__WEBPACK_IMPORTED_MODULE_0__.Composite
         body.build();
         body.textureList.push(_textureManager__WEBPACK_IMPORTED_MODULE_3__["default"].getTexture("blue-tile"));
         const object = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](this.glContext, this.glProgram, body);
-        object.textureMatrix = gl_matrix_esm_mat2__WEBPACK_IMPORTED_MODULE_5__.fromValues(0, 2, 2, 0);
+        object.textureMatrix = gl_matrix_esm_mat2__WEBPACK_IMPORTED_MODULE_5__.fromValues(0, 5, 5, 0);
         return object;
     }
 }
@@ -8991,16 +9001,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ CastleTower)
 /* harmony export */ });
-/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
-/* harmony import */ var gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! gl-matrix/esm/vec4 */ "./node_modules/gl-matrix/esm/vec4.js");
+/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! gl-matrix/esm/vec4 */ "./node_modules/gl-matrix/esm/vec4.js");
 /* harmony import */ var _curves_bezier__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../curves/bezier */ "./src/curves/bezier.ts");
 /* harmony import */ var _curves_path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../curves/path */ "./src/curves/path.ts");
 /* harmony import */ var _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../shapes/revolutionSurface */ "./src/shapes/revolutionSurface.ts");
 /* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
 /* harmony import */ var _sceneObject__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../sceneObject */ "./src/scene/sceneObject.ts");
+/* harmony import */ var _textureManager__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../textureManager */ "./src/scene/textureManager.ts");
 // @ts-ignore
 
 // @ts-ignore
+
 
 
 
@@ -9020,10 +9032,10 @@ class CastleTower extends _compositeObject__WEBPACK_IMPORTED_MODULE_3__.Composit
         const roof = new _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_2__["default"](glContext, glProgram, curve, Math.PI * 2, 10);
         roof.build();
         const roofObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, roof);
-        const roofMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.fromTranslation(roofMatrix, [0, 0, config.castleFloors + 0.5]);
+        const roofMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__.fromTranslation(roofMatrix, [0, 0, config.castleFloors + 0.5]);
         roofObj.baseModelMatrix = roofMatrix;
-        roofObj.baseColor = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_6__.fromValues(0.4, 0.4, 0.8, 1);
+        roofObj.baseColor = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_7__.fromValues(0.4, 0.4, 0.8, 1);
         this.addChild(roofObj);
     }
     buildBody(glContext, glProgram, config) {
@@ -9042,9 +9054,11 @@ class CastleTower extends _compositeObject__WEBPACK_IMPORTED_MODULE_3__.Composit
             [bodySRadius, 0, 0],
         ]));
         const body = new _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_2__["default"](glContext, glProgram, bodyPath, Math.PI * 2, 10);
+        body.textureList.push(_textureManager__WEBPACK_IMPORTED_MODULE_5__["default"].getTexture("yellow-stone"));
         body.build();
         const bodyObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, body);
-        bodyObj.baseColor = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_6__.fromValues(0.8, 0.8, 0.4, 1);
+        bodyObj.textureMatrix = [0, config.castleFloors + 0.55, 1, 0];
+        bodyObj.baseColor = gl_matrix_esm_vec4__WEBPACK_IMPORTED_MODULE_7__.fromValues(0.8, 0.8, 0.4, 1);
         this.addChild(bodyObj);
     }
 }
@@ -9831,13 +9845,17 @@ class Water extends _compositeObject__WEBPACK_IMPORTED_MODULE_3__.CompositeObjec
         const shape = _curves_bezier__WEBPACK_IMPORTED_MODULE_0__.CubicBezier.from2dPoints([[0.10, 0.0], [0.4, 0], [0.7, 0], [1, 0]], 16);
         const water = new _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_2__["default"](glContext, glProgram, shape, Math.PI * 2, 17);
         water.build();
-        const waterObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, water);
-        waterObj.baseColor = [0.2, 0.2, 0.8, 0.7];
-        this.addChild(waterObj);
+        this.waterObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, water);
+        this.waterObj.baseColor = [0.2, 0.2, 0.8, 0.7];
+        this.waterObj.shininess = 50;
+        this.addChild(this.waterObj);
         const waveNoise1 = _noise_perlin2d__WEBPACK_IMPORTED_MODULE_1__["default"].randomSample(8, kNoiseSamples);
         const waveNoise2 = _noise_perlin2d__WEBPACK_IMPORTED_MODULE_1__["default"].randomSample(8, kNoiseSamples);
         this.waveNoiseTex1 = _texture__WEBPACK_IMPORTED_MODULE_5__["default"].luminanceFromPixelArray(glContext, waveNoise1, kNoiseSamples, kNoiseSamples);
         this.waveNoiseTex2 = _texture__WEBPACK_IMPORTED_MODULE_5__["default"].luminanceFromPixelArray(glContext, waveNoise2, kNoiseSamples, kNoiseSamples);
+    }
+    onConfigChanged(config) {
+        this.waterObj.shininess = config.waterShininess;
     }
     render() {
         const gl = this.glContext.gl;
@@ -10846,13 +10864,25 @@ class Config {
         this.gateAngle = 0;
         this.sunPhi = 30;
         this.sunTheta = 180;
-        this.sunColor = 0x222222;
+        this.sunColor = 0xAA9988;
+        this.torchColor = 0xAA9988;
+        this.ambientColor = 0x333333;
+        this.waterShininess = 50;
         this.viewNormals = false;
     }
     getAmbientLight() {
-        const b = this.sunColor % 256 / 256;
-        const g = (this.sunColor / 256) % 256 / 256;
-        const r = (this.sunColor / (256 * 256)) % 256 / 256;
+        return this.colorToRGB(this.ambientColor);
+    }
+    getSunLight() {
+        return this.colorToRGB(this.sunColor);
+    }
+    getTorchLight() {
+        return this.colorToRGB(this.torchColor);
+    }
+    colorToRGB(color) {
+        const b = color % 256 / 256;
+        const g = (color / 256) % 256 / 256;
+        const r = (color / (256 * 256)) % 256 / 256;
         return [r, g, b];
     }
 }
@@ -11000,9 +11030,12 @@ function initMenu() {
     murallaFolder.add(config, "gateAngle", 0, 90, 1).name("Angulo de la puerta").onChange(configChanged);
     gui.add(config, "catapultAngle", 0, 360, 3).name("Angulo de la catapulta").onChange(configChanged);
     const lightFolder = gui.addFolder("Luces");
+    lightFolder.addColor(config, "ambientColor").name("Color ambiente").onChange(configChanged);
+    lightFolder.addColor(config, "sunColor").name("Color direccional").onChange(configChanged);
+    lightFolder.addColor(config, "torchColor").name("Color antorchas").onChange(configChanged);
     lightFolder.add(config, "sunPhi", 0, 90, 3).name("Angulo sol (phi)").onChange(configChanged);
     lightFolder.add(config, "sunTheta", 0, 360, 3).name("Angulo sol (theta)").onChange(configChanged);
-    lightFolder.addColor(config, "sunColor").name("Color ambiente").onChange(configChanged);
+    lightFolder.add(config, "waterShininess", 1, 50, 1).name("'Shininess' agua").onChange(configChanged);
     const camaraFolder = gui.addFolder("Cámara");
     camaraFolder.add(config, "cameraType", {
         "Primera persona": 0,
