@@ -9,6 +9,7 @@ import RevolutionSurface from "../../shapes/revolutionSurface";
 import {Config} from "../../utils";
 import {CompositeObject} from "../compositeObject";
 import SceneObject from "../sceneObject";
+import TextureManager from "../textureManager";
 
 const bodySRadius = 0.6;
 const bodyLRadius = 0.9;
@@ -52,8 +53,10 @@ export default class CastleTower extends CompositeObject {
         ]));
 
         const body = new RevolutionSurface(glContext, glProgram, bodyPath, Math.PI * 2, 10);
+        body.textureList.push(TextureManager.getTexture("yellow-stone"));
         body.build();
         const bodyObj = new SceneObject(glContext, glProgram, body);
+        bodyObj.textureMatrix = [0, config.castleFloors + 0.55, 1, 0];
         bodyObj.baseColor = vec4.fromValues(0.8, 0.8, 0.4, 1);
         this.addChild(bodyObj);
     }

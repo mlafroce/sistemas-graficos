@@ -10,14 +10,29 @@ export class Config {
     public sunPhi: number = 30;
     public sunTheta: number = 180;
     public sunPos: undefined;
-    public sunColor: number = 0x222222;
+    public sunColor: number = 0xAA9988;
+    public torchColor: number = 0xAA9988;
+    public ambientColor: number = 0x333333;
+    public waterShininess: number = 50;
     public viewNormals: boolean = false;
     public static globalViewNormals = false; // FIXME!!!
 
     public getAmbientLight(): number[] {
-        const b = this.sunColor % 256 / 256;
-        const g = (this.sunColor / 256) % 256 / 256;
-        const r = (this.sunColor / (256 * 256)) % 256 / 256;
+        return this.colorToRGB(this.ambientColor);
+    }
+
+    public getSunLight(): number[] {
+        return this.colorToRGB(this.sunColor);
+    }
+
+    public getTorchLight(): number[] {
+        return this.colorToRGB(this.torchColor);
+    }
+
+    private colorToRGB(color: number): number[] {
+        const b = color % 256 / 256;
+        const g = (color / 256) % 256 / 256;
+        const r = (color / (256 * 256)) % 256 / 256;
         return [r, g, b];
     }
 }

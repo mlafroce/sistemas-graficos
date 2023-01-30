@@ -76,9 +76,12 @@ function initMenu() {
   murallaFolder.add(config, "gateAngle", 0, 90, 1).name("Angulo de la puerta").onChange(configChanged);
   gui.add(config, "catapultAngle", 0, 360, 3).name("Angulo de la catapulta").onChange(configChanged);
   const lightFolder = gui.addFolder("Luces");
+  lightFolder.addColor(config, "ambientColor").name("Color ambiente").onChange(configChanged);
+  lightFolder.addColor(config, "sunColor").name("Color direccional").onChange(configChanged);
+  lightFolder.addColor(config, "torchColor").name("Color antorchas").onChange(configChanged);
   lightFolder.add(config, "sunPhi", 0, 90, 3).name("Angulo sol (phi)").onChange(configChanged);
   lightFolder.add(config, "sunTheta", 0, 360, 3).name("Angulo sol (theta)").onChange(configChanged);
-  lightFolder.addColor(config, "sunColor").name("Color ambiente").onChange(configChanged);
+  lightFolder.add(config, "waterShininess", 1, 50, 1).name("'Shininess' agua").onChange(configChanged);
   const camaraFolder = gui.addFolder("Cámara");
   camaraFolder.add(config, "cameraType", {
     "Primera persona": 0,

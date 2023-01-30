@@ -26,7 +26,7 @@ export default class CastleRoof extends CompositeObject {
         body.build();
         body.textureList.push(TextureManager.getTexture("blue-tile"));
         const object = new SceneObject(this.glContext, this.glProgram, body);
-        object.textureMatrix = mat2.fromValues(0, 2, 2, 0);
+        object.textureMatrix = mat2.fromValues(0, 5, 5, 0);
         return object;
     }
 }

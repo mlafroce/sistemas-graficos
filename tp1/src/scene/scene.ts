@@ -206,7 +206,7 @@ export default class Scene {
         const skyProgram = ShaderManager.getProgram("sky");
         skyProgram.onActivate = (glProgram: GlProgram) => {
             baseProgram.onActivate(glProgram);
-        }
+        };
     }
 
     // FIXME

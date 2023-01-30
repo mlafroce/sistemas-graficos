@@ -9,6 +9,7 @@ import RevolutionSurface from "../../shapes/revolutionSurface";
 import {CompositeObject} from "../compositeObject";
 import SceneObject from "../sceneObject";
 import Texture from "../texture";
+import {Config} from "../../utils";
 
 const kNoiseSamples = 64;
 
@@ -16,21 +17,27 @@ export default class Water extends CompositeObject {
     private waveNoiseTex1: Texture;
     private waveNoiseTex2: Texture;
     private clock: number = 0;
+    private waterObj: SceneObject;
 
     constructor(glContext: GlContext, glProgram: GlProgram) {
         super(glContext, glProgram);
         const shape = CubicBezier.from2dPoints([[0.10, 0.0], [0.4, 0], [0.7, 0], [1, 0]], 16);
         const water = new RevolutionSurface(glContext, glProgram, shape, Math.PI * 2, 17);
         water.build();
-        const waterObj = new SceneObject(glContext, glProgram, water);
-        waterObj.baseColor = [0.2, 0.2, 0.8, 0.7];
-        this.addChild(waterObj);
+        this.waterObj = new SceneObject(glContext, glProgram, water);
+        this.waterObj.baseColor = [0.2, 0.2, 0.8, 0.7];
+        this.waterObj.shininess = 50;
+        this.addChild(this.waterObj);
 
         const waveNoise1 = Perlin2d.randomSample(8, kNoiseSamples);
         const waveNoise2 = Perlin2d.randomSample(8, kNoiseSamples);
         this.waveNoiseTex1 = Texture.luminanceFromPixelArray(glContext, waveNoise1, kNoiseSamples, kNoiseSamples);
         this.waveNoiseTex2 = Texture.luminanceFromPixelArray(glContext, waveNoise2, kNoiseSamples, kNoiseSamples);
+    }
 
+
+    public onConfigChanged(config: Config) {
+        this.waterObj.shininess = config.waterShininess
     }
 
     public render() {
