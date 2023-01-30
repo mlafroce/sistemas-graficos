@@ -7,6 +7,7 @@ import * as vec4 from "gl-matrix/esm/vec4";
 
 export interface Camera {
     getMatrix(): mat4;
+    getPosition(): vec3;
 }
 
 export class FirstPersonCamera implements Camera {
@@ -25,7 +26,7 @@ export class FirstPersonCamera implements Camera {
         this.angleY = -30 * Math.PI / 180;
         this.position = vec3.create();
         this.position[1] = -5;
-        this.position[2] = 4;
+        this.position[2] = 2;
     }
 
     public wheelListener(e: WheelEvent) {
@@ -93,13 +94,27 @@ export class FirstPersonCamera implements Camera {
     }
 
     public registerCallbacks(canvas: HTMLCanvasElement) {
-        canvas.addEventListener("mousedown", (e) => { this.mousedownListener(e); });
-        canvas.addEventListener("mousemove", (e) => { this.mousemoveListener(e); });
-        canvas.addEventListener("wheel", (e) => { this.wheelListener(e); });
-        canvas.addEventListener("touchstart", (e) => { this.touchstartListener(e); });
-        canvas.addEventListener("touchmove", (e) => { this.touchmoveListener(e); });
-        window.addEventListener("mouseup", (e) => { this.mouseupListener(e); });
-        window.addEventListener("keydown", (e) => { this.keypressListener(e); });
+        canvas.addEventListener("mousedown", (e) => {
+            this.mousedownListener(e);
+        });
+        canvas.addEventListener("mousemove", (e) => {
+            this.mousemoveListener(e);
+        });
+        canvas.addEventListener("wheel", (e) => {
+            this.wheelListener(e);
+        });
+        canvas.addEventListener("touchstart", (e) => {
+            this.touchstartListener(e);
+        });
+        canvas.addEventListener("touchmove", (e) => {
+            this.touchmoveListener(e);
+        });
+        window.addEventListener("mouseup", (e) => {
+            this.mouseupListener(e);
+        });
+        window.addEventListener("keydown", (e) => {
+            this.keypressListener(e);
+        });
     }
 
     public getMatrix(): mat4 {
@@ -113,5 +128,9 @@ export class FirstPersonCamera implements Camera {
         mat4.identity(matrix);
         mat4.lookAt(matrix, this.position, eyeTarget, [0, 0, 1]);
         return matrix;
+    }
+
+    public getPosition(): vec3 {
+        return this.position;
     }
 }

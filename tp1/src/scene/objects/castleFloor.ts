@@ -1,13 +1,17 @@
 // @ts-ignore
 import * as mat4 from "gl-matrix/esm/mat4";
 // @ts-ignore
+import * as mat2 from "gl-matrix/esm/mat2";
+// @ts-ignore
 import * as vec4 from "gl-matrix/esm/vec4";
 import {GlContext, GlProgram} from "../../gl";
 import Cube from "../../shapes/cube";
 import {Config} from "../../utils";
 import {CompositeObject} from "../compositeObject";
 import SceneObject from "../sceneObject";
+import Torch from "./torch";
 import Window from "./window";
+import TextureManager from "../textureManager";
 
 const kWindowDepth = 0.05;
 const kWinScale = 0.2;
@@ -31,17 +35,18 @@ export default class CastleFloor extends CompositeObject {
 
     private buildBody(config: Config) {
         const base = new Cube(this.glContext, this.glProgram);
+        base.texture = TextureManager.getTexture("yellow-stone");
         const baseObj = new SceneObject(this.glContext, this.glProgram, base);
         const mMatrix = mat4.create();
         mat4.fromScaling(mMatrix, [config.castleWidth, config.castleLength, 1]);
         mat4.translate(mMatrix, mMatrix, [-0.5, -0.5, 0]);
         baseObj.baseModelMatrix = mMatrix;
         baseObj.baseColor = vec4.fromValues(0.8, 0.8, 0.4, 1);
-        this.addChild(baseObj);
         this.drawWindowsRow(config.castleWidth, config.castleLength, 0);
         this.drawWindowsRow(config.castleLength, config.castleWidth, Math.PI / 2);
         this.drawWindowsRow(config.castleWidth, config.castleLength, Math.PI);
         this.drawWindowsRow(config.castleLength, config.castleWidth, -Math.PI / 2);
+        this.addChild(baseObj);
     }
 
     private drawWindowsRow(rowLength: number, wallDistance: number, angle: number) {
@@ -58,9 +63,8 @@ export default class CastleFloor extends CompositeObject {
             mat4.rotateX(winMatrix, winMatrix, Math.PI / 2);
             window.baseModelMatrix = winMatrix;
             window.baseColor = vec4.fromValues(0.8, 0.4, 0.0, 1);
-            window.baseModelMatrix = winMatrix;
-            this.addChild(window);
             winPosX += kWinDistance;
+            this.addChild(window);
         }
 
     }

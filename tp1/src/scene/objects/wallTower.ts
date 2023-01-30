@@ -18,7 +18,7 @@ export default class WallTower extends CompositeObject {
     constructor(glContext: GlContext, glProgram: GlProgram, config: Config) {
         super(glContext, glProgram);
         const body = this.buildBody(glContext, glProgram, config);
-        body.textureMatrix = mat2.fromValues(1, 0, 0, 1);
+        body.textureMatrix = mat2.fromValues(2, 0, 0, 2);
         this.addChild(body);
     }
 
@@ -27,10 +27,13 @@ export default class WallTower extends CompositeObject {
         const towerHeight = kTowerHeight * config.wallHeight;
         const wallTopPath = CompositePath.fromPoints([
             [0, towerHeight + 0.5, 0],
-            [bodySRadius - 0.1, towerHeight + 0.5, 0],
+            [bodySRadius - 0.01, towerHeight + 0.5, 0],
             [bodySRadius, towerHeight + 0.5, 0],
+            [bodySRadius, towerHeight + 0.9, 0],
             [bodySRadius, towerHeight + 1, 0],
+            [bodyMRadius - 0.01, towerHeight + 1, 0],
             [bodyMRadius, towerHeight + 1, 0],
+            [bodyMRadius, towerHeight + 0.99, 0],
         ]);
         path.addPath(wallTopPath);
         const pathCurve = CubicBezier.from2dPoints(
@@ -43,7 +46,7 @@ export default class WallTower extends CompositeObject {
 
         const body = new RevolutionSurface(glContext, glProgram, path, Math.PI * 2, 10);
         body.build();
-        body.textureList.push(TextureManager.getTexture("rock"));
+        body.textureList.push(TextureManager.getTexture("stone"));
         return new SceneObject(glContext, glProgram, body);
     }
 }

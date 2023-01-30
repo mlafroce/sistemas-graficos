@@ -24,11 +24,19 @@ async function main() {
   const context = new GlContext(canvas);
 
   // Get the strings for our GLSL shaders
-  await initProgram("base", "./shaders/vertex-base.glsl", "./shaders/fragment-base.glsl", context);
-  await initProgram("normals", "./shaders/vertex-base.glsl", "./shaders/fragment-normal.glsl", context);
-  await initProgram("grass", "./shaders/vertex-base.glsl", "./shaders/fragment-grass.glsl", context);
-  await initProgram("water", "./shaders/vertex-base.glsl", "./shaders/fragment-water.glsl", context);
-  await initProgram("fire", "./shaders/vertex-fire.glsl", "./shaders/fragment-fire.glsl", context);
+  await Promise.all([
+    initShader("fragment-base",  "./shaders/fragment-base.glsl", false, context),
+    initShader("fragment-fire", "./shaders/fragment-fire.glsl", false, context),
+    initShader("fragment-grass", "./shaders/fragment-grass.glsl", false, context),
+    initShader("fragment-normal", "./shaders/fragment-normal.glsl", false, context),
+    initShader("fragment-water", "./shaders/fragment-water.glsl", false, context),
+    initShader("fragment-sky", "./shaders/fragment-sky.glsl", false, context),
+    initShader("vertex-fire", "./shaders/vertex-fire.glsl", true, context),
+    initShader("vertex-base", "./shaders/vertex-base.glsl", true, context),
+    initShader("vertex-water", "./shaders/vertex-water.glsl", true, context),
+  ]);
+
+  ShaderManager.initPrograms(context);
 
   context.resizeCanvasToDisplaySize();
   context.clear();
@@ -67,6 +75,10 @@ function initMenu() {
   murallaFolder.add(config, "wallHeight", 1, 2).name("Alto").onChange(configChanged);
   murallaFolder.add(config, "gateAngle", 0, 90, 1).name("Angulo de la puerta").onChange(configChanged);
   gui.add(config, "catapultAngle", 0, 360, 3).name("Angulo de la catapulta").onChange(configChanged);
+  const lightFolder = gui.addFolder("Luces");
+  lightFolder.add(config, "sunPhi", 0, 90, 3).name("Angulo sol (phi)").onChange(configChanged);
+  lightFolder.add(config, "sunTheta", 0, 360, 3).name("Angulo sol (theta)").onChange(configChanged);
+  lightFolder.addColor(config, "sunColor").name("Color ambiente").onChange(configChanged);
   const camaraFolder = gui.addFolder("Cámara");
   camaraFolder.add(config, "cameraType", {
     "Primera persona": 0,
@@ -104,19 +116,13 @@ function onShaderConfigChanged() {
 }
 
 // TODO: support other configurations
-async function initProgram(name: string, vertexPath: string, fragPath: string, context: GlContext): Promise<GlProgram> {
-  const vertexShaderFile = await fetch(vertexPath);
-  const vertexShaderSource = await vertexShaderFile.text();
-  const fragShaderFile = await fetch(fragPath);
-  const fragShaderSource = await fragShaderFile.text();
-  // create GLSL shaders, upload the GLSL source, compile the shaders
-  const vertexShader = context.createVertexShader(vertexShaderSource);
-  const fragmentShader = context.createFragmentShader(fragShaderSource);
-  // Link the two shaders into a program
-  const program = context.createProgram(vertexShader, fragmentShader);
-
-  ShaderManager.setProgram(name, program);
-  return program;
+async function initShader(name: string, path: string, isVertex: boolean, context: GlContext) {
+  const shaderFile = await fetch(path);
+  const shaderSource = await shaderFile.text();
+  const shader = isVertex ?
+    context.createVertexShader(shaderSource) :
+    context.createFragmentShader(shaderSource);
+  ShaderManager.setShader(name, shader);
 }
 
 window.onload = main;

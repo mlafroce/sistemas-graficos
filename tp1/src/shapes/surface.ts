@@ -51,21 +51,23 @@ export abstract class Surface implements Renderable {
         const gl = this.glContext.gl;
 
         // normals
-        this.normalBuffer.bindBuffer();
         const normalFragAttr = this.glProgram.getAttribLocation("aNormal");
-        gl.vertexAttribPointer(normalFragAttr, this.size, this.type, this.normalize, this.stride, this.offset);
-
+        if (normalFragAttr >= 0) {
+            this.normalBuffer.bindBuffer();
+            gl.vertexAttribPointer(normalFragAttr, this.size, this.type, this.normalize, this.stride, this.offset);
+        }
         // pos attribute
-        this.positionBuffer.bindBuffer();
         const positionAttributeLocation = this.glProgram.getAttribLocation("aPosition");
+        this.positionBuffer.bindBuffer();
         gl.vertexAttribPointer(
             positionAttributeLocation, this.size, this.type, this.normalize, this.stride, this.offset);
-
         // texture coords
-        this.uvBuffer.bindBuffer();
         const textureUVAttribLoc = this.glProgram.getAttribLocation("aTextureUV");
-        gl.vertexAttribPointer(
-            textureUVAttribLoc, 2, this.type, this.normalize, this.stride, this.offset);
+        if (textureUVAttribLoc >= 0) {
+            this.uvBuffer.bindBuffer();
+            gl.vertexAttribPointer(
+                textureUVAttribLoc, 2, this.type, this.normalize, this.stride, this.offset);
+        }
 
         const nTextures = this.glProgram.getUniformLocation("nTextures");
         gl.uniform1i(nTextures, this.textureList.length);

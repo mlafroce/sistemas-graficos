@@ -8,10 +8,12 @@ import * as mat4 from "gl-matrix/esm/mat4";
 import * as vec4 from "gl-matrix/esm/vec4";
 import {GlContext, GlProgram} from "../gl";
 import {Config} from "../utils";
+import {LightManager} from "./lightManager";
 import Renderable from "./renderable";
 
 export default class SceneObject implements Renderable {
     public baseColor: vec4 = vec4.fromValues(0.6, 0.6, 0.6, 1);
+    public shininess: number = 1;
     public normalMatrix: mat3 = mat3.create();
     public modelMatrix: mat4 = mat4.create();
     public renderable: Renderable | undefined;
@@ -28,6 +30,8 @@ export default class SceneObject implements Renderable {
         mat4.multiply(this.modelMatrix, parentMatrix, this.baseModelMatrix);
         mat3.normalFromMat4(this.normalMatrix, this.modelMatrix);
     }
+
+    public pushLights(lightManager: LightManager) {}
 
     public onConfigChanged(config: Config) {
     }
@@ -46,6 +50,8 @@ export default class SceneObject implements Renderable {
             this.glContext.gl.uniformMatrix3fv(normalMatrixLoc, false, this.normalMatrix);
             const baseColorLoc = this.glProgram.getUniformLocation("modelColor");
             this.glContext.gl.uniform4fv(baseColorLoc, this.baseColor);
+            const shininessLoc = this.glProgram.getUniformLocation("shininess");
+            this.glContext.gl.uniform1f(shininessLoc, this.shininess);
             const textureMatrixLoc = this.glProgram.getUniformLocation("textureMatrix");
             this.glContext.gl.uniformMatrix2fv(textureMatrixLoc, false, this.textureMatrix);
             const viewNormalsLoc = this.glProgram.getUniformLocation("viewNormals");

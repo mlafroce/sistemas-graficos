@@ -23,8 +23,10 @@ export class OrbitalCamera implements Camera {
 
     public wheelListener(e: WheelEvent) {
         const deltaPos = e.deltaY / this.cameraSpeed;
-        this.basePosition[1] -= deltaPos;
-        this.basePosition[2] += deltaPos / 2;
+        if ((deltaPos > 0 && this.basePosition[1] > 2) || (deltaPos < 0 && this.basePosition[1] < 30)) {
+            this.basePosition[1] -= deltaPos;
+            this.basePosition[2] += deltaPos / 2;
+        }
     }
 
     public mousedownListener(e: MouseEvent) {
@@ -33,7 +35,9 @@ export class OrbitalCamera implements Camera {
 
     public mousemoveListener(e: MouseEvent) {
         if (this.mouseDown) {
-            this.xRotation += e.movementY / this.cameraSpeed;
+            if ((this.xRotation > -0.3 || e.movementY > 0) && (this.xRotation < 1 || e.movementY < 0)) {
+                this.xRotation = (this.xRotation + e.movementY / this.cameraSpeed) % Math.PI;
+            }
             this.zRotation += e.movementX / this.cameraSpeed;
             vec3.rotateX(this.up, [0, 0, 1], [0, 0, 1], this.xRotation);
         }
@@ -64,5 +68,16 @@ export class OrbitalCamera implements Camera {
     public setCenter(center: number[]) {
         this.center = vec3.fromValues(...center);
         vec3.scale(this.center, this.center, -1);
+    }
+
+    public getPosition(): vec3 {
+        const matrix = mat4.create();
+        mat4.identity(matrix);
+        mat4.lookAt(matrix, [0, 0, 0], this.basePosition, this.up);
+        mat4.rotateX(matrix, matrix, this.xRotation);
+        mat4.rotateZ(matrix, matrix, this.zRotation);
+        mat4.translate(matrix, matrix, this.center);
+        const pos = vec3.create();
+        return vec3.transformMat4(pos, this.basePosition, matrix);
     }
 }

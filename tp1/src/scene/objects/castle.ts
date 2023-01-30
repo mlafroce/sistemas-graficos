@@ -1,4 +1,6 @@
 // @ts-ignore
+import * as mat2 from "gl-matrix/esm/mat2";
+// @ts-ignore
 import * as mat4 from "gl-matrix/esm/mat4";
 // @ts-ignore
 import * as vec4 from "gl-matrix/esm/vec4";
@@ -7,6 +9,7 @@ import {Config} from "../../utils";
 import {CompositeObject} from "../compositeObject";
 import CastleFloor from "./castleFloor";
 import CastleTower from "./castleTower";
+import CastleRoof from "./castleRoof";
 
 export default class Castle extends CompositeObject {
     constructor(glContext: GlContext, glProgram: GlProgram, config: Config) {
@@ -46,5 +49,15 @@ export default class Castle extends CompositeObject {
             tower.setBaseModelMatrix(towerMat);
             this.addChild(tower);
         }
+
+        const roof = new CastleRoof(this.glContext, this.glProgram, config);
+        const position = [0, 0, config.castleFloors - 0.02];
+        const roofMat = mat4.create();
+        mat4.fromTranslation(roofMat, position);
+        mat4.scale(roofMat, roofMat, [config.castleWidth * 0.75, config.castleLength * 0.75, 1]);
+        mat4.rotateZ(roofMat, roofMat, Math.PI / 4);
+        roof.setBaseModelMatrix(roofMat);
+
+        this.addChild(roof);
     }
 }

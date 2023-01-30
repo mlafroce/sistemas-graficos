@@ -7,6 +7,7 @@ import Sphere from "../../shapes/sphere";
 import {Config} from "../../utils";
 import {CompositeObject} from "../compositeObject";
 import SceneObject from "../sceneObject";
+import TextureManager from "../textureManager";
 
 const kWheels = 4;
 const kWheelDistance = 5;
@@ -85,6 +86,8 @@ export default class Catapult extends CompositeObject {
             const cylinder = new Cylinder(glContext, glProgram, kWheelPoints);
             const cylinderObj = new SceneObject(glContext, glProgram, cylinder);
 
+            cylinder.setTexture(TextureManager.getTexture("wheel"));
+
             const axis = Math.floor(i / 2);
             const distance = kWheelDistance;
             const cylinderMatrix = mat4.create();
@@ -105,6 +108,9 @@ export default class Catapult extends CompositeObject {
         mat4.translate(catapultBaseMatrix, catapultBaseMatrix, [0, 0, -0.25]);
         baseObj.baseModelMatrix = catapultBaseMatrix;
         baseObj.baseColor = [0.6, 0.3, 0, 1.0];
+
+        base.texture = TextureManager.getTexture("wood");
+
         this.addChild(baseObj);
     }
 
@@ -143,6 +149,7 @@ export default class Catapult extends CompositeObject {
     private buildRock(glContext: GlContext, glProgram: GlProgram): SceneObject {
         const sphere = new Sphere(glContext, glProgram, 10, 10, 10);
         sphere.build();
+        sphere.textureList.push(TextureManager.getTexture("rock"));
         const sphereObj = new SceneObject(glContext, glProgram, sphere);
         return sphereObj;
     }
@@ -158,6 +165,9 @@ class CatapultFrame extends CompositeObject {
         mat4.translate(sideLBaseMatrix, sideLBaseMatrix, [2, 1, 0]);
         sideLObj.baseModelMatrix = sideLBaseMatrix;
         sideLObj.baseColor = [0.6, 0.3, 0, 1.0];
+
+        side.texture = TextureManager.getTexture("wood");
+
         this.addChild(sideLObj);
 
         const sideRObj = new SceneObject(glContext, glProgram, side);

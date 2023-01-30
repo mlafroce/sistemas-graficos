@@ -7,6 +7,17 @@ export class Config {
     public catapultAngle: number = 0;
     public cameraType: number = 0;
     public gateAngle: number = 0;
+    public sunPhi: number = 30;
+    public sunTheta: number = 180;
+    public sunPos: undefined;
+    public sunColor: number = 0x222222;
     public viewNormals: boolean = false;
     public static globalViewNormals = false; // FIXME!!!
+
+    public getAmbientLight(): number[] {
+        const b = this.sunColor % 256 / 256;
+        const g = (this.sunColor / 256) % 256 / 256;
+        const r = (this.sunColor / (256 * 256)) % 256 / 256;
+        return [r, g, b];
+    }
 }

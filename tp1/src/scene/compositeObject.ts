@@ -1,6 +1,7 @@
 // @ts-ignore
 import * as mat4 from "gl-matrix/esm/mat4";
 import {GlContext, GlProgram} from "../gl";
+import {LightManager} from "./lightManager";
 import SceneObject from "./sceneObject";
 
 export class CompositeObject extends SceneObject {
@@ -23,6 +24,12 @@ export class CompositeObject extends SceneObject {
         mat4.multiply(this.modelMatrix, parentMatrix, this.baseModelMatrix);
         for (const child of this.childList) {
             child.updateModelMatrix(this.modelMatrix);
+        }
+    }
+
+    public pushLights(lightManager: LightManager) {
+        for (const child of this.childList) {
+            child.pushLights(lightManager);
         }
     }
 

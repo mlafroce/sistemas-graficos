@@ -81,6 +81,10 @@ export default class RevolutionSurface extends Surface {
         }
     }
 
+    public render() {
+        super.render();
+    }
+
     public getTextureCoords(x: number, y: number): number[] {
         const texIdx = this.getIndexFromXY(x, y);
         return this.textureCoords[texIdx];

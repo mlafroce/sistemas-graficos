@@ -35,11 +35,11 @@ export default class Wall extends CompositeObject {
         // TODO: Improve with a linear path
         const path = CubicBezier.from3dPoints([0, 0, 0, 0, 0, 0.33, 0, 0, 0.66, 0, 0, 1], 2);
         const shape = CompositePath.fromPoints([
-            [0, 0, 0], [0, 1, 0], [0.25, 1, 0], [0.25, 0.5, 0],
-            [0.75, 0.5, 0], [0.75, 1, 0], [1, 1, 0], [1, 0, 0]]);
+            [0, 0, 0], [0, 0.99, 0], [0, 1, 0], [0.24, 1, 0], [0.25, 1, 0], [0.25, 0.51, 0], [0.25, 0.5, 0],
+            [0.74, 0.5, 0], [0.75, 0.5, 0], [0.75, 0.99, 0], [0.75, 1, 0], [0.99, 1, 0], [1, 1, 0], [1, 0, 0]]);
         const top = new SweepSurface(glContext, glProgram, shape, path);
         top.build();
-        top.textureList.push(TextureManager.getTexture("rock-02"));
+        top.textureList.push(TextureManager.getTexture("stone-02"));
         this.topObj = new SceneObject(glContext, glProgram, top);
         const objMatrix = mat4.create();
         mat4.fromTranslation(objMatrix, [-1, -1, 0]);
@@ -54,7 +54,7 @@ export default class Wall extends CompositeObject {
         const shape = CubicBezier.from2dPoints([[0, 1], [0, 0.6], [0.5, 0.4], [0.5, 0]], 8);
         const wall = new SweepSurface(glContext, glProgram, shape, path);
         wall.build();
-        wall.textureList.push(TextureManager.getTexture("rock"));
+        wall.textureList.push(TextureManager.getTexture("stone"));
         this.innerWallObj = new SceneObject(glContext, glProgram, wall);
         this.outerWallObj = new SceneObject(glContext, glProgram, wall);
         const wall2Matrix = mat4.create();

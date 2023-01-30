@@ -9,7 +9,6 @@ import RevolutionSurface from "../../shapes/revolutionSurface";
 import {CompositeObject} from "../compositeObject";
 import SceneObject from "../sceneObject";
 import Texture from "../texture";
-import TextureManager from "../textureManager";
 
 const kNoiseSamples = 64;
 
@@ -20,8 +19,8 @@ export default class Water extends CompositeObject {
 
     constructor(glContext: GlContext, glProgram: GlProgram) {
         super(glContext, glProgram);
-        const shape = CubicBezier.from2dPoints([[0.10, 0], [0.4, 0], [0.7, 0], [1, 0]], 8);
-        const water = new RevolutionSurface(glContext, glProgram, shape, Math.PI * 2, 9);
+        const shape = CubicBezier.from2dPoints([[0.10, 0.0], [0.4, 0], [0.7, 0], [1, 0]], 16);
+        const water = new RevolutionSurface(glContext, glProgram, shape, Math.PI * 2, 17);
         water.build();
         const waterObj = new SceneObject(glContext, glProgram, water);
         waterObj.baseColor = [0.2, 0.2, 0.8, 0.7];

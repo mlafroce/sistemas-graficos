@@ -3,8 +3,11 @@ import * as mat2 from "gl-matrix/esm/mat2";
 // @ts-ignore
 import * as mat4 from "gl-matrix/esm/mat4";
 import {GlContext, GlProgram} from "../../gl";
+import Cube from "../../shapes/cube";
 import {Config} from "../../utils";
 import {CompositeObject} from "../compositeObject";
+import SceneObject from "../sceneObject";
+import TextureManager from "../textureManager";
 import FortressDoor from "./fortressDoor";
 import Wall from "./wall";
 import WallTower from "./wallTower";
@@ -62,10 +65,10 @@ export default class FortressWall extends CompositeObject {
             this.addChild(wall);
         }
         // Entrance door
-        const door = new FortressDoor(this.glContext, this.glProgram, config, kWallWidth);
+        const wallLength = this.getWallLength(angleStep, kWallRadius);
+        const door = new FortressDoor(this.glContext, this.glProgram, config, kWallWidth, wallLength);
         const doorMatrix = mat4.create();
         mat4.fromZRotation(doorMatrix, -baseAngle);
-        const wallLength = this.getWallLength(angleStep, kWallRadius);
         mat4.translate(doorMatrix, doorMatrix, [kWallRadius, 0, 0]);
         const wallAngle = -(Math.PI - angleStep) / 2;
         mat4.rotateZ(doorMatrix, doorMatrix, wallAngle);

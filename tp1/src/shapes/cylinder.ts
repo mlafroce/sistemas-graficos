@@ -2,6 +2,7 @@ import {CompositePath} from "../curves/path";
 import {GlContext, GlProgram} from "../gl";
 import Renderable from "../scene/renderable";
 import RevolutionSurface from "./revolutionSurface";
+import Texture from "../scene/texture";
 
 export default class Cylinder implements Renderable {
     public readonly glContext: GlContext;
@@ -16,6 +17,11 @@ export default class Cylinder implements Renderable {
             [1, 0, 0], [0.99, 0, 0], [0, 0, 0]]);
         this.surface = new RevolutionSurface(glContext, glProgram, shape, Math.PI * 2, circlePoints);
         this.surface.build();
+    }
+
+    public setTexture(texture: Texture) {
+        this.surface.textureList.length = 0;
+        this.surface.textureList.push(texture);
     }
 
     public render() {
