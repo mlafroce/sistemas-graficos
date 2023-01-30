@@ -14,6 +14,7 @@ import Renderable from "./renderable";
 export default class SceneObject implements Renderable {
     public baseColor: vec4 = vec4.fromValues(0.6, 0.6, 0.6, 1);
     public shininess: number = 1;
+    public reflectionCoef: number = 0.5;
     public normalMatrix: mat3 = mat3.create();
     public modelMatrix: mat4 = mat4.create();
     public renderable: Renderable | undefined;
@@ -52,6 +53,8 @@ export default class SceneObject implements Renderable {
             this.glContext.gl.uniform4fv(baseColorLoc, this.baseColor);
             const shininessLoc = this.glProgram.getUniformLocation("shininess");
             this.glContext.gl.uniform1f(shininessLoc, this.shininess);
+            const reflectionCoefLoc = this.glProgram.getUniformLocation("reflectionCoef");
+            this.glContext.gl.uniform1f(reflectionCoefLoc, this.reflectionCoef);
             const textureMatrixLoc = this.glProgram.getUniformLocation("textureMatrix");
             this.glContext.gl.uniformMatrix2fv(textureMatrixLoc, false, this.textureMatrix);
             const viewNormalsLoc = this.glProgram.getUniformLocation("viewNormals");

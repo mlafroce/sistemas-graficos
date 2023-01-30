@@ -29,7 +29,8 @@ vec3 reflectionLight(vec3 torchPos) {
     float distanceFactor = max(1.0, 10.0 / length(torchPos - vPosition));
     float reflection = max(dot(reflectionNormal, eyeVec), 0.0);
     float reflectionIntensity = pow(reflection, shininess);
-    return torchLightColor * reflectionIntensity * distanceFactor;
+    float shininessAttenuation = (10.0 + shininess) / 60.0;
+    return torchLightColor * reflectionIntensity * distanceFactor * shininessAttenuation;
 }
 
 void main() {

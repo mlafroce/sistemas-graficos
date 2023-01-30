@@ -14,6 +14,7 @@ export class Config {
     public torchColor: number = 0xAA9988;
     public ambientColor: number = 0x333333;
     public waterShininess: number = 50;
+    public doorReflectiveness: number = 2;
     public viewNormals: boolean = false;
     public static globalViewNormals = false; // FIXME!!!
 

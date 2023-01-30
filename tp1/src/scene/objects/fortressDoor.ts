@@ -64,7 +64,8 @@ export default class FortressDoor extends CompositeObject {
         door.scaleAxisTextures(2, 0.1, 1);
         const doorObj = new SceneObject(glContext, glProgram, door);
         doorObj.textureMatrix = [0, 1, 1, 0];
-        doorObj.shininess = 25;
+        doorObj.shininess = 10;
+        doorObj.reflectionCoef = config.doorReflectiveness;
         door.scaleAxisTextures(0, 1, 0.1);
         const doorMatrix = mat4.create();
         mat4.fromTranslation(doorMatrix, [0.45, 0, 0]);

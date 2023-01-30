@@ -13,8 +13,8 @@ export interface Camera {
 export class FirstPersonCamera implements Camera {
     private cursorX: number = 0;
     private cursorY: number = 0;
-    private angleX: number = 0;
-    private angleY: number = 0;
+    private angleX: number;
+    private angleY: number;
     private position: vec3;
     private mouseDown: boolean = false;
     private readonly cameraSpeed: number = 100;
@@ -22,11 +22,12 @@ export class FirstPersonCamera implements Camera {
     private readonly keyboardSpeed: number = 0.2;
 
     constructor() {
-        this.angleX = Math.PI / 2;
-        this.angleY = -30 * Math.PI / 180;
+        this.angleX = 2 * Math.PI / 3;
+        this.angleY = -20 * Math.PI / 180;
         this.position = vec3.create();
-        this.position[1] = -5;
-        this.position[2] = 2;
+        this.position[0] = 10;
+        this.position[1] = -6;
+        this.position[2] = 3;
     }
 
     public wheelListener(e: WheelEvent) {

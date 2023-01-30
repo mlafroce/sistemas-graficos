@@ -29,7 +29,7 @@ export default class Sky extends CompositeObject {
         const matrix = mat4.create();
         mat4.fromScaling(matrix, [6, 6, 6]);
         mat4.rotateZ(matrix, matrix, Math.PI * config.sunTheta / 180);
-        mat4.rotateX(matrix, matrix, - Math.PI * config.sunPhi / 180);
+        mat4.rotateX(matrix, matrix, Math.PI * config.sunPhi / 180);
 
         const sunPos = vec3.fromValues(0, 0, 100);
         vec3.transformMat4(sunPos, sunPos, matrix);
