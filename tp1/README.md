@@ -1,4 +1,8 @@
-# Trabajo práctico 1
+# Trabajo práctico individual
+
+La primera entrega (TP1) está en el branch **tp1**
+
+La segunda entrega (TP2) está en el branch **tp2** y **master**
 
 ## Compilación
 
