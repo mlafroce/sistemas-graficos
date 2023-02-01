@@ -19,15 +19,14 @@ export default class Sky extends CompositeObject {
         this.sphereObj = new SceneObject(glContext, glProgram, sphere);
         sphere.textureList.push(TextureManager.getTexture("sky"));
 
-        const matrix = mat4.create();
-        mat4.fromScaling(matrix, [6, 6, 6]);
         this.onConfigChanged(config);
         this.addChild(this.sphereObj);
     }
 
     public onConfigChanged(config: Config) {
         const matrix = mat4.create();
-        mat4.fromScaling(matrix, [6, 6, 6]);
+        mat4.fromScaling(matrix, [10, 10, 10]);
+        mat4.translate(matrix, matrix, [0, 0, -2]);
         mat4.rotateZ(matrix, matrix, Math.PI * config.sunTheta / 180);
         mat4.rotateX(matrix, matrix, Math.PI * config.sunPhi / 180);
 

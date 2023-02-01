@@ -39,7 +39,8 @@ vec3 reflectionLight(vec3 torchPos) {
     vec3 reflectionNormal = 2.0 * max(dot(lightVec, vNormal), 0.0) * vNormal - lightVec;
     vec3 eyeVec = normalize(eyePos - vPosition);
     float torchDistance = length(torchPos - vPosition);
-    float reflection = max(dot(reflectionNormal, eyeVec), 0.0);
+    float materialReflection = (1.2 - texture2D(uSampler, vTextureCoord).a) * 5.0;
+    float reflection = max(dot(reflectionNormal, eyeVec), 0.0) * materialReflection;
     float reflectionIntensity = pow(reflection, shininess) * reflectionCoef;
     return torchLightColor * reflectionIntensity / max(torchDistance, 1.0);
 }
@@ -58,7 +59,7 @@ void main() {
     if (nTextures > 0 ) {
         vec2 wrappedTextureCoord = textureMatrix * vTextureCoord;
         vec4 textureColor = texture2D(uSampler, wrappedTextureCoord).rgba;
-        outputColor = vec4(light * textureColor.rgb, textureColor.a);
+        outputColor = vec4(light * textureColor.rgb, max(textureColor.a, length(light)));
     } else {
         outputColor = vec4(light * modelColor.rgb, 1);
     }

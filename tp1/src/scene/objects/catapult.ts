@@ -1,5 +1,7 @@
 // @ts-ignore
 import * as mat4 from "gl-matrix/esm/mat4";
+// @ts-ignore
+import * as vec3 from "gl-matrix/esm/vec3";
 import {GlContext, GlProgram} from "../../gl";
 import Cube from "../../shapes/cube";
 import Cylinder from "../../shapes/cylinder";
@@ -8,6 +10,7 @@ import {Config} from "../../utils";
 import {CompositeObject} from "../compositeObject";
 import SceneObject from "../sceneObject";
 import TextureManager from "../textureManager";
+import {LightManager} from "../lightManager";
 
 const kWheels = 4;
 const kWheelDistance = 5;
@@ -152,6 +155,12 @@ export default class Catapult extends CompositeObject {
         sphere.textureList.push(TextureManager.getTexture("rock"));
         const sphereObj = new SceneObject(glContext, glProgram, sphere);
         return sphereObj;
+    }
+
+    public pushLights(lightManager: LightManager) {
+        const lightPos = vec3.fromValues(0, 0, 0);
+        vec3.transformMat4(lightPos, lightPos, this.rock!.modelMatrix);
+        lightManager.registerLight(lightPos);
     }
 }
 

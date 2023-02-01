@@ -74,7 +74,6 @@ export class Square implements Renderable {
 
         const nTexturesLoc = this.glProgram.getUniformLocation("nTextures");
         gl.uniform1i(nTexturesLoc, this.nTextures);
-
         this.indexBuffer.bindBuffer();
         gl.drawElements(gl.TRIANGLE_STRIP, this.indexes.length, gl.UNSIGNED_SHORT, 0);
     }

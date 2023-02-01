@@ -126,7 +126,7 @@ export default class Scene {
         this.water = new Water(this.glContext, waterProgram);
         const objMatrix = mat4.create();
         mat4.fromScaling(objMatrix, [12, 12, 1]);
-        mat4.translate(objMatrix, objMatrix, [0, 0, -0.25]);
+        mat4.translate(objMatrix, objMatrix, [0, 0, -0.2]);
         this.water.baseModelMatrix = objMatrix;
         this.renderableList.push(this.water);
 
@@ -162,7 +162,7 @@ export default class Scene {
             const eyePos = this.camera.getPosition();
             const projMatrix = mat4.create();
             mat4.identity(projMatrix);
-            mat4.perspective(projMatrix, 45, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
+            mat4.perspective(projMatrix, 20, gl.canvas.width / gl.canvas.height, 0.01, 200.0);
 
             const sunLightLoc = glProgram.getUniformLocation("sunLightPos");
             const sunPos = this.config.sunPos;
@@ -205,6 +205,11 @@ export default class Scene {
 
         const skyProgram = ShaderManager.getProgram("sky");
         skyProgram.onActivate = (glProgram: GlProgram) => {
+            baseProgram.onActivate(glProgram);
+        };
+
+        const windowProgram = ShaderManager.getProgram("window");
+        windowProgram.onActivate = (glProgram: GlProgram) => {
             baseProgram.onActivate(glProgram);
         };
     }

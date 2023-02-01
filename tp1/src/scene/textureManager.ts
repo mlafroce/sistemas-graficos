@@ -21,6 +21,7 @@ export default class TextureManager {
         this.textureMap.set("blue-tile", new Texture(glContext, "textures/blue-tile.png"));
         this.textureMap.set("sky", new Texture(glContext, "textures/sky.png"));
         this.textureMap.set("wheel", new Texture(glContext, "textures/wheel.png"));
+        this.textureMap.set("window", new Texture(glContext, "textures/window.png"));
         this.textureMap.set("yellow-stone", new Texture(glContext, "textures/yellow-stone.png"));
     }
 

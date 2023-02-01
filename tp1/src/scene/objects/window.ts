@@ -6,6 +6,8 @@ import Cube from "../../shapes/cube";
 import RevolutionSurface from "../../shapes/revolutionSurface";
 import {CompositeObject} from "../compositeObject";
 import SceneObject from "../sceneObject";
+import TextureManager from "../textureManager";
+import ShaderManager from "../shaderManager";
 
 export default class Window extends CompositeObject {
     constructor(glContext: GlContext, glProgram: GlProgram) {
@@ -18,9 +20,17 @@ export default class Window extends CompositeObject {
         mat4.fromTranslation(mMatrix, [0.5, 1, 0]);
         topObj.baseModelMatrix = mMatrix;
         this.addChild(topObj);
-        const window = new Cube(glContext, glProgram);
+        const windowProgram = ShaderManager.getProgram("window");
+        const window = new Cube(glContext, windowProgram);
+        window.texture = TextureManager.getTexture("window");
 
         const windowObj = new SceneObject(glContext, glProgram, window);
+        windowObj.setProgram(ShaderManager.getProgram("window"));
+        windowObj.reflectionCoef = 5;
         this.addChild(windowObj);
+    }
+
+    public render() {
+        super.render();
     }
 }

@@ -31,6 +31,7 @@ async function main() {
     initShader("fragment-normal", "./shaders/fragment-normal.glsl", false, context),
     initShader("fragment-water", "./shaders/fragment-water.glsl", false, context),
     initShader("fragment-sky", "./shaders/fragment-sky.glsl", false, context),
+    initShader("fragment-window", "./shaders/fragment-window.glsl", false, context),
     initShader("vertex-fire", "./shaders/vertex-fire.glsl", true, context),
     initShader("vertex-base", "./shaders/vertex-base.glsl", true, context),
     initShader("vertex-water", "./shaders/vertex-water.glsl", true, context),

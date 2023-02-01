@@ -38,8 +38,8 @@ export class GlContext {
         }
     }
 
-    public createProgram(vertexShader: WebGLShader, fragmentShader: WebGLShader) {
-        const program = new GlProgram(this.gl);
+    public createProgram(vertexShader: WebGLShader, fragmentShader: WebGLShader, name: string) {
+        const program = new GlProgram(this.gl, name);
         program.attachShader(vertexShader).attachShader(fragmentShader);
         const success = program.link();
         if (success) {
@@ -84,7 +84,7 @@ export class GlProgram {
     public onActivate: (glProgram: GlProgram) => void;
     private readonly gl: WebGLRenderingContext;
 
-    constructor(gl: WebGLRenderingContext) {
+    constructor(gl: WebGLRenderingContext, private name: string) {
         this.gl = gl;
         this.program = gl.createProgram()!;
         this.onActivate = () => { return; };

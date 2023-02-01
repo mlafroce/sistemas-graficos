@@ -5,6 +5,7 @@ import * as vec3 from "gl-matrix/esm/vec3";
 // @ts-ignore
 import * as vec4 from "gl-matrix/esm/vec4";
 import {Camera} from "./firstPersonCamera";
+import {LightManager} from "../lightManager";
 
 export class OrbitalCamera implements Camera {
     private readonly cameraSpeed: number = 100;
@@ -14,9 +15,10 @@ export class OrbitalCamera implements Camera {
     private xRotation: number = 0;
     private zRotation: number = 0;
     private center: vec3;
+    private counter: number = 0;
 
     constructor() {
-        this.basePosition = vec3.fromValues(0, 10, -5);
+        this.basePosition = vec3.fromValues(0, 10, -0.5);
         this.center = vec3.fromValues(0, 0, 0);
         this.up = vec3.fromValues(0, 0, 1);
     }
@@ -25,7 +27,6 @@ export class OrbitalCamera implements Camera {
         const deltaPos = e.deltaY / this.cameraSpeed;
         if ((deltaPos > 0 && this.basePosition[1] > 2) || (deltaPos < 0 && this.basePosition[1] < 30)) {
             this.basePosition[1] -= deltaPos;
-            this.basePosition[2] += deltaPos / 2;
         }
     }
 
@@ -35,7 +36,7 @@ export class OrbitalCamera implements Camera {
 
     public mousemoveListener(e: MouseEvent) {
         if (this.mouseDown) {
-            if ((this.xRotation > -0.3 || e.movementY > 0) && (this.xRotation < 1 || e.movementY < 0)) {
+            if ((this.xRotation > 0 || e.movementY > 0) && (this.xRotation < 1 || e.movementY < 0)) {
                 this.xRotation = (this.xRotation + e.movementY / this.cameraSpeed) % Math.PI;
             }
             this.zRotation += e.movementX / this.cameraSpeed;
@@ -73,11 +74,14 @@ export class OrbitalCamera implements Camera {
     public getPosition(): vec3 {
         const matrix = mat4.create();
         mat4.identity(matrix);
-        mat4.lookAt(matrix, [0, 0, 0], this.basePosition, this.up);
-        mat4.rotateX(matrix, matrix, this.xRotation);
+        const negCenter = vec3.create();
+        vec3.scale(negCenter, this.center, -1);
+        mat4.translate(matrix, matrix, negCenter);
         mat4.rotateZ(matrix, matrix, this.zRotation);
-        mat4.translate(matrix, matrix, this.center);
+        mat4.rotateX(matrix, matrix, this.xRotation);
         const pos = vec3.create();
-        return vec3.transformMat4(pos, this.basePosition, matrix);
+        vec3.transformMat4(pos, this.basePosition, matrix);
+        pos[1] = - pos[1];
+        return pos;
     }
 }

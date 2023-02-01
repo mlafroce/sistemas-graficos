@@ -4,6 +4,7 @@ import * as mat4 from "gl-matrix/esm/mat4";
 import * as vec3 from "gl-matrix/esm/vec3";
 // @ts-ignore
 import * as vec4 from "gl-matrix/esm/vec4";
+import {LightManager} from "../lightManager";
 
 export interface Camera {
     getMatrix(): mat4;
@@ -132,6 +133,7 @@ export class FirstPersonCamera implements Camera {
     }
 
     public getPosition(): vec3 {
+        console.log("position: ", this.position);
         return this.position;
     }
 }
