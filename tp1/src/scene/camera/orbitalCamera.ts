@@ -12,13 +12,13 @@ export class OrbitalCamera implements Camera {
     private mouseDown: boolean = false;
     private basePosition: vec3;
     private up: vec3;
-    private xRotation: number = 0;
+    private xRotation: number = 0.2;
     private zRotation: number = 0;
     private center: vec3;
     private counter: number = 0;
 
     constructor() {
-        this.basePosition = vec3.fromValues(0, 10, -0.5);
+        this.basePosition = vec3.fromValues(0, 10, 0);
         this.center = vec3.fromValues(0, 0, 0);
         this.up = vec3.fromValues(0, 0, 1);
     }
@@ -36,7 +36,7 @@ export class OrbitalCamera implements Camera {
 
     public mousemoveListener(e: MouseEvent) {
         if (this.mouseDown) {
-            if ((this.xRotation > 0 || e.movementY > 0) && (this.xRotation < 1 || e.movementY < 0)) {
+            if ((this.xRotation > 0.1  || e.movementY > 0) && (this.xRotation < 1 || e.movementY < 0)) {
                 this.xRotation = (this.xRotation + e.movementY / this.cameraSpeed) % Math.PI;
             }
             this.zRotation += e.movementX / this.cameraSpeed;
