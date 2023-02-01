@@ -8635,10 +8635,10 @@ class OrbitalCamera {
     constructor() {
         this.cameraSpeed = 100;
         this.mouseDown = false;
-        this.xRotation = 0;
+        this.xRotation = 0.2;
         this.zRotation = 0;
         this.counter = 0;
-        this.basePosition = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.fromValues(0, 10, -0.5);
+        this.basePosition = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.fromValues(0, 10, 0);
         this.center = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.fromValues(0, 0, 0);
         this.up = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.fromValues(0, 0, 1);
     }
@@ -8653,7 +8653,7 @@ class OrbitalCamera {
     }
     mousemoveListener(e) {
         if (this.mouseDown) {
-            if ((this.xRotation > 0 || e.movementY > 0) && (this.xRotation < 1 || e.movementY < 0)) {
+            if ((this.xRotation > 0.1 || e.movementY > 0) && (this.xRotation < 1 || e.movementY < 0)) {
                 this.xRotation = (this.xRotation + e.movementY / this.cameraSpeed) % Math.PI;
             }
             this.zRotation += e.movementX / this.cameraSpeed;
