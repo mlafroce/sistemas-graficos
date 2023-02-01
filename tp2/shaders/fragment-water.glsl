@@ -5,7 +5,7 @@ uniform sampler2D noise2Sampler;
 uniform bool viewNormals;
 uniform vec4 modelColor;     // color default
 uniform float clockTick;
-uniform vec3 lightList[2];
+uniform vec3 lightList[3];
 uniform vec3 ambientLightColor;
 uniform vec3 sunLightColor;
 uniform vec3 torchLightColor;
@@ -24,8 +24,8 @@ vec3 directionalLight() {
 
 vec3 reflectionLight(vec3 torchPos) {
     vec3 lightVec = normalize(torchPos - vPosition);
-    vec3 reflectionNormal = 2.0 * dot(lightVec, vNormal) * vNormal - lightVec;
-    vec3 eyeVec = normalize(eyePos * 0.8 - vPosition);
+    vec3 reflectionNormal = 2.0 * dot(lightVec, vNormal) * normalize(vNormal) - lightVec;
+    vec3 eyeVec = normalize(eyePos - vPosition);
     float distanceFactor = max(1.0, 10.0 / length(torchPos - vPosition));
     float reflection = max(dot(reflectionNormal, eyeVec), 0.0);
     float reflectionIntensity = pow(reflection, shininess);
@@ -44,8 +44,9 @@ void main() {
     vec3 sunLight = directionalLight();
 
     vec3 torchLight = vec3(0, 0, 0);
-    for (int i = 0; i < 2; i++) {
-        vec3 torchPos = lightList[i];
+    for (int i = 0; i < 3; i++) {
+        // Don't know why but torch X seems to be miscalculated
+        vec3 torchPos = lightList[i] * vec3(0.7, 1, 1);
         torchLight += reflectionLight(torchPos);
     }
 

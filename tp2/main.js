@@ -8334,8 +8334,8 @@ class GlContext {
             throw new Error("Shader failed to load");
         }
     }
-    createProgram(vertexShader, fragmentShader) {
-        const program = new GlProgram(this.gl);
+    createProgram(vertexShader, fragmentShader, name) {
+        const program = new GlProgram(this.gl, name);
         program.attachShader(vertexShader).attachShader(fragmentShader);
         const success = program.link();
         if (success) {
@@ -8370,7 +8370,8 @@ class GlContext {
     }
 }
 class GlProgram {
-    constructor(gl) {
+    constructor(gl, name) {
+        this.name = name;
         this.gl = gl;
         this.program = gl.createProgram();
         this.onActivate = () => { return; };
@@ -8606,6 +8607,7 @@ class FirstPersonCamera {
         return matrix;
     }
     getPosition() {
+        console.log("position: ", this.position);
         return this.position;
     }
 }
@@ -8635,7 +8637,8 @@ class OrbitalCamera {
         this.mouseDown = false;
         this.xRotation = 0;
         this.zRotation = 0;
-        this.basePosition = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.fromValues(0, 10, -5);
+        this.counter = 0;
+        this.basePosition = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.fromValues(0, 10, -0.5);
         this.center = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.fromValues(0, 0, 0);
         this.up = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.fromValues(0, 0, 1);
     }
@@ -8643,7 +8646,6 @@ class OrbitalCamera {
         const deltaPos = e.deltaY / this.cameraSpeed;
         if ((deltaPos > 0 && this.basePosition[1] > 2) || (deltaPos < 0 && this.basePosition[1] < 30)) {
             this.basePosition[1] -= deltaPos;
-            this.basePosition[2] += deltaPos / 2;
         }
     }
     mousedownListener(e) {
@@ -8651,7 +8653,7 @@ class OrbitalCamera {
     }
     mousemoveListener(e) {
         if (this.mouseDown) {
-            if ((this.xRotation > -0.3 || e.movementY > 0) && (this.xRotation < 1 || e.movementY < 0)) {
+            if ((this.xRotation > 0 || e.movementY > 0) && (this.xRotation < 1 || e.movementY < 0)) {
                 this.xRotation = (this.xRotation + e.movementY / this.cameraSpeed) % Math.PI;
             }
             this.zRotation += e.movementX / this.cameraSpeed;
@@ -8684,12 +8686,15 @@ class OrbitalCamera {
     getPosition() {
         const matrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.create();
         gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.identity(matrix);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.lookAt(matrix, [0, 0, 0], this.basePosition, this.up);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.rotateX(matrix, matrix, this.xRotation);
+        const negCenter = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.create();
+        gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.scale(negCenter, this.center, -1);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.translate(matrix, matrix, negCenter);
         gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.rotateZ(matrix, matrix, this.zRotation);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.translate(matrix, matrix, this.center);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_1__.rotateX(matrix, matrix, this.xRotation);
         const pos = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.create();
-        return gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.transformMat4(pos, this.basePosition, matrix);
+        gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_0__.transformMat4(pos, this.basePosition, matrix);
+        pos[1] = -pos[1];
+        return pos;
     }
 }
 
@@ -9076,12 +9081,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ Catapult)
 /* harmony export */ });
 /* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! gl-matrix/esm/vec3 */ "./node_modules/gl-matrix/esm/vec3.js");
 /* harmony import */ var _shapes_cube__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../shapes/cube */ "./src/shapes/cube.ts");
 /* harmony import */ var _shapes_cylinder__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../shapes/cylinder */ "./src/shapes/cylinder.ts");
 /* harmony import */ var _shapes_sphere__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../shapes/sphere */ "./src/shapes/sphere.ts");
 /* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
 /* harmony import */ var _sceneObject__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../sceneObject */ "./src/scene/sceneObject.ts");
 /* harmony import */ var _textureManager__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../textureManager */ "./src/scene/textureManager.ts");
+// @ts-ignore
+
 // @ts-ignore
 
 
@@ -9211,6 +9219,11 @@ class Catapult extends _compositeObject__WEBPACK_IMPORTED_MODULE_3__.CompositeOb
         sphere.textureList.push(_textureManager__WEBPACK_IMPORTED_MODULE_5__["default"].getTexture("rock"));
         const sphereObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, sphere);
         return sphereObj;
+    }
+    pushLights(lightManager) {
+        const lightPos = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_7__.fromValues(0, 0, 0);
+        gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_7__.transformMat4(lightPos, lightPos, this.rock.modelMatrix);
+        lightManager.registerLight(lightPos);
     }
 }
 class CatapultFrame extends _compositeObject__WEBPACK_IMPORTED_MODULE_3__.CompositeObject {
@@ -9593,14 +9606,13 @@ class Sky extends _compositeObject__WEBPACK_IMPORTED_MODULE_1__.CompositeObject 
         sphere.build();
         this.sphereObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_2__["default"](glContext, glProgram, sphere);
         sphere.textureList.push(_textureManager__WEBPACK_IMPORTED_MODULE_3__["default"].getTexture("sky"));
-        const matrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromScaling(matrix, [6, 6, 6]);
         this.onConfigChanged(config);
         this.addChild(this.sphereObj);
     }
     onConfigChanged(config) {
         const matrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromScaling(matrix, [6, 6, 6]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.fromScaling(matrix, [10, 10, 10]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.translate(matrix, matrix, [0, 0, -2]);
         gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.rotateZ(matrix, matrix, Math.PI * config.sunTheta / 180);
         gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_4__.rotateX(matrix, matrix, Math.PI * config.sunPhi / 180);
         const sunPos = gl_matrix_esm_vec3__WEBPACK_IMPORTED_MODULE_5__.fromValues(0, 0, 100);
@@ -9882,13 +9894,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Window)
 /* harmony export */ });
-/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
+/* harmony import */ var gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! gl-matrix/esm/mat4 */ "./node_modules/gl-matrix/esm/mat4.js");
 /* harmony import */ var _curves_path__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../curves/path */ "./src/curves/path.ts");
 /* harmony import */ var _shapes_cube__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../shapes/cube */ "./src/shapes/cube.ts");
 /* harmony import */ var _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../shapes/revolutionSurface */ "./src/shapes/revolutionSurface.ts");
 /* harmony import */ var _compositeObject__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../compositeObject */ "./src/scene/compositeObject.ts");
 /* harmony import */ var _sceneObject__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../sceneObject */ "./src/scene/sceneObject.ts");
+/* harmony import */ var _textureManager__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../textureManager */ "./src/scene/textureManager.ts");
+/* harmony import */ var _shaderManager__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../shaderManager */ "./src/scene/shaderManager.ts");
 // @ts-ignore
+
+
 
 
 
@@ -9902,13 +9918,20 @@ class Window extends _compositeObject__WEBPACK_IMPORTED_MODULE_3__.CompositeObje
         const top = new _shapes_revolutionSurface__WEBPACK_IMPORTED_MODULE_2__["default"](glContext, glProgram, topShape, Math.PI, 10);
         top.build();
         const topObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, top);
-        const mMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.create();
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_5__.fromTranslation(mMatrix, [0.5, 1, 0]);
+        const mMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__.create();
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_7__.fromTranslation(mMatrix, [0.5, 1, 0]);
         topObj.baseModelMatrix = mMatrix;
         this.addChild(topObj);
-        const window = new _shapes_cube__WEBPACK_IMPORTED_MODULE_1__["default"](glContext, glProgram);
+        const windowProgram = _shaderManager__WEBPACK_IMPORTED_MODULE_6__["default"].getProgram("window");
+        const window = new _shapes_cube__WEBPACK_IMPORTED_MODULE_1__["default"](glContext, windowProgram);
+        window.texture = _textureManager__WEBPACK_IMPORTED_MODULE_5__["default"].getTexture("window");
         const windowObj = new _sceneObject__WEBPACK_IMPORTED_MODULE_4__["default"](glContext, glProgram, window);
+        windowObj.setProgram(_shaderManager__WEBPACK_IMPORTED_MODULE_6__["default"].getProgram("window"));
+        windowObj.reflectionCoef = 5;
         this.addChild(windowObj);
+    }
+    render() {
+        super.render();
     }
 }
 
@@ -10030,7 +10053,7 @@ class Scene {
         this.water = new _objects_water__WEBPACK_IMPORTED_MODULE_6__["default"](this.glContext, waterProgram);
         const objMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_9__.create();
         gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_9__.fromScaling(objMatrix, [12, 12, 1]);
-        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_9__.translate(objMatrix, objMatrix, [0, 0, -0.25]);
+        gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_9__.translate(objMatrix, objMatrix, [0, 0, -0.2]);
         this.water.baseModelMatrix = objMatrix;
         this.renderableList.push(this.water);
         this.sky = new _objects_sky__WEBPACK_IMPORTED_MODULE_8__["default"](this.glContext, skyProgram, this.config);
@@ -10062,7 +10085,7 @@ class Scene {
             const eyePos = this.camera.getPosition();
             const projMatrix = gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_9__.create();
             gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_9__.identity(projMatrix);
-            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_9__.perspective(projMatrix, 45, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
+            gl_matrix_esm_mat4__WEBPACK_IMPORTED_MODULE_9__.perspective(projMatrix, 20, gl.canvas.width / gl.canvas.height, 0.01, 200.0);
             const sunLightLoc = glProgram.getUniformLocation("sunLightPos");
             const sunPos = this.config.sunPos;
             // @ts-ignore
@@ -10099,6 +10122,10 @@ class Scene {
         };
         const skyProgram = _shaderManager__WEBPACK_IMPORTED_MODULE_7__["default"].getProgram("sky");
         skyProgram.onActivate = (glProgram) => {
+            baseProgram.onActivate(glProgram);
+        };
+        const windowProgram = _shaderManager__WEBPACK_IMPORTED_MODULE_7__["default"].getProgram("window");
+        windowProgram.onActivate = (glProgram) => {
             baseProgram.onActivate(glProgram);
         };
     }
@@ -10207,11 +10234,12 @@ class ShaderManager {
         this.shaderMap.set(name, glShader);
     }
     static initPrograms(context) {
-        this.programMap.set("base", context.createProgram(this.shaderMap.get("vertex-base"), this.shaderMap.get("fragment-base")));
-        this.programMap.set("grass", context.createProgram(this.shaderMap.get("vertex-base"), this.shaderMap.get("fragment-grass")));
-        this.programMap.set("water", context.createProgram(this.shaderMap.get("vertex-water"), this.shaderMap.get("fragment-water")));
-        this.programMap.set("fire", context.createProgram(this.shaderMap.get("vertex-fire"), this.shaderMap.get("fragment-fire")));
-        this.programMap.set("sky", context.createProgram(this.shaderMap.get("vertex-base"), this.shaderMap.get("fragment-sky")));
+        this.programMap.set("base", context.createProgram(this.shaderMap.get("vertex-base"), this.shaderMap.get("fragment-base"), "base"));
+        this.programMap.set("grass", context.createProgram(this.shaderMap.get("vertex-base"), this.shaderMap.get("fragment-grass"), "grass"));
+        this.programMap.set("water", context.createProgram(this.shaderMap.get("vertex-water"), this.shaderMap.get("fragment-water"), "water"));
+        this.programMap.set("fire", context.createProgram(this.shaderMap.get("vertex-fire"), this.shaderMap.get("fragment-fire"), "fire"));
+        this.programMap.set("sky", context.createProgram(this.shaderMap.get("vertex-base"), this.shaderMap.get("fragment-sky"), "sky"));
+        this.programMap.set("window", context.createProgram(this.shaderMap.get("vertex-base"), this.shaderMap.get("fragment-window"), "window"));
     }
     static getProgram(name) {
         return this.programMap.get(name);
@@ -10318,6 +10346,7 @@ class TextureManager {
         this.textureMap.set("blue-tile", new _texture__WEBPACK_IMPORTED_MODULE_0__["default"](glContext, "textures/blue-tile.png"));
         this.textureMap.set("sky", new _texture__WEBPACK_IMPORTED_MODULE_0__["default"](glContext, "textures/sky.png"));
         this.textureMap.set("wheel", new _texture__WEBPACK_IMPORTED_MODULE_0__["default"](glContext, "textures/wheel.png"));
+        this.textureMap.set("window", new _texture__WEBPACK_IMPORTED_MODULE_0__["default"](glContext, "textures/window.png"));
         this.textureMap.set("yellow-stone", new _texture__WEBPACK_IMPORTED_MODULE_0__["default"](glContext, "textures/yellow-stone.png"));
     }
     static getTexture(name) {
@@ -10863,7 +10892,7 @@ class Config {
         this.nWalls = 4;
         this.wallHeight = 1.5;
         this.catapultAngle = 0;
-        this.cameraType = 0;
+        this.cameraType = 1;
         this.gateAngle = 0;
         this.sunPhi = 30;
         this.sunTheta = 180;
@@ -10995,6 +11024,7 @@ async function main() {
         initShader("fragment-normal", "./shaders/fragment-normal.glsl", false, context),
         initShader("fragment-water", "./shaders/fragment-water.glsl", false, context),
         initShader("fragment-sky", "./shaders/fragment-sky.glsl", false, context),
+        initShader("fragment-window", "./shaders/fragment-window.glsl", false, context),
         initShader("vertex-fire", "./shaders/vertex-fire.glsl", true, context),
         initShader("vertex-base", "./shaders/vertex-base.glsl", true, context),
         initShader("vertex-water", "./shaders/vertex-water.glsl", true, context),

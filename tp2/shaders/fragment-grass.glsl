@@ -5,11 +5,13 @@ uniform sampler2D soilSampler;
 uniform sampler2D noiseSampler;
 uniform bool viewNormals;
 
-uniform vec3 lightList[2];
+uniform vec3 lightList[3];
 uniform vec3 ambientLightColor;
 uniform vec3 sunLightColor;
 uniform vec3 torchLightColor;
 uniform vec3 sunLightPos;
+uniform vec3 eyePos;
+uniform float shininess;
 
 varying vec3 vPosition;
 varying vec3 vNormal;
@@ -32,7 +34,7 @@ vec3 diffuseLight(vec3 torchPos, float distanceFactor) {
 
 void main() {
     vec3 torchLight = vec3(0,0,0);
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 3; i++) {
         vec3 torchPos = lightList[i];
         torchLight += diffuseLight(torchPos, 0.25);
     }
