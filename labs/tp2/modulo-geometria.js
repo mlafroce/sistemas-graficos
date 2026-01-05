@@ -26,7 +26,7 @@
 */
 
 
-var superficie3D;
+var superficie3D = new Plano(1,1);
 var mallaDeTriangulos;
 
 var filas=50;
@@ -38,26 +38,24 @@ const cuerpos = {
     "tubo_senoidal": new TuboSenoidal(0.2, 1, 1, 5),
 }
 
-function crearGeometrias(){
-    superficie3D = cuerpos["tubo_senoidal"];
-    mallaDeTriangulos=generarSuperficie(superficie3D,filas,columnas);
+function crearGeometrias(cuerpo){
+    superficie3D = cuerpos[cuerpo];
+    mallaDeTriangulos = generarSuperficie(superficie3D,filas,columnas);
 }
 
-function dibujarGeometria(cuerpo){
-    superficie3D = cuerpos[cuerpo];
+function dibujarGeometria(){
     dibujarMalla(mallaDeTriangulos);
-
 }
 
 
 function TuboSenoidal(amplitudOnda, longitudOnda, radio, altura){
 
-    this.getPosicion=function(u,v){
+    this.getPosicion = function(u,v){
         const longitudOndaNorm = longitudOnda;
         const waveRadio = radio + amplitudOnda * Math.cos(2 * Math.PI * v / longitudOndaNorm * altura);
-        const x= waveRadio * Math.cos(2 * Math.PI * u);
-        const y= waveRadio * Math.sin(2 * Math.PI * u);
-        const z= v * altura;
+        const x = waveRadio * Math.cos(2 * Math.PI * u);
+        const y = waveRadio * Math.sin(2 * Math.PI * u);
+        const z = v * altura;
         return [x,y,z];
     }
 
@@ -78,18 +76,18 @@ function Esfera(radio){
     this.getPosicion=function(u,v){
         const centerU = u - 0.5;
         const centerV = v - 0.5;
-        const x= radio * Math.cos(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
-        const y= radio * Math.sin(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
-        const z= radio * Math.sin(Math.PI * centerV);
+        const x = radio * Math.cos(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
+        const y = radio * Math.sin(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
+        const z = radio * Math.sin(Math.PI * centerV);
         return [x,y,z];
     }
 
     this.getNormal=function(u,v){
         const centerU = u - 0.5;
         const centerV = v - 0.5;
-        const x= Math.cos(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
-        const y= Math.sin(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
-        const z= Math.sin(Math.PI * centerV);
+        const x = Math.cos(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
+        const y = Math.sin(2 * Math.PI * centerU) * Math.cos(Math.PI * centerV);
+        const z = Math.sin(Math.PI * centerV);
         return [x,y,z];
     }
 
@@ -101,17 +99,16 @@ function Esfera(radio){
 function Plano(ancho,largo){
 
     this.getPosicion=function(u,v){
-
-        var x=(u-0.5)*ancho;
-        var z=(v-0.5)*largo;
+        var x = (u-0.5)*ancho;
+        var z = (v-0.5)*largo;
         return [x,0,z];
     }
 
-    this.getNormal=function(u,v){
+    this.getNormal = function(u,v){
         return [0,1,0];
     }
 
-    this.getCoordenadasTextura=function(u,v){
+    this.getCoordenadasTextura = function(u,v){
         return [u,v];
     }
 }
@@ -234,4 +231,3 @@ function dibujarMalla(mallaDeTriangulos){
     }
  
 }
-
